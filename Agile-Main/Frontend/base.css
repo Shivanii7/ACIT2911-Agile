@@ -136,12 +136,6 @@ header input[type="search"] {
     border-radius: 10px;
 }
 
-.chart-placeholder {
-    height: 200px;
-    background-color: #ebf0f7;
-    border-radius: 10px;
-}
-
 .history-section ul {
     list-style-type: none;
     padding: 0;

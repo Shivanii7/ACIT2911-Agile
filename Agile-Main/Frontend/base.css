@@ -1,0 +1,157 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5;
+}
+
+.dashboard {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 60px;
+    background-color: #232a34;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+}
+
+.logo {
+    font-size: 24px;
+    margin-bottom: 40px;
+    color: #fff;
+}
+
+.sidebar nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar nav ul li {
+    margin: 20px 0;
+}
+
+.sidebar nav ul li a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+}
+
+.sidebar nav ul li a.active {
+    color: #00bc77;
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 15px;
+    margin: 20px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 1.5em;
+    color: #333;
+}
+
+header input[type="search"] {
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 20px;
+}
+
+.cards-section {
+    display: flex;
+    justify-content: space-between;
+}
+
+.card {
+    flex: 1;
+    background-color: #ebf0f7;
+    border-radius: 10px;
+    padding: 20px;
+    margin-right: 10px;
+    text-align: center;
+    color: #555;
+}
+
+.card:last-child {
+    margin-right: 0;
+}
+
+.overview-section {
+    text-align: center;
+    background-color: #f9fbfc;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.send-btn, .request-btn {
+    border: none;
+    padding: 10px 20px;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+.send-btn {
+    background-color: #00bc77;
+    color: #fff;
+}
+
+.request-btn {
+    background-color: #ff5e5e;
+    color: #fff;
+}
+
+.chart-section, .history-section {
+    grid-column: span 2;
+    background-color: #f9fbfc;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.history-section ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.history-section ul li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #ebf0f7;
+}
+
+.balanceremaining{
+    color: #00bc77;
+}
+
+.minus{
+    color: #ff5e5e;
+}

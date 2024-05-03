@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify, request, render_template
 from pathlib import Path
 from db import db
 
@@ -16,6 +16,10 @@ def hello(a):
         return f"Hello {a}!"
     except:
         return "Hello World!"
+
+@app.route("/")
+def homepage():
+    return render_template("base.html")
 
 
 

@@ -32,6 +32,17 @@
                 </section>
                 <section class="history-section">
                     <h2>Payment History</h2>
+                    <ul>
+                        {% for transaction in transactions %}
+                        <li>
+                            <span>{{ transaction['name'] }}</span>
+                            <span>{{ transaction['date'] }}</span>
+                            <span class="minus">-$ {{ transaction['amount'] }}</span>
+                            <span class ="balanceremaining">Balance: $ {{ transaction['balance'] }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                
                     <!-- <ul>
                         <li>
                             <span>Github</span>

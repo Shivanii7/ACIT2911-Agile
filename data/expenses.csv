@@ -1,6 +1,6 @@
-date,items,expense,balance
-2019-01-01,TV,100,900
-2019-01-01,Internet,50,850
-2019-01-01,Electricity,30,820
-2019-01-01,Water,20,800
-2019-01-01,Food,100,700
+date,items,expense
+2019-01-01,TV,100
+2019-01-01,Internet,50
+2019-01-01,Electricity,30
+2019-01-01,Water,20
+2019-01-01,Food,100

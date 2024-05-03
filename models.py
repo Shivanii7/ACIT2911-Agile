@@ -7,9 +7,8 @@ class Expenses(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
     amount = Column(Integer, nullable=False)
-    category = Column(String(255), nullable=False)
-    date = Column(String(255), nullable=False)
-    description = Column(String(255), nullable=False)
+    date = Column(String(255), nullable=False) #NOTE put date instead of a string 
+    description = Column(String(255), nullable=False, default='N/A')
     def to_json(self):
         return {
             'id': self.id,

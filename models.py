@@ -14,7 +14,6 @@ class Expenses(db.Model):
             'id': self.id,
             'name': self.name,
             'amount': self.amount,
-            'category': self.category,
             'date': self.date,
             'description': self.description
         }

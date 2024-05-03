@@ -10,18 +10,12 @@ app.instance_path = Path('data').resolve()
 
 db.init_app(app)
 
-@app.route("/<a>")
-def hello(a):
-    try: 
-        a = a.replace("%20", " ")
-        return f"Hello {a}!"
-    except:
-        return "Hello World!"
-
 @app.route("/")
 def homepage():
     data = db.session.execute(db.select(Expenses))
-    print(data)
+    for i in data.scalars():
+        u = i.to_json()
+        print(u)
     return render_template("base.html")
 
 if __name__ == '__main__':

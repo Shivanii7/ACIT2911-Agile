@@ -28,7 +28,7 @@
             <div class="content">
                 <section class="overview-section">
                     <h2>Total Balance</h2>
-                    <p>$55,500.00</p>
+                    <p>${{ balance }}</p>
                 </section>
                 <section class="history-section">
                     <h2>Payment History</h2>
@@ -37,8 +37,9 @@
                         <li>
                             <span>{{ transaction['name'] }}</span>
                             <span>{{ transaction['date'] }}</span>
+                            <span class ="balanceremaining">Balance before ${{ transaction['before'] }}</span> 
                             <span class="minus">-$ {{ transaction['amount'] }}</span>
-                            <span class ="balanceremaining">Balance: $ {{ transaction['balance'] }}</span>
+                            <span class ="balanceremaining">Balance after: $ {{ transaction['balance'] }}</span>
                         </li>
                         {% endfor %}
                     </ul>

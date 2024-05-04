@@ -11,9 +11,12 @@ app.instance_path = Path('data').resolve()
 
 db.init_app(app)
 
-
 @app.route("/")
 def homepage():
+    return render_template("base.html")
+
+@app.route("/expenses")
+def expense_homepage():
     data = db.session.execute(db.select(Expenses))
     processed_data = []
     balance = 1000
@@ -31,24 +34,24 @@ def homepage():
         processed_data.append(u)
         # print(data)
     processed_data.reverse()
-    return render_template("base.html", transactions=processed_data, balance=balance)
+    return render_template("expense.html", transactions=processed_data, balance=balance)
     # return render_template("base.html")
 
 
-@app.route("/create", methods=['GET', 'POST'])
+@app.route("/expenses/create", methods=['GET', 'POST'])
 def create():
     expense = Expenses(name=request.form.get("name"), amount=request.form.get(
         "amount"), date=request.form.get("date"), description=request.form.get("des"))
     db.session.add(expense)
     db.session.commit()
-    return redirect(url_for("homepage"))
+    return redirect(url_for("expense_homepage"))
 
 
-@app.route("/fillform", methods=['POST'])
+@app.route("/expenses/fillform", methods=['POST'])
 def fill():
     return render_template('create.html')
 
-@app.route("/delete/<id>", methods=['POST'])
+@app.route("/expenses/delete/<id>", methods=['POST'])
 def expense_delete(id):
     expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)

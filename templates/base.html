@@ -13,66 +13,19 @@
         </div>
         <nav>
           <ul>
-            <li><a href="#" class="active">🏠</a></li>
-            <li><a href="#">⚙️</a></li>
+            <li><a href="{{ url_for('homepage') }}" class="active">🏠</a></li>
+            <li><a href="{{ url_for('expense_homepage') }}">💸</a></li>
             <li><a href="#">👤</a></li>
           </ul>
         </nav>
       </aside>
-      <div class="main-content">
-        <header>
-          <h1>Your Account</h1>
-          <input type="search" placeholder="Search" />
-          <img
-            class="profile-pic"
-            src="{{ url_for('static', filename = 'profile.jpg') }}"
-            alt="Profile Picture"
-          />
-        </header>
-        <div class="content">
-          <section class="overview-section">
-            <h2>Total Balance</h2>
-            <p>${{ balance }}</p>
-          </section>
-          <section class="history-section">
-            <h2>Expense History</h2>
-            <div>
-              <table class="table">
-                <tr class="expense_items">
-                  <th>Name</th>
-                  <th>Date</th>
-                  <th>Amount</th>
-                  <th>Balance</th>
-                  <th>Delete</th>
-                </tr >
-                {% for transaction in transactions %}
-                <tr class="expense_items"> 
-                  <td>{{ transaction['name'] }}</td>
-                  <td>{{ transaction['date'] }}</td>
-                  <td class="minus">-${{ transaction['amount'] }}</td>
-                  <td class="balanceremaining">
-                    {% if transaction['balance'] > 0 %}
-                      ${{ transaction['balance'] }}
-                    {% else %}
-                    -${{ transaction['balance'] }}
-                    {% endif %}
-                  </td>
-                  <td>
-                    <form method="POST" action="{{ url_for('expense_delete', id=transaction['id']) }}">
-                      <button type="submit" class="delete_button">Delete</button>
-                    </form>      
-                  </td>
-                </tr>
-                {% endfor %}
-              </table>
-              <form method="POST" action="{{ url_for('fill') }}">
-                <button type="submit" class="add_button">Add</button>
-              </form>
-            </div>
-          </section>
-        </div>
-      </div>
-    </div>   
+      {% block content %}
+      <h1>Dashboard</h1> 
+      <!-- This is a dashboard welcoming user, and providing links to homepage and expense page. -->
+      
+
+
+      {% endblock %}
   </body>
 </html>
 

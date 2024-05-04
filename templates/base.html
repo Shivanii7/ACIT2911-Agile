@@ -1,50 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Finance Dashboard</title>
-    <link rel="stylesheet" href="../static/style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="../static/style.css" />
+  </head>
+  <body>
     <div class="dashboard">
-        <aside class="sidebar">
-            <div class="logo">
-                <span>💎</span>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="#" class="active">🏠</a></li>
-                    <li><a href="#">⚙️</a></li>
-                    <li><a href="#">👤</a></li>
-                </ul>
-            </nav>
-        </aside>
-        <div class="main-content">
-            <header>
-                <h1>Your Account</h1>
-                <input type="search" placeholder="Search">
-                <img class="profile-pic" src="{{ url_for('static', filename = 'profile.jpg') }}" alt="Profile Picture">
-            </header>
-            <div class="content">
-                <section class="overview-section">
-                    <h2>Total Balance</h2>
-                    <p>${{ balance }}</p>
-                </section>
-                <section class="history-section">
-                    <h2>Payment History</h2>
-                    <ul>
-                        {% for transaction in transactions %}
-                        <li>
-                            <span>{{ transaction['name'] }}</span>
-                            <span>{{ transaction['date'] }}</span>
-                            <span class ="balanceremaining">Balance before ${{ transaction['before'] }}</span> 
-                            <span class="minus">-$ {{ transaction['amount'] }}</span>
-                            <span class ="balanceremaining">Balance after: $ {{ transaction['balance'] }}</span>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                
-                    <!-- <ul>
+      <aside class="sidebar">
+        <div class="logo">
+          <span>💎</span>
+        </div>
+        <nav>
+          <ul>
+            <li><a href="#" class="active">🏠</a></li>
+            <li><a href="#">⚙️</a></li>
+            <li><a href="#">👤</a></li>
+          </ul>
+        </nav>
+      </aside>
+      <div class="main-content">
+        <header>
+          <h1>Your Account</h1>
+          <input type="search" placeholder="Search" />
+          <img
+            class="profile-pic"
+            src="{{ url_for('static', filename = 'profile.jpg') }}"
+            alt="Profile Picture"
+          />
+        </header>
+        <div class="content">
+          <section class="overview-section">
+            <h2>Total Balance</h2>
+            <p>${{ balance }}</p>
+          </section>
+          <section class="history-section">
+            <h2>Payment History</h2>
+            <ul>
+              {% for transaction in transactions %}
+              <li>
+                <span>{{ transaction['name'] }}</span>
+                <span>{{ transaction['date'] }}</span>
+                <span class="balanceremaining"
+                  >Balance before ${{ transaction['before'] }}</span
+                >
+                <span class="minus">-$ {{ transaction['amount'] }}</span>
+                <span class="balanceremaining"
+                  >Balance after: $ {{ transaction['balance'] }}</span
+                >
+              </li>
+              {% endfor %}
+            </ul>
+
+            <!-- <ul>
                         <li>
                             <span>Github</span>
                             <span>27 Sep 2022</span>
@@ -100,10 +108,13 @@
                             <span class ="balanceremaining">Balance: $55,490.00</span>
                         </li>
                     </ul> -->
-                </section>
-            </div>
+          </section>
         </div>
+      </div>
     </div>
-</body>
-</html>
 
+    <form method="POST" action="{{ url_for('fill') }}">
+      <button type="submit">Add</button>
+    </form>
+  </body>
+</html>

@@ -48,9 +48,9 @@ def create():
 def fill():
     return render_template('create.html')
 
-@app.route("/delete/name", methods=['POST'])
-def delete(name):
-    expense = db.get_or_404(Expenses, name)
+@app.route("/delete/<id>", methods=['POST'])
+def expense_delete(id):
+    expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)
     db.session.commit()
     return redirect(url_for("homepage"))

@@ -48,6 +48,14 @@ def create():
 def fill():
     return render_template('create.html')
 
+@app.route("/delete/name", methods=['POST'])
+def delete(name):
+    expense = db.get_or_404(Expenses, name)
+    db.session.delete(expense)
+    db.session.commit()
+    return redirect(url_for("homepage"))
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=3000)

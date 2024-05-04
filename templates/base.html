@@ -35,86 +35,49 @@
             <p>${{ balance }}</p>
           </section>
           <section class="history-section">
-            <h2>Payment History</h2>
-            <ul>
-              {% for transaction in transactions %}
-              <li>
-                <span>{{ transaction['name'] }}</span>
-                <span>{{ transaction['date'] }}</span>
-                <span class="balanceremaining"
-                  >Balance before ${{ transaction['before'] }}</span
-                >
-                <span class="minus">-$ {{ transaction['amount'] }}</span>
-                <span class="balanceremaining"
-                  >Balance after: $ {{ transaction['balance'] }}</span
-                >
-              </li>
-              {% endfor %}
-            </ul>
-
-            <!-- <ul>
-                        <li>
-                            <span>Github</span>
-                            <span>27 Sep 2022</span>
-                            <span class="minus">-$99.0</span>
-                            <span class ="balanceremaining">Balance:$55,086.00 </span>
-                        </li>
-                        <li>
-                            <span>Spotify</span>
-                            <span>22 Sep 2022</span>
-                            <span class="minus">-$29.0</span>
-                            <span class ="balanceremaining">Balance: $55,185.00</span>
-                        </li>
-                        <li>
-                            <span>Apple TV</span>
-                            <span>21 Sep 2022</span>
-                            <span class="minus">-$10.0</span>
-                            <span class ="balanceremaining">Balance: $55,214.00</span>
-                        </li>
-                        <li>
-                            <span>Github</span>
-                            <span>27 Sep 2022</span>
-                            <span class="minus">-$99.0</span>
-                            <span class ="balanceremaining">Balance: $55,224.00</span>
-                        </li>
-                        <li>
-                            <span>Spotify</span>
-                            <span>22 Sep 2022</span>
-                            <span class="minus">-$29.0</span>
-                            <span class ="balanceremaining">Balance: $55,323.00</span>
-                        </li>
-                        <li>
-                            <span>Apple TV</span>
-                            <span>21 Sep 2022</span>
-                            <span class="minus">-$10.0</span>
-                            <span class ="balanceremaining">Balance: $55,352.00</span>
-                        </li>
-                        <li>
-                            <span>Github</span>
-                            <span>27 Sep 2022</span>
-                            <span class="minus">-$99.0</span>
-                            <span class ="balanceremaining">Balance: $55,362.00</span>
-                        </li>
-                        <li>
-                            <span>Spotify</span>
-                            <span>22 Sep 2022</span>
-                            <span class="minus">-$29.0</span>
-                            <span class ="balanceremaining">Balance: $55,461.00</span>
-                        </li>
-                        <li>
-                            <span>Apple TV</span>
-                            <span>21 Sep 2022</span>
-                            <span class="minus">-$10.0</span>
-                            <span class ="balanceremaining">Balance: $55,490.00</span>
-                        </li>
-                    </ul> -->
+            <h2>Expense History</h2>
+            <div>
+              <table class="table">
+                <tr class="expense_items">
+                  <th>Name</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Balance</th>
+                  <th>Delete</th>
+                </tr >
+                {% for transaction in transactions %}
+                <tr class="expense_items"> 
+                  <td>{{ transaction['name'] }}</td>
+                  <td>{{ transaction['date'] }}</td>
+                  <td class="minus">-${{ transaction['amount'] }}</td>
+                  <td class="balanceremaining">
+                    {% if transaction['balance'] > 0 %}
+                      ${{ transaction['balance'] }}
+                    {% else %}
+                    -${{ transaction['balance'] }}
+                    {% endif %}
+                  </td>
+                  <td>            
+                    <button class="delete_button" onclick="window.location.href='{{ url_for('delete', name=transaction['name']) }}'">Delete</button>
+                  </td>
+                  <!-- <td class="balanceremaining">${{ transaction['before'] }}</td>
+                  {% if transaction['amount'] > 0 %}
+                  <td class="plus">+${{ transaction['amount'] }}</td>
+                  {% else %}
+                  <td class="minus">-$ {{ transaction['amount'] }}</td>
+                  {% endif %}
+                  <td class="balanceremaining">Balance after: $ {{ transaction['balance'] }}</td> -->
+                </tr>
+                {% endfor %}
+              </table>
+              <form method="POST" action="{{ url_for('fill') }}">
+                <button type="submit" class="add_button">Add</button>
+              </form>
+            </div>
           </section>
         </div>
       </div>
-    </div>
-
-    <form method="POST" action="{{ url_for('fill') }}">
-      <button type="submit">Add</button>
-    </form>
+    </div>   
   </body>
 </html>
+

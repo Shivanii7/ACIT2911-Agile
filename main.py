@@ -62,7 +62,7 @@ def expense_homepage_get():
     return render_template("expense.html", transactions=processed_data, balance=balance, joint=joint, budget=budget)
 
 
-@app.route("/expenses", methods=['POST'])
+@app.route("/expenses", methods=['PUT'])
 def expense_homepage():
     data = db.session.execute(db.select(Expenses))
     processed_data = []
@@ -102,7 +102,7 @@ def expense_homepage():
 @app.route("/expenses/create", methods=['POST'])
 def create():
     expense = Expenses(name=request.form.get("name"), amount=request.form.get(
-        "amount"), date=request.form.get("date"), description=request.form.get("des"), customer_id = request.form.get("cid"))
+        "amount"), date=request.form.get("date"), description=request.form.get("des"))
     db.session.add(expense)
     db.session.commit()
     return redirect(url_for("expense_homepage_get"))

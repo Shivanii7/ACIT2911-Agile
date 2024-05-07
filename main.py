@@ -11,9 +11,11 @@ app.instance_path = Path('data').resolve()
 
 db.init_app(app)
 
+
 @app.route("/")
 def homepage():
     return render_template("base.html")
+
 
 @app.route("/expenses")
 def expense_homepage():
@@ -22,7 +24,7 @@ def expense_homepage():
     balance = 1000
     for i in data.scalars():
         u = {
-            'id': i.id,
+            'id': i.eid,
             'name': i.name,
             'amount': i.amount,
             'date': i.date,
@@ -51,13 +53,13 @@ def create():
 def fill():
     return render_template('create.html')
 
+
 @app.route("/expenses/delete/<id>", methods=['POST'])
 def expense_delete(id):
     expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)
     db.session.commit()
     return redirect(url_for("homepage"))
-
 
 
 if __name__ == '__main__':

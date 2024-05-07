@@ -12,8 +12,7 @@ class Expenses(db.Model):
     description = Column(String(255), nullable=False, default='N/A')
     customer_id = Column(Integer, ForeignKey("customers.cid",
                                              ondelete="CASCADE"), nullable=False)
-    customer = relationship("Customers", back_populates="expenses",
-                            cascade="all, delete")
+    customer = relationship("Customers", back_populates="expenses")
 
     def to_json(self):
         return {
@@ -32,8 +31,7 @@ class Customers(db.Model):
     first_name = Column(String(255), nullable=False)
     last_name = Column(String(255), nullable=False)
     password = Column(String(255), nullable=False)
-    expenses = relationship("Expenses", back_populates="customer",
-                            cascade="all, delete")
+    expenses = relationship("Expenses", back_populates="customer")
 
     def to_json(self):
         return {

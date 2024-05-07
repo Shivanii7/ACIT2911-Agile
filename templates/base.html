@@ -19,6 +19,9 @@
           </ul>
         </nav>
       </aside>
+      <button>
+        <a href="{{ url_for('logout') }}">Logout</a>
+      </button>
       {% block content %}
       <h1>Dashboard</h1> 
       <!-- This is a dashboard welcoming user, and providing links to homepage and expense page. -->
@@ -26,6 +29,7 @@
 
 
       {% endblock %}
+      
   </body>
 </html>
 

@@ -1,6 +1,6 @@
 from main import app
 from db import db
-from models import Expenses, Customers
+from models import Expenses, Customers, Shares
 from csv import DictReader
 from datetime import datetime
 
@@ -30,8 +30,20 @@ def populate_customers():
             customers = list(reader)
             for row in customers:
                 customer = Customers(
-                    email=row['email'], first_name=row['first_name'], last_name=row['last_name'], password=row['password'])
+                    email=row['email'], first_name=row['first_name'], last_name=row['last_name'], password=row['password'], balance=row['balance'], budget=row['budget'], joint=row['joint'])
                 db.session.add(customer)
+            db.session.commit()
+
+
+def populate_shares():
+    with app.app_context():
+        with open('./data/shares.csv', 'r') as file:
+            reader = DictReader(file)
+            shares = list(reader)
+            for row in shares:
+                share = Shares(
+                    item=row['item'], joint_id_1=row['customer'], joint_id_2=row['joint'])
+                db.session.add(share)
             db.session.commit()
 
 
@@ -41,3 +53,4 @@ if __name__ == '__main__':
         db.create_all()
         populate_expenses()
         populate_customers()
+        populate_shares()

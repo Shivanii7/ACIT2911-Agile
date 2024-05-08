@@ -21,12 +21,12 @@ class MyTest(TestCase):
         response = self.client.get(url_for('expense_homepage_get'))
         assert response.status_code == 200
 
-    def test_expense_homepage_post(self):
-        response = self.client.post(url_for('expense_homepage'))
+    def test_expense_homepage_put(self):
+        response = self.client.put(url_for('expense_homepage'))
         assert response.status_code == 200
 
     def test_create(self):
-        data = dict(name='test', amount=100, date='2021-01-01', des='test', cid=1)
+        data = dict(name='test', amount=100, date='2021-01-01', des='test')
         response = self.client.post(url_for('create'), data=data)
         assert response.status_code == 302
 
@@ -35,19 +35,28 @@ class MyTest(TestCase):
         assert response.status_code == 200
 
     def test_expense_delete(self):
-        self.client.post(url_for('create'), data=dict(name='test', amount=100, date='2021-01-01', des='test', cid=1))
-        id = (self.client.get(url_for('expense_homepage_get')))
-        print(id)
-        response = self.client.post(url_for('expense_delete', id))
+        self.client.post(url_for('create'), data=dict(name='test', amount=100, date='2021-01-01', des='test'))
+        id = (self.client.get(url_for('expense_homepage_get')).data).decode('utf-8').count("expense_items")
+        response = self.client.post(url_for('expense_delete', id=id-1))
         assert response.status_code == 302
 
     def test_register(self):
         response = self.client.get(url_for('register'))
         assert response.status_code == 200
 
+    def test_register_post(self):
+        data = dict(email='test', password='test', first_name='test', last_name='test')
+        response = self.client.post(url_for('register'), data=data)
+        assert response.status_code == 302
+        
     def test_login(self):
         response = self.client.get(url_for('login'))
         assert response.status_code == 200
+
+    def test_login_post(self):
+        data = dict(email='test', password='test')
+        response = self.client.post(url_for('login'), data=data)
+        assert response.status_code == 302
 
     def test_logout(self):
         response = self.client.get(url_for('logout'))

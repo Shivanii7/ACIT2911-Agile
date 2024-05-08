@@ -25,7 +25,7 @@ def index():
 def homepage():
      return render_template("base.html")
 
-@app.route("/expenses", methods=['GET'])
+@app.route("/expenses")
 def expense_homepage_get():
     # # --------------------------
     # id = 1
@@ -102,7 +102,7 @@ def expense_homepage():
 @app.route("/expenses/create", methods=['POST'])
 def create():
     expense = Expenses(name=request.form.get("name"), amount=request.form.get(
-        "amount"), date=request.form.get("date"), description=request.form.get("des"))
+        "amount"), date=request.form.get("date"), description=request.form.get("des"), customer_id=1)
     db.session.add(expense)
     db.session.commit()
     return redirect(url_for("expense_homepage_get"))
@@ -155,9 +155,6 @@ def login():
 def logout():
     session.pop('email', None)
     return redirect(url_for('login'))
-
-
-
 
 @app.route("/settings/fillform")
 def set():

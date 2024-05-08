@@ -123,10 +123,15 @@ def fill():
 
 @app.route("/expenses/delete/<id>", methods=['POST'])
 def expense_delete(id):
+    data = db.session.execute(db.select(Expenses))
+    if data:
+        for i in data.scalars():
+            print(i.eid)
+            
     expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)
     db.session.commit()
-    return redirect(url_for("homepage"))
+    return redirect(url_for("expense_homepage_get"))
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -147,6 +152,8 @@ def login():
         email = request.form['email']
         password = request.form['password']
         user = db.session.query(Customers).filter_by(email=email).first()
+        if user is None:
+            return redirect(url_for('login'))
         if user.password == password:
             session['cid'] = user.cid
             #print(session['cid'])

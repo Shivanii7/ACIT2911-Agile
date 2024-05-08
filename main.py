@@ -23,7 +23,9 @@ def index():
 
 @app.route("/home")
 def homepage():
+
     return render_template("base.html")
+
 
 @app.route("/expenses", methods=['GET'])
 def expense_homepage_get():

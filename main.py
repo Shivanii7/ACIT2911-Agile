@@ -26,9 +26,6 @@ def homepage():
      return render_template("base.html")
 
 @app.route("/expenses")
-def expense_homepage():
-
-@app.route("/expenses", methods=['GET'])
 def expense_homepage_get():
     # # --------------------------
     # id = 1
@@ -65,7 +62,7 @@ def expense_homepage_get():
     return render_template("expense.html", transactions=processed_data, balance=balance, joint=joint, budget=budget)
 
 
-@app.route("/expenses", methods=['POST'])
+@app.route("/expenses", methods=['PUT'])
 def expense_homepage():
     data = db.session.execute(db.select(Expenses))
     processed_data = []
@@ -78,7 +75,7 @@ def expense_homepage():
         db.select(Customers).where(Customers.cid == 1)).scalar()
     # print(customer.to_json())
     customer.budget = budget
-    customer.balance = balance
+    customer.balance = balance      
     customer.joint = joint
     # print(customer.to_json())
     db.session.add(customer)
@@ -105,7 +102,7 @@ def expense_homepage():
 @app.route("/expenses/create", methods=['POST'])
 def create():
     expense = Expenses(name=request.form.get("name"), amount=request.form.get(
-        "amount"), date=request.form.get("date"), description=request.form.get("des"))
+        "amount"), date=request.form.get("date"), description=request.form.get("des"), customer_id=1)
     db.session.add(expense)
     db.session.commit()
     return redirect(url_for("expense_homepage_get"))
@@ -118,10 +115,15 @@ def fill():
 
 @app.route("/expenses/delete/<id>", methods=['POST'])
 def expense_delete(id):
+    data = db.session.execute(db.select(Expenses))
+    if data:
+        for i in data.scalars():
+            print(i.eid)
+            
     expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)
     db.session.commit()
-    return redirect(url_for("homepage"))
+    return redirect(url_for("expense_homepage_get"))
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -142,6 +144,8 @@ def login():
         email = request.form['email']
         password = request.form['password']
         user = db.session.query(Customers).filter_by(email=email).first()
+        if user is None:
+            return redirect(url_for('login'))
         if user.password == password:
             return redirect(url_for('homepage'))
         return redirect(url_for('login'))
@@ -151,9 +155,6 @@ def login():
 def logout():
     session.pop('email', None)
     return redirect(url_for('login'))
-
-
-
 
 @app.route("/settings/fillform")
 def set():

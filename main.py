@@ -25,17 +25,23 @@ def index():
 
 @app.route("/home")
 def homepage():
+
     return render_template("base.html")
 
 
 @app.route("/expenses", methods=['GET'])
 def expense_homepage_get():
-    data = db.session.execute(db.select(Expenses))
-    processed_data = []
-    # ============!!!!!!!!!!!!!!!hardcode cid: change after authentication
+    if 'cid' not in session:
+        return redirect(url_for('login'))
 
+    cid = session['cid']
     customer = db.session.execute(
-        db.select(Customers).where(Customers.cid == 1)).scalar()
+        db.select(Customers).where(Customers.cid == cid)).scalar()
+    # data = db.session.execute(db.select(Expenses))
+    data = db.session.execute(
+        db.select(Expenses).filter(Expenses.customer_id == cid))
+    processed_data = []
+
     balance = customer.balance
     for i in data.scalars():
         u = {
@@ -70,7 +76,13 @@ def expense_homepage_get():
 
 @app.route("/expenses", methods=['POST'])
 def expense_homepage():
-    # data = db.session.execute(db.select(Expenses))
+    if 'cid' not in session:
+        return redirect(url_for('login'))
+    cid = session['cid']
+    customer = db.session.execute(
+        db.select(Customers).where(Customers.cid == cid)).scalar()
+
+    # data = db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid))
     # processed_data = []
     budget = float(request.form.get("budget") or 0)
     balance = float(request.form.get("balance") or 0)
@@ -88,13 +100,13 @@ def expense_homepage():
                 db.select(Shares).where(Shares.joint_id_1 == 1)).scalar()
 
         db.session.add(share)
-    customer = db.session.execute(
-        db.select(Customers).where(Customers.cid == 1)).scalar()
+    # customer = db.session.execute(
+    #     db.select(Customers).where(Customers.cid == 1)).scalar()
     print(customer.to_json())
     customer.budget = budget
     customer.balance = balance
     customer.joint = joint
-    # print(customer.to_json())
+    # # print(customer.to_json())
     db.session.add(customer)
     db.session.commit()
 
@@ -144,6 +156,8 @@ def login():
         email = request.form['email']
         password = request.form['password']
         user = db.session.query(Customers).filter_by(email=email).first()
+        if user is None:
+            return redirect(url_for('login'))
         if user.password == password:
             return redirect(url_for('homepage'))
         return redirect(url_for('login'))

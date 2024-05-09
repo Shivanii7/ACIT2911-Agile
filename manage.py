@@ -42,7 +42,7 @@ def populate_shares():
             shares = list(reader)
             for row in shares:
                 share = Shares(
-                    item=row['item'], joint_id_1=row['customer'], joint_id_2=row['joint'])
+                    item=row['item'], joint_id_1=row['joint_id_1'], joint_id_2=row['joint_id_2'])
                 db.session.add(share)
             db.session.commit()
 

@@ -38,16 +38,6 @@ def expense_homepage_get():
 
     customer = db.session.execute(
         db.select(Customers).where(Customers.cid == cid)).scalar()
-    # print(customer.scalars().all())
-    # # --------------------------
-    # id = 1
-    # shares = db.session.execute(db.select(Shares))
-    # for i in shares.scalars():
-    #     if id in i.joint_id_1:
-    #         customer = db.session.execute(
-    #             db.select(Customers).where(Customers.cid == i.joint_id_2))
-    # # --------------------------
-    # data = db.session.execute(db.select(Expenses))
     data = db.session.execute(
         db.select(Expenses).filter(Expenses.customer_id == cid))
     processed_data = []
@@ -154,12 +144,12 @@ def fill():
     return render_template('create.html')
 
 
-@app.route("/expenses/delete/<id>", methods=['DELETE'])
+@app.route("/expenses/delete/<id>", methods=['POST'])
 def expense_delete(id):
     expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)
     db.session.commit()
-    return redirect(url_for("expense_homepage_get"))
+    return redirect(url_for("homepage"))
 
 
 @app.route("/register", methods=['GET', 'POST'])

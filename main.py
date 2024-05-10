@@ -14,6 +14,8 @@ db.init_app(app)
 
 app.secret_key = 'super'
 
+# new commit
+
 
 @app.route("/")
 def index():

@@ -33,11 +33,13 @@ def expense_homepage_get():
         return redirect(url_for('login'))
     
     cid = session['cid']
+    
     customer = db.session.execute(db.select(Customers).where(Customers.cid == cid)).scalar()
+    # print(customer.scalars().all())
     # # --------------------------
     # id = 1
     # shares = db.session.execute(db.select(Shares))
-    # for i in shares.scalars():
+    # for i in shares.scalars():    
     #     if id in i.joint_id_1:
     #         customer = db.session.execute(
     #             db.select(Customers).where(Customers.cid == i.joint_id_2))
@@ -112,7 +114,7 @@ def expense_homepage():
 @app.route("/expenses/create", methods=['POST'])
 def create():
     expense = Expenses(name=request.form.get("name"), amount=request.form.get(
-        "amount"), date=request.form.get("date"), description=request.form.get("des"))
+        "amount"), date=request.form.get("date"), description=request.form.get("des"), customer_id = session['cid'] if 'cid' in session else 1)
     db.session.add(expense)
     db.session.commit()
     return redirect(url_for("expense_homepage_get"))
@@ -122,14 +124,8 @@ def create():
 def fill():
     return render_template('create.html')
 
-
-@app.route("/expenses/delete/<id>", methods=['POST'])
+@app.route("/expenses/delete/<id>", methods=['DELETE'])
 def expense_delete(id):
-    data = db.session.execute(db.select(Expenses))
-    if data:
-        for i in data.scalars():
-            print(i.eid)
-            
     expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)
     db.session.commit()
@@ -170,7 +166,12 @@ def logout():
 
 @app.route("/settings/fillform")
 def set():
-    return render_template('settings.html')
+    #auto fill form with previous data
+    #do it later
+    customer = db.session.execute(db.select(Customers).where(Customers.cid == session['cid'])).scalar()
+    print(customer.balance)
+    print(customer.budget)
+    return render_template('settings.html', balance=customer.balance, budget=customer.budget, joint=customer.joint)
 
 if __name__ == '__main__':
     app.run(debug=True, port=3000)

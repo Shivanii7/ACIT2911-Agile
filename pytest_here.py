@@ -37,7 +37,7 @@ class MyTest(TestCase):
     def test_expense_delete(self):
         self.client.post(url_for('create'), data=dict(name='test', amount=100, date='2021-01-01', des='test'))
         id = (self.client.get(url_for('expense_homepage_get')).data).decode('utf-8').count("expense_items")
-        response = self.client.post(url_for('expense_delete', id=id-1))
+        response = self.client.delete(url_for('expense_delete', id=id))
         assert response.status_code == 302
 
     def test_register(self):

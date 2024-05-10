@@ -38,16 +38,6 @@ def expense_homepage_get():
 
     customer = db.session.execute(
         db.select(Customers).where(Customers.cid == cid)).scalar()
-    # print(customer.scalars().all())
-    # # --------------------------
-    # id = 1
-    # shares = db.session.execute(db.select(Shares))
-    # for i in shares.scalars():
-    #     if id in i.joint_id_1:
-    #         customer = db.session.execute(
-    #             db.select(Customers).where(Customers.cid == i.joint_id_2))
-    # # --------------------------
-    # data = db.session.execute(db.select(Expenses))
     data = db.session.execute(
         db.select(Expenses).filter(Expenses.customer_id == cid))
     processed_data = []
@@ -91,16 +81,13 @@ def expense_homepage():
     customer = db.session.execute(
         db.select(Customers).where(Customers.cid == cid)).scalar()
 
-    data = db.session.execute(
-        db.select(Expenses).filter(Expenses.customer_id == cid))
-
-    budget = float(request.form.get("budget", 0))
-    balance = float(request.form.get("balance", 0))
-    joint = request.form.get("joint")
+    budget = float(request.form.get("budget") or 0)
+    balance = float(request.form.get("balance") or 0)
+    joint = request.form.get("joint") or "N/A"
 
     customer.budget = budget
     customer.balance = balance
-    customer.joint = joint
+
     # # print(customer.to_json())
     db.session.add(customer)
     db.session.commit()
@@ -154,7 +141,7 @@ def fill():
     return render_template('create.html')
 
 
-@app.route("/expenses/delete/<id>", methods=['DELETE'])
+@app.route("/expenses/delete/<id>", methods=['POST'])
 def expense_delete(id):
     expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)

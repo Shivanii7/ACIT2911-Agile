@@ -83,18 +83,16 @@ def expense_homepage():
     if 'cid' not in session:
         return redirect(url_for('login'))
     cid = session['cid']
+
+
     customer = db.session.execute(db.select(Customers).where(Customers.cid == cid)).scalar()
     
     data = db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid))
-    processed_data = []
+
     budget = float(request.form.get("budget", 0))
     balance = float(request.form.get("balance", 0))
     joint = request.form.get("joint")
-    # ============!!!!!!!!!!!!!!!hardcode cid: change after authentication
-
-    # customer = db.session.execute(
-    #     db.select(Customers).where(Customers.cid == 1)).scalar()
-    # print(customer.to_json())
+   
     customer.budget = budget
     customer.balance = balance
     customer.joint = joint
@@ -102,22 +100,39 @@ def expense_homepage():
     db.session.add(customer)
     db.session.commit()
 
-    for i in data.scalars():
-        u = {
-            'id': i.eid,
-            'name': i.name,
-            'amount': i.amount,
-            'date': i.date,
-            # 'description': i.description if i.description else 'N/A',
-            'before': customer.balance,
-            'balance': customer.balance - i.amount
-        }
-        customer.balance -= i.amount
-        processed_data.append(u)
-        # print(data)
-    processed_data.reverse()
-
-    return render_template("expense.html", transactions=processed_data, balance=customer.balance, joint=customer.joint, budget=customer.budget)
+    joint_customer = db.session.query(Customers).filter(
+        Customers.email == joint).first()
+    print(joint_customer)
+# when users input valid joint_customer, create a share record
+    if joint_customer:
+        customer.joint = joint
+        share = db.session.query(Shares).filter(
+            Shares.joint_id_1 == cid).first()
+        # if the logged customer doesn't exit in the share table as joint_id_1, then create
+        if not share:
+            share = Shares(joint_id_1=cid, joint_id_2=joint_customer.cid)
+            # if the logged customer exits in the share table as joint_id_1, then update
+        else:
+            share = db.session.execute(
+                db.select(Shares).where(Shares.joint_id_1 == cid)).scalar()
+            share.joint_id_2 = joint_customer.cid
+        customer.budget = joint_customer.budget
+        db.session.add(share)
+        db.session.commit()
+        return render_template("message_share.html", option=1, customer_current=customer.email, customer_joint=joint)
+# when users leave "joint" box empty, meaning this user doesn't want to share any more, balance and budget will be updated in database
+    elif joint == "N/A":
+        print("budget", budget)
+        print("budgetc", customer.budget)
+        customer.budget = budget
+        customer.balance = balance
+        customer.joint = joint
+        db.session.add(customer)
+        db.session.commit()
+        return render_template("message_share.html", option=2, customer_current=customer.email, customer_joint=joint)
+# when users input content not exiting in database, nothing happen to database
+    elif not joint_customer:
+        return render_template("message_share.html", option=0, customer_current=customer.email, customer_joint=joint)
 
 
 @app.route("/expenses/create", methods=['POST'])

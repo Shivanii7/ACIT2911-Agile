@@ -14,12 +14,14 @@ db.init_app(app)
 
 app.secret_key = 'super'
 
+
 @app.route("/")
 def index():
     if 'cid' in session:
         return redirect(url_for('homepage'))
     else:
         return redirect(url_for('login'))
+
 
 @app.route("/home")
 def homepage():
@@ -31,21 +33,23 @@ def homepage():
 def expense_homepage_get():
     if 'cid' not in session:
         return redirect(url_for('login'))
-    
+
     cid = session['cid']
-    
-    customer = db.session.execute(db.select(Customers).where(Customers.cid == cid)).scalar()
+
+    customer = db.session.execute(
+        db.select(Customers).where(Customers.cid == cid)).scalar()
     # print(customer.scalars().all())
     # # --------------------------
     # id = 1
     # shares = db.session.execute(db.select(Shares))
-    # for i in shares.scalars():    
+    # for i in shares.scalars():
     #     if id in i.joint_id_1:
     #         customer = db.session.execute(
     #             db.select(Customers).where(Customers.cid == i.joint_id_2))
     # # --------------------------
-    #data = db.session.execute(db.select(Expenses))
-    data = db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid))
+    # data = db.session.execute(db.select(Expenses))
+    data = db.session.execute(
+        db.select(Expenses).filter(Expenses.customer_id == cid))
     processed_data = []
 
     balance = customer.balance
@@ -84,15 +88,16 @@ def expense_homepage():
         return redirect(url_for('login'))
     cid = session['cid']
 
+    customer = db.session.execute(
+        db.select(Customers).where(Customers.cid == cid)).scalar()
 
-    customer = db.session.execute(db.select(Customers).where(Customers.cid == cid)).scalar()
-    
-    data = db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid))
+    data = db.session.execute(
+        db.select(Expenses).filter(Expenses.customer_id == cid))
 
     budget = float(request.form.get("budget", 0))
     balance = float(request.form.get("balance", 0))
     joint = request.form.get("joint")
-   
+
     customer.budget = budget
     customer.balance = balance
     customer.joint = joint
@@ -138,7 +143,7 @@ def expense_homepage():
 @app.route("/expenses/create", methods=['POST'])
 def create():
     expense = Expenses(name=request.form.get("name"), amount=request.form.get(
-        "amount"), date=request.form.get("date"), description=request.form.get("des"), customer_id = session['cid'] if 'cid' in session else 1)
+        "amount"), date=request.form.get("date"), description=request.form.get("des"), customer_id=session['cid'] if 'cid' in session else 1)
     db.session.add(expense)
     db.session.commit()
     return redirect(url_for("expense_homepage_get"))
@@ -148,12 +153,14 @@ def create():
 def fill():
     return render_template('create.html')
 
+
 @app.route("/expenses/delete/<id>", methods=['DELETE'])
 def expense_delete(id):
     expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)
     db.session.commit()
     return redirect(url_for("expense_homepage_get"))
+
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -162,11 +169,13 @@ def register():
         password = request.form['password']
         first_name = request.form['first_name']
         last_name = request.form['last_name']
-        user = Customers(email=email, password=password, first_name=first_name, last_name=last_name)
+        user = Customers(email=email, password=password,
+                         first_name=first_name, last_name=last_name)
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('login'))
     return render_template("register.html")
+
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -178,21 +187,24 @@ def login():
             return redirect(url_for('login'))
         if user.password == password:
             session['cid'] = user.cid
-            #print(session['cid'])
+            # print(session['cid'])
             return redirect(url_for('homepage'))
         return redirect(url_for('login'))
     return render_template("login.html")
+
 
 @app.route("/logout")
 def logout():
     session.pop('email', None)
     return redirect(url_for('login'))
 
+
 @app.route("/settings/fillform")
 def set():
-    #auto fill form with previous data
-    #do it later
-    customer = db.session.execute(db.select(Customers).where(Customers.cid == session['cid'])).scalar()
+    # auto fill form with previous data
+    # do it later
+    customer = db.session.execute(db.select(Customers).where(
+        Customers.cid == session['cid'])).scalar()
     print(customer.balance)
     print(customer.budget)
     return render_template('settings.html', balance=customer.balance, budget=customer.budget, joint=customer.joint)

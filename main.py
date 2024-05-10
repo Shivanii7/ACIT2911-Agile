@@ -81,16 +81,13 @@ def expense_homepage():
     customer = db.session.execute(
         db.select(Customers).where(Customers.cid == cid)).scalar()
 
-    data = db.session.execute(
-        db.select(Expenses).filter(Expenses.customer_id == cid))
-
-    budget = float(request.form.get("budget", 0))
-    balance = float(request.form.get("balance", 0))
-    joint = request.form.get("joint")
+    budget = float(request.form.get("budget") or 0)
+    balance = float(request.form.get("balance") or 0)
+    joint = request.form.get("joint") or "N/A"
 
     customer.budget = budget
     customer.balance = balance
-    customer.joint = joint
+
     # # print(customer.to_json())
     db.session.add(customer)
     db.session.commit()
@@ -149,7 +146,7 @@ def expense_delete(id):
     expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)
     db.session.commit()
-    return redirect(url_for("homepage"))
+    return redirect(url_for("expense_homepage_get"))
 
 
 @app.route("/register", methods=['GET', 'POST'])

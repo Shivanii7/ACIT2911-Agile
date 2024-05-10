@@ -25,6 +25,7 @@ def index():
 
 @app.route("/home")
 def homepage():
+
     return render_template("base.html")
 
 
@@ -34,8 +35,19 @@ def expense_homepage_get():
         return redirect(url_for('login'))
 
     cid = session['cid']
+
     customer = db.session.execute(
         db.select(Customers).where(Customers.cid == cid)).scalar()
+    # print(customer.scalars().all())
+    # # --------------------------
+    # id = 1
+    # shares = db.session.execute(db.select(Shares))
+    # for i in shares.scalars():
+    #     if id in i.joint_id_1:
+    #         customer = db.session.execute(
+    #             db.select(Customers).where(Customers.cid == i.joint_id_2))
+    # # --------------------------
+    # data = db.session.execute(db.select(Expenses))
     data = db.session.execute(
         db.select(Expenses).filter(Expenses.customer_id == cid))
     processed_data = []
@@ -47,12 +59,15 @@ def expense_homepage_get():
             'name': i.name,
             'amount': i.amount,
             'date': i.date,
+            # 'description': i.description if i.description else 'N/A',
             'before': balance,
             'balance': balance - i.amount
         }
         balance -= i.amount
         processed_data.append(u)
+    # print(data)
     processed_data.reverse()
+    budget = customer.budget
     joint = customer.joint
     if joint != 'None':
         customer_joint = db.session.query(Customers).filter(
@@ -75,13 +90,18 @@ def expense_homepage():
 
     customer = db.session.execute(
         db.select(Customers).where(Customers.cid == cid)).scalar()
-    budget = float(request.form.get("budget") or 0)
-    balance = float(request.form.get("balance") or 0)
-    joint = request.form.get("joint") or "N/A"
-    print(joint)
+
+    data = db.session.execute(
+        db.select(Expenses).filter(Expenses.customer_id == cid))
+
+    budget = float(request.form.get("budget", 0))
+    balance = float(request.form.get("balance", 0))
+    joint = request.form.get("joint")
+
     customer.budget = budget
     customer.balance = balance
-
+    customer.joint = joint
+    # # print(customer.to_json())
     db.session.add(customer)
     db.session.commit()
 
@@ -134,12 +154,12 @@ def fill():
     return render_template('create.html')
 
 
-@app.route("/expenses/delete/<id>", methods=['POST'])
+@app.route("/expenses/delete/<id>", methods=['DELETE'])
 def expense_delete(id):
     expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)
     db.session.commit()
-    return redirect(url_for("homepage"))
+    return redirect(url_for("expense_homepage_get"))
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -167,6 +187,7 @@ def login():
             return redirect(url_for('login'))
         if user.password == password:
             session['cid'] = user.cid
+            # print(session['cid'])
             return redirect(url_for('homepage'))
         return redirect(url_for('login'))
     return render_template("login.html")
@@ -180,7 +201,13 @@ def logout():
 
 @app.route("/settings/fillform")
 def set():
-    return render_template('settings.html')
+    # auto fill form with previous data
+    # do it later
+    customer = db.session.execute(db.select(Customers).where(
+        Customers.cid == session['cid'])).scalar()
+    print(customer.balance)
+    print(customer.budget)
+    return render_template('settings.html', balance=customer.balance, budget=customer.budget, joint=customer.joint)
 
 
 if __name__ == '__main__':

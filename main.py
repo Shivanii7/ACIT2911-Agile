@@ -65,6 +65,15 @@ def expense_homepage_get():
     processed_data.reverse()
     budget = customer.budget
     joint = customer.joint
+    if joint != 'None':
+        customer_joint = db.session.query(Customers).filter(
+            Customers.email == joint).first()
+        if not customer_joint:
+            budget = customer.budget
+        else:
+            budget = customer_joint.budget
+    else:
+        budget = customer.budget
 
     return render_template("expense.html", transactions=processed_data, balance=balance, joint=joint, budget=budget)
 
@@ -172,6 +181,7 @@ def set():
     print(customer.balance)
     print(customer.budget)
     return render_template('settings.html', balance=customer.balance, budget=customer.budget, joint=customer.joint)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=3000)

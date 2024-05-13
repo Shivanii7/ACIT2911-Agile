@@ -29,8 +29,8 @@ def homepage():
     return render_template("base.html")
 
 
-@app.route("/expenses", methods=['GET'])
-def expense_homepage_get():
+@app.route("/expenses")
+def expense_homepage():
     if 'cid' not in session:
         return redirect(url_for('login'))
 
@@ -72,8 +72,8 @@ def expense_homepage_get():
     return render_template("expense.html", transactions=processed_data, balance=balance, joint=joint, budget=budget)
 
 
-@app.route("/expenses", methods=['POST'])
-def expense_homepage():
+@app.route("/expenses", methods=['PUT'])
+def expense_update():
     if 'cid' not in session:
         return redirect(url_for('login'))
     cid = session['cid']
@@ -131,9 +131,10 @@ def expense_homepage():
 def create():
     expense = Expenses(name=request.form.get("name"), amount=request.form.get(
         "amount"), date=request.form.get("date"), description=request.form.get("des"), customer_id=session['cid'] if 'cid' in session else 1)
+    # print(expense.to_json())
     db.session.add(expense)
     db.session.commit()
-    return redirect(url_for("expense_homepage_get"))
+    return redirect(url_for("expense_homepage"))
 
 
 @app.route("/expenses/fillform", methods=['POST'])
@@ -141,12 +142,12 @@ def fill():
     return render_template('create.html')
 
 
-@app.route("/expenses/delete/<id>", methods=['POST'])
+@app.route("/expenses/delete/<id>", methods=['DELETE'])
 def expense_delete(id):
     expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)
     db.session.commit()
-    return redirect(url_for("expense_homepage_get"))
+    return redirect(url_for("expense_homepage"))
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -188,12 +189,10 @@ def logout():
 
 @app.route("/settings/fillform")
 def set():
-    # auto fill form with previous data
-    # do it later
     customer = db.session.execute(db.select(Customers).where(
         Customers.cid == session['cid'])).scalar()
-    print(customer.balance)
-    print(customer.budget)
+    # print(customer.balance)
+    # print(customer.budget)
     return render_template('settings.html', balance=customer.balance, budget=customer.budget, joint=customer.joint)
 
 

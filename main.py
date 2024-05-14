@@ -14,20 +14,33 @@ db.init_app(app)
 
 app.secret_key = 'super'
 
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = db.session.query(Customers).filter_by(email=email).first()
+        if user is None:
+            return redirect(url_for('login'))
+        if user.password == password:
+            session['cid'] = user.cid
+            #print("User logged in. CID:", session['cid'])
+            return redirect(url_for('homepage'))
+        return redirect(url_for('login'))
+    return render_template("login.html")
+
 @app.route("/")
 def index():
-    if 'cid' in session:
-        return redirect(url_for('homepage'))
-    else:
         return redirect(url_for('login'))
-
 
 @app.route("/home")
 def homepage():
     if 'cid' not in session:
+        #print("User not logged in. Redirecting to login page.")  # Add this line for debugging
         return redirect(url_for('login'))
-    return render_template("base.html")
-
+    else:
+        return render_template("base.html")
+    
 @app.route("/expenses")
 def expense_homepage():
     if 'cid' not in session:
@@ -169,26 +182,10 @@ def register():
         return redirect(url_for('login'))
     return render_template("register.html")
 
-
-@app.route("/login", methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        user = db.session.query(Customers).filter_by(email=email).first()
-        if user is None:
-            return redirect(url_for('login'))
-        if user.password == password:
-            session['cid'] = user.cid
-            # print(session['cid'])
-            return redirect(url_for('homepage'))
-        return redirect(url_for('login'))
-    return render_template("login.html")
-
-
 @app.route("/logout")
 def logout():
     session.pop('email', None)
+    #print("User logged out.")
     return redirect(url_for('login'))
 
 

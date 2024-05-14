@@ -47,7 +47,7 @@ class MyTest(TestCase):
             create_response = self.client.post(url_for('create'), data=dict(name='test', amount=100, date='2021-01-01', des='test'))
             assert create_response.status_code == 302
             id = db.session.query(Expenses).order_by(Expenses.eid.desc()).first()
-            delete_response = self.client.delete(url_for('expense_delete', id=id.eid))
+            delete_response = self.client.post(url_for('expense_delete', id=id.eid))
             print(delete_response)
             assert delete_response.status_code == 302
         expense_delete(self)
@@ -109,16 +109,15 @@ class MyTest(TestCase):
     
     def test_delete(self):
         # Test delete function
-        expense = Expenses(name='test', amount=100, date='2021-01-01', description='test', customer_id=1)
+        expense = Expenses(name='test_expense', amount=100, date='2021-01-01', description='test', customer_id=1)
         db.session.add(expense)
         
-        test_case = db.session.query(Expenses).filter_by(name='test').first()     
+        test_case = db.session.query(Expenses).filter_by(name='test_expense').first()     
         
-        assert test_case.name == 'test'
+        assert test_case.name == 'test_expense'
         db.session.delete(expense)
-        assert db.session.query(Expenses).filter_by(name='test').first() == None
+        assert db.session.query(Expenses).filter_by(name='test_expense').first() == None
     
     
 if __name__ == '__main__':
     pytest.main()
-

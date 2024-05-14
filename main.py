@@ -141,7 +141,7 @@ def fill():
     return render_template('create.html')
 
 
-@app.route("/expenses/delete/<id>", methods=['DELETE'])
+@app.route("/expenses/delete/<id>", methods=['POST'])
 def expense_delete(id):
     expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)

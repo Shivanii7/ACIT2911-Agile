@@ -117,16 +117,17 @@ class MyTest(TestCase):
 
     def test_delete(self):
         # Test delete function
-        expense = Expenses(name='test', amount=100,
+        expense = Expenses(name='test_expense', amount=100,
                            date='2021-01-01', description='test', customer_id=1)
         db.session.add(expense)
 
-        test_case = db.session.query(Expenses).filter_by(name='test').first()
+        test_case = db.session.query(Expenses).filter_by(
+            name='test_expense').first()
 
-        assert test_case.name == 'test'
+        assert test_case.name == 'test_expense'
         db.session.delete(expense)
         assert db.session.query(Expenses).filter_by(
-            name='test').first() == None
+            name='test_expense').first() == None
 
 
 if __name__ == '__main__':

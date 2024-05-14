@@ -5,32 +5,25 @@
     <title>Finance Dashboard</title>
     <link rel="stylesheet" href="../static/style.css" />
     <link rel="stylesheet" href="../static/base.css" />
+    {% block head %} {% endblock %}
   </head>
   <body>
     <div class="dashboard">
       <aside class="sidebar">
-        <div class="logo">
-          <span>💎</span>
-        </div>
+        
         <nav>
           <ul>
             <li><a href="{{ url_for('homepage') }}" class="active">🏠</a></li>
             <li><a href="{{ url_for('expense_homepage') }}">💸</a></li>
-            <li><a href="{{ url_for('set') }}">👤</a></li>
+            <li><a href="{{ url_for('set') }}">💎</a></li>
           </ul>
         </nav>
       </aside>
       <button>
         <a href="{{ url_for('logout') }}">Logout</a>
       </button>
-      {% block content %}
-      <h1>Dashboard</h1> 
-      <!-- This is a dashboard welcoming user, and providing links to homepage and expense page. -->
-      
 
-
-      {% endblock %}
-      
+  {% block content %} {% endblock %}
   </body>
 </html>
 

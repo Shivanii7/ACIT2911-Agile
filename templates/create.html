@@ -1,8 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{% extends "base.html" %} {% block head %}
+
     <title>Create Expense</title>
     <style>
       /* General Reset */
@@ -189,7 +186,7 @@
           padding: 10px;
         }
       }
-      h1 {
+      /* h1 {
         text-align: center;
         justify-content: center;
         position: absolute;
@@ -202,19 +199,21 @@
         -webkit-text-fill-color: transparent;
         letter-spacing: 2px;
         text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
-      }
+      } */
     </style>
-  </head>
+
+  {% endblock %} {% block content %}
   <body>
-    <div class="sidebar">
+    <!-- <div class="sidebar">
       <nav>
         <ul>
           <li><a href="#home"></a>💸</li>
           <li><a href="#expenses"></a>👤</li>
         </ul>
       </nav>
-    </div>
-    <h1>Add an Expense</h1>
+    </div> -->
+ 
+    
     <div class="main-content">
       <div class="create-container">
         <form
@@ -240,10 +239,9 @@
           </div>
           <input type="submit" value="Submit" />
         </form>
-        <a href="javascript:history.back()" class="back-button"
-          >Back to Previous Page</a
-        >
+        
       </div>
     </div>
   </body>
+  {% endblock %}
 </html>

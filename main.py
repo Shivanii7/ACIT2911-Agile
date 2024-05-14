@@ -72,7 +72,7 @@ def expense_homepage():
     return render_template("expense.html", transactions=processed_data, balance=balance, joint=joint, budget=budget)
 
 
-@app.route("/expenses", methods=['PUT'])
+@app.route("/expenses", methods=['POST'])
 def expense_update():
     if 'cid' not in session:
         return redirect(url_for('login'))
@@ -92,7 +92,8 @@ def expense_update():
     db.session.add(customer)
     db.session.commit()
 
-    joint_customer = db.session.query(Customers).filter(Customers.email == joint).first()
+    joint_customer = db.session.query(Customers).filter(
+        Customers.email == joint).first()
     # print(joint_customer)
 # when users input valid joint_customer, create a share record
     if joint_customer:

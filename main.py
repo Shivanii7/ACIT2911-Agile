@@ -72,7 +72,7 @@ def expense_homepage():
     return render_template("expense.html", transactions=processed_data, balance=balance, joint=joint, budget=budget)
 
 
-@app.route("/expenses", methods=['PUT'])
+@app.route("/expenses", methods=['POST'])
 def expense_update():
     if 'cid' not in session:
         return redirect(url_for('login'))

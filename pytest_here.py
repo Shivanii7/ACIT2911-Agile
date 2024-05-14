@@ -2,7 +2,9 @@ import pytest
 from flask import url_for
 from flask_testing import TestCase
 from main import app 
-
+from db import db
+from models import Customers, Expenses
+    
 class MyTest(TestCase):
 
     def create_app(self):
@@ -57,5 +59,33 @@ class MyTest(TestCase):
         logout_response = self.client.get(url_for('logout'))
         assert logout_response.status_code == 302
 
+    #Unit tests
+    def test_expense(self):
+        expense = Expenses(name='test', amount=100, date='2021-01-01', description='test', customer_id=1)
+        assert expense.name == 'test'
+        assert expense.amount == 100
+        assert expense.date == '2021-01-01'
+        assert expense.description == 'test'
+        assert expense.customer_id == 1
+    
+    def test_join(self):
+        # Test joint function between two users
+        pass
+    
+    def test_register(self):
+        # Test register function
+        new_user = {}
+        
+        pass
+    
+    def test_login(self):
+        # Test login function
+        pass
+    
+    def test_delete(self):
+        # Test delete function
+        pass
+    
+    
 if __name__ == '__main__':
     pytest.main()

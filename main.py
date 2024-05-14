@@ -92,8 +92,7 @@ def expense_update():
     db.session.add(customer)
     db.session.commit()
 
-    joint_customer = db.session.query(Customers).filter(
-        Customers.email == joint).first()
+    joint_customer = db.session.query(Customers).filter(Customers.email == joint).first()
     # print(joint_customer)
 # when users input valid joint_customer, create a share record
     if joint_customer:

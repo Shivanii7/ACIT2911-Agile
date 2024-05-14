@@ -71,8 +71,15 @@ class MyTest(TestCase):
     
     def test_join(self):
         # Test joint function between two users
-        pass
-    
+        cust_1 = Customers(email="user1@gmail.com", password="test", first_name="test", last_name="test")
+        cust_2 = Customers(email="user2@gmail.com", password="test", first_name="test", last_name="test")
+        cust_1.joint = cust_2
+        assert cust_1.joint == cust_2
+        assert cust_2.joint != cust_1
+        assert cust_1.budget == cust_2.budget
+        cust_2.joint = cust_1
+        assert cust_2.joint == cust_1
+        
     def test_register(self):
         # Test register function
         user = Customers(email="test@gmail.com", password="test", first_name="test", last_name="test")        

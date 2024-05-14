@@ -94,7 +94,7 @@ def expense_update():
 
     joint_customer = db.session.query(Customers).filter(
         Customers.email == joint).first()
-    print(joint_customer)
+    # print(joint_customer)
 # when users input valid joint_customer, create a share record
     if joint_customer:
         customer.joint = joint
@@ -114,8 +114,8 @@ def expense_update():
         return render_template("message_share.html", option=1, customer_current=customer.email, customer_joint=joint)
 # when users leave "joint" box empty, meaning this user doesn't want to share any more, balance and budget will be updated in database
     elif joint == "N/A":
-        print("budget", budget)
-        print("budgetc", customer.budget)
+        # print("budget", budget)
+        # print("budgetc", customer.budget)
         customer.budget = budget
         customer.balance = balance
         customer.joint = joint

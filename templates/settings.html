@@ -6,15 +6,30 @@
     <title>Document</title>
   </head>
   <body>
-    <form method="POST" action="{{ url_for('expense_homepage') }}">
+    <form method="POST" action="{{ url_for('expense_update') }}">
       <label for="balance">Balance:</label>
-      <input type="number" id="balance" name="balance" placeholder= "${{ balance }}">
+      <input
+        type="number"
+        id="balance"
+        name="balance"
+        placeholder="${{ balance }}"
+      />
       <br />
       <br />
       <label for="budget">Budget:</label>
-      <input type="number" id="budget" name="budget" placeholder=" ${{ budget }}"><br /><br />
+      <input
+        type="number"
+        id="budget"
+        name="budget"
+        placeholder=" ${{ budget }}"
+      /><br /><br />
       <label for="joint">Joint:</label>
-      <input type="text" id="joint" name="joint" placeholder="{{ joint }}" ><br /><br />
+      <input
+        type="text"
+        id="joint"
+        name="joint"
+        placeholder="{{ joint }}"
+      /><br /><br />
 
       <input type="submit" value="Submit" />
     </form>

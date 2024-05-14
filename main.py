@@ -14,6 +14,7 @@ db.init_app(app)
 
 app.secret_key = 'super'
 
+
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -24,23 +25,26 @@ def login():
             return redirect(url_for('login'))
         if user.password == password:
             session['cid'] = user.cid
-            #print("User logged in. CID:", session['cid'])
+            # print("User logged in. CID:", session['cid'])
             return redirect(url_for('homepage'))
         return redirect(url_for('login'))
     return render_template("login.html")
 
+
 @app.route("/")
 def index():
-        return redirect(url_for('login'))
+    return redirect(url_for('login'))
+
 
 @app.route("/home")
 def homepage():
     if 'cid' not in session:
-        #print("User not logged in. Redirecting to login page.")  # Add this line for debugging
+        # print("User not logged in. Redirecting to login page.")  # Add this line for debugging
         return redirect(url_for('login'))
     else:
         return render_template("base.html")
-    
+
+
 @app.route("/expenses")
 def expense_homepage():
     if 'cid' not in session:
@@ -104,7 +108,8 @@ def expense_update():
     db.session.add(customer)
     db.session.commit()
 
-    joint_customer = db.session.query(Customers).filter(Customers.email == joint).first()
+    joint_customer = db.session.query(Customers).filter(
+        Customers.email == joint).first()
     # print(joint_customer)
 # when users input valid joint_customer, create a share record
     if joint_customer:
@@ -148,26 +153,24 @@ def create():
             "amount"), date=request.form.get("date"), description=request.form.get("des"), customer_id=session['cid'] if 'cid' in session else 1)
         db.session.add(expense)
         db.session.commit()
-        return redirect(url_for("expense_homepage_get"))
+        return redirect(url_for("expense_homepage"))
 
 
 @app.route("/expenses/fillform", methods=['POST'])
 def fill():
-    if 'cid' not in session:
-        return redirect(url_for('login'))
-    else:
-        return render_template('create.html')
+    return render_template('create.html')
 
 
 @app.route("/expenses/delete/<id>", methods=['POST'])
 def expense_delete(id):
     if 'cid' not in session:
         return redirect(url_for('login'))
-    
+
     expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)
     db.session.commit()
     return redirect(url_for("expense_homepage"))
+
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -176,16 +179,18 @@ def register():
         password = request.form['password']
         first_name = request.form['first_name']
         last_name = request.form['last_name']
-        user = Customers(email=email, password=password, first_name=first_name, last_name=last_name)
+        user = Customers(email=email, password=password,
+                         first_name=first_name, last_name=last_name)
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('login'))
     return render_template("register.html")
 
+
 @app.route("/logout")
 def logout():
     session.pop('email', None)
-    #print("User logged out.")
+    # print("User logged out.")
     return redirect(url_for('login'))
 
 

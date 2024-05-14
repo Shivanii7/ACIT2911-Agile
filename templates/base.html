@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Finance Dashboard</title>
     <link rel="stylesheet" href="../static/style.css" />
+    <link rel="stylesheet" href="../static/base.css" />
   </head>
   <body>
     <div class="dashboard">
@@ -14,7 +15,7 @@
         <nav>
           <ul>
             <li><a href="{{ url_for('homepage') }}" class="active">🏠</a></li>
-            <li><a href="{{ url_for('expense_homepage_get') }}">💸</a></li>
+            <li><a href="{{ url_for('expense_homepage') }}">💸</a></li>
             <li><a href="{{ url_for('set') }}">👤</a></li>
           </ul>
         </nav>

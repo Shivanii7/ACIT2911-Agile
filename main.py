@@ -14,7 +14,6 @@ db.init_app(app)
 
 app.secret_key = 'super'
 
-
 @app.route("/")
 def index():
     if 'cid' in session:
@@ -29,9 +28,8 @@ def homepage():
         return redirect(url_for('login'))
     return render_template("base.html")
 
-
-@app.route("/expenses", methods=['GET'])
-def expense_homepage_get():
+@app.route("/expenses")
+def expense_homepage():
     if 'cid' not in session:
         return redirect(url_for('login'))
 
@@ -73,8 +71,8 @@ def expense_homepage_get():
     return render_template("expense.html", transactions=processed_data, balance=balance, joint=joint, budget=budget)
 
 
-@app.route("/expenses", methods=['POST'])
-def expense_homepage():
+@app.route("/expenses", methods=['PUT'])
+def expense_update():
     if 'cid' not in session:
         return redirect(url_for('login'))
     cid = session['cid']
@@ -93,9 +91,8 @@ def expense_homepage():
     db.session.add(customer)
     db.session.commit()
 
-    joint_customer = db.session.query(Customers).filter(
-        Customers.email == joint).first()
-    print(joint_customer)
+    joint_customer = db.session.query(Customers).filter(Customers.email == joint).first()
+    # print(joint_customer)
 # when users input valid joint_customer, create a share record
     if joint_customer:
         customer.joint = joint
@@ -115,8 +112,8 @@ def expense_homepage():
         return render_template("message_share.html", option=1, customer_current=customer.email, customer_joint=joint)
 # when users leave "joint" box empty, meaning this user doesn't want to share any more, balance and budget will be updated in database
     elif joint == "N/A":
-        print("budget", budget)
-        print("budgetc", customer.budget)
+        # print("budget", budget)
+        # print("budgetc", customer.budget)
         customer.budget = budget
         customer.balance = balance
         customer.joint = joint
@@ -157,8 +154,7 @@ def expense_delete(id):
     expense = db.get_or_404(Expenses, id)
     db.session.delete(expense)
     db.session.commit()
-    return redirect(url_for("expense_homepage_get"))
-
+    return redirect(url_for("expense_homepage"))
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():

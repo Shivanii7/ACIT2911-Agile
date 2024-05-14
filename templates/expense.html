@@ -43,7 +43,7 @@
                 {% endif %}
               </td>
               <td>
-                <form method="DELETE" action="{{ url_for('expense_delete', id=transaction['id']) }}">
+                <form method="POST" action="{{ url_for('expense_delete', id=transaction['id']) }}">
                   <button type="submit" class="delete_button">Delete</button>
                 </form>      
               </td>

@@ -156,7 +156,7 @@ def create():
         return redirect(url_for("expense_homepage"))
 
 
-@app.route("/expenses/fillform", methods=['POST'])
+@app.route("/expenses/fillform", methods=['POST', 'GET'])
 def fill():
     return render_template('create.html')
 

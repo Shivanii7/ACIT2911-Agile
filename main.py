@@ -44,10 +44,12 @@ def homepage():
     else:
         return render_template("base.html")
 
+
 @app.route("/submit_form", methods=['POST'])
 def submit_form():
     print(request.form.get("search"))
-    return redirect(url_for('expense_homepage')+ "?search=" + request.form.get("search"))
+    return redirect(url_for('expense_homepage') + "?search=" + request.form.get("search"))
+
 
 @app.route("/expenses")
 def expense_homepage():
@@ -62,20 +64,22 @@ def expense_homepage():
         search = request.args.get("search")
     except:
         search = None
-    
+
     if search != None:
         data = db.session.execute(
             db.select(Expenses).filter(Expenses.customer_id == cid).filter(Expenses.name.like('%'+search+'%')))
     else:
-        data = db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid))
+        data = db.session.execute(
+            db.select(Expenses).filter(Expenses.customer_id == cid))
     processed_data = []
-    
+
     balance = customer.balance
     before = balance
-    bal_data = db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid))
+    bal_data = db.session.execute(
+        db.select(Expenses).filter(Expenses.customer_id == cid))
     for i in bal_data.scalars():
         balance -= i.amount
-    
+
     for i in data.scalars():
         u = {
             'id': i.eid,
@@ -121,13 +125,12 @@ def expense_update():
     customer.budget = budget
     customer.balance = balance
 
-    # # print(customer.to_json())
     db.session.add(customer)
     db.session.commit()
 
     joint_customer = db.session.query(Customers).filter(
         Customers.email == joint).first()
-    # print(joint_customer)
+
 # when users input valid joint_customer, create a share record
     if joint_customer:
         customer.joint = joint
@@ -144,7 +147,10 @@ def expense_update():
         customer.budget = joint_customer.budget
         db.session.add(share)
         db.session.commit()
-        return render_template("message_share.html", option=1, customer_current=customer.email, customer_joint=joint)
+        jsonString = {"message": (
+            f"{customer.email} is successfully sharing budget with {joint}")}
+
+
 # when users leave "joint" box empty, meaning this user doesn't want to share any more, balance and budget will be updated in database
     elif joint == "N/A":
         # print("budget", budget)
@@ -154,10 +160,15 @@ def expense_update():
         customer.joint = joint
         db.session.add(customer)
         db.session.commit()
-        return render_template("message_share.html", option=2, customer_current=customer.email, customer_joint=joint)
+        jsonString = {"message":
+                      "You didn't input a joint customer, you are not sharing budget with others!"}
+
+
 # when users input content not exiting in database, nothing happen to database
     elif not joint_customer:
-        return render_template("message_share.html", option=0, customer_current=customer.email, customer_joint=joint)
+        jsonString = {"message": (
+            f"{customer.email} is not sharing budget with {joint}")}
+    return jsonString
 
 
 @app.route("/expenses/create", methods=['POST'])

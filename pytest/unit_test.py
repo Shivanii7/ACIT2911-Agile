@@ -5,8 +5,13 @@ from main import app
 from db import db
 from models import Customers, Expenses
 
+
 class MyTest(TestCase):
+    def create_app(self):
+        app.config['TESTING'] = True
+        return app
 # Unit tests
+
     def test_expense(self):
         expense = Expenses(name='test', amount=100,
                            date='2021-01-01', description='test', customer_id=1)
@@ -41,7 +46,6 @@ class MyTest(TestCase):
         assert user.budget == None
         assert user.joint == None
         assert user.expenses == []
-        
 
     def test_login_true(self):
         # Test login function
@@ -70,6 +74,7 @@ class MyTest(TestCase):
         db.session.delete(expense)
         assert db.session.query(Expenses).filter_by(
             name='test_expense').first() == None
+
 
 if __name__ == '__main__':
     pytest.main()

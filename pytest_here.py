@@ -26,13 +26,13 @@ class MyTest(TestCase):
 
     def test_reg_log_cycle(self):
         # Registration
-        data = dict(email='test@gmail.com', password='test',
-                    first_name='test', last_name='test')
+        data = dict(email='test!@gmail.com', password='test123',
+                    first_name='test', last_name='test_last')
         reg_response = self.client.post(url_for('register'), data=data)
         assert reg_response.status_code == 302
 
         # Login
-        data = dict(email='test@gmail.com', password='test')
+        data = dict(email='test!@gmail.com', password='test123')
         login_response = self.client.post(url_for('login'), data=data)
         assert login_response.status_code == 302
 
@@ -64,6 +64,10 @@ class MyTest(TestCase):
         # Logout
         logout_response = self.client.get(url_for('logout'))
         assert logout_response.status_code == 302
+        
+        #Clean up
+        db.session.delete(db.session.query(Customers).filter_by(email = "test!@gmail.com").first())
+        db.session.commit()
 
     # Unit tests
     def test_expense(self):
@@ -90,20 +94,21 @@ class MyTest(TestCase):
 
     def test_register(self):
         # Test register function
-        user = Customers(email="test@gmail.com", password="test",
-                         first_name="test", last_name="test")
+        user = Customers(email="test@gmail.com", password="test1234",
+                         first_name="test_first", last_name="test_last")
         assert user.email == "test@gmail.com"
-        assert user.password == "test"
-        assert user.first_name == "test"
-        assert user.last_name == "test"
+        assert user.password == "test1234"
+        assert user.first_name == "test_first"
+        assert user.last_name == "test_last"
         assert user.balance == None
         assert user.budget == None
         assert user.joint == None
         assert user.expenses == []
+        
 
     def test_login_true(self):
         # Test login function
-        login_info = {"email": "test@gmail.com", "password": "test"}
+        login_info = {"email": "test!@gmail.com", "password": "test123"}
         for i in db.session.query(Customers).filter_by(email=login_info["email"]):
             assert i.email == login_info["email"]
             assert i.password == login_info["password"]

@@ -5,7 +5,9 @@
 <div class="main-content">
     <header>
       <h1>Your Account</h1>
-      <input type="search" placeholder="Search" />
+      <form action="{{ url_for('submit_form') }}" method="post">
+        <input type="search" placeholder="Search" name="search"/>
+    </form>
       <img
         class="profile-pic"
         src="{{ url_for('static', filename = 'profile.jpg') }}"
@@ -23,6 +25,9 @@
       </section>
       <section class="history-section">
         <h2>Expense History</h2>
+        {% if search %}
+          <p>Search results for "{{ search }}"</p>
+        {% endif %}
         <div>
           <table class="table">
             <tr class="expense_items">

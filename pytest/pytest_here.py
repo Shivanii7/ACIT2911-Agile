@@ -6,6 +6,7 @@ from db import db
 from models import Customers, Expenses
 
 
+
 class MyTest(TestCase):
 
     def create_app(self):

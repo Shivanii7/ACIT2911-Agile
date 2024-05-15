@@ -44,6 +44,10 @@ def homepage():
     else:
         return render_template("base.html")
 
+@app.route("/submit_form", methods=['POST'])
+def submit_form():
+    print(request.form.get("search"))
+    return redirect(url_for('expense_homepage')+ "?search=" + request.form.get("search"))
 
 @app.route("/expenses")
 def expense_homepage():
@@ -54,11 +58,22 @@ def expense_homepage():
 
     customer = db.session.execute(
         db.select(Customers).where(Customers.cid == cid)).scalar()
-    data = db.session.execute(
-        db.select(Expenses).filter(Expenses.customer_id == cid))
+    
+    search = request.args.get("search")
+    
+    if search != None:
+        data = db.session.execute(
+            db.select(Expenses).filter(Expenses.customer_id == cid).filter(Expenses.name.like('%'+search+'%')))
+    else:
+        data = db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid))
     processed_data = []
-
+    
     balance = customer.balance
+    before = balance
+    bal_data = db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid))
+    for i in bal_data.scalars():
+        balance -= i.amount
+    
     for i in data.scalars():
         u = {
             'id': i.eid,
@@ -66,10 +81,10 @@ def expense_homepage():
             'amount': i.amount,
             'date': i.date,
             # 'description': i.description if i.description else 'N/A',
-            'before': balance,
-            'balance': balance - i.amount
+            'before': before,
+            'balance': before - i.amount
         }
-        balance -= i.amount
+        before -= i.amount
         processed_data.append(u)
     # print(data)
     processed_data.reverse()

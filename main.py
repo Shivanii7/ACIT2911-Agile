@@ -100,7 +100,7 @@ def expense_homepage():
     else:
         budget = customer.budget
 
-    return render_template("expense.html", transactions=processed_data, balance=balance, joint=joint, budget=budget)
+    return render_template("expense.html", transactions=processed_data, balance=balance, joint=joint, budget=budget, search=search)
 
 
 @app.route("/expenses", methods=['POST'])

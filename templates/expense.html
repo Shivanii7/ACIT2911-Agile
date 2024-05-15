@@ -25,6 +25,9 @@
       </section>
       <section class="history-section">
         <h2>Expense History</h2>
+        {% if search %}
+          <p>Search results for "{{ search }}"</p>
+        {% endif %}
         <div>
           <table class="table">
             <tr class="expense_items">

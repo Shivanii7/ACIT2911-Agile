@@ -58,8 +58,10 @@ def expense_homepage():
 
     customer = db.session.execute(
         db.select(Customers).where(Customers.cid == cid)).scalar()
-    
-    search = request.args.get("search")
+    try:
+        search = request.args.get("search")
+    except:
+        search = None
     
     if search != None:
         data = db.session.execute(
@@ -194,6 +196,8 @@ def register():
         password = request.form['password']
         first_name = request.form['first_name']
         last_name = request.form['last_name']
+        if db.session.query(Customers).filter_by(email=email).first():
+            return redirect(url_for('register'))
         user = Customers(email=email, password=password,
                          first_name=first_name, last_name=last_name)
         db.session.add(user)

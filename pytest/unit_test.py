@@ -219,78 +219,6 @@ def test_get_expense_data_without_search(mock_get_expenses_by_cid_and_search, mo
                        'amount': 100, 'date': '2024-05-16'}]
 
 
-def test_populate_expenses(create_app, setup_data):
-    with create_app.app_context():
-        # Clear the Expenses table
-        Expenses.query.delete()
-        db.session.commit()
-
-        # Call the function under test
-        populate_expenses()
-
-        # Assert that the Expenses table is not empty
-        expenses = Expenses.query.all()
-        assert len(expenses) > 0
-
-
-def test_populate_customers(create_app, setup_data):
-    with create_app.app_context():
-        # Clear the Customers table
-        Customers.query.delete()
-        db.session.commit()
-
-        # Call the function under test
-        populate_customers()
-
-        # Assert that the Customers table is not empty
-        customers = Customers.query.all()
-        assert len(customers) > 0
-
-
-def test_populate_shares(create_app, setup_data):
-    with create_app.app_context():
-        # Clear the Shares table
-        Shares.query.delete()
-        db.session.commit()
-
-        # Call the function under test
-        populate_shares()
-
-        # Assert that the Shares table is not empty
-        shares = Shares.query.all()
-        assert len(shares) > 0
-# def test_process_expense_data(create_app):
-#     with create_app.app_context():
-#         print_database_state(create_app)
-#         data = Expenses(name="test expense", amount=100, date='2024-05-16',
-#                         description="test description", customer_id=1)
-#         # db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid).filter(Expenses.name.like('%'+search+'%')))
-#         db.session.add(data)
-#         # data = [{'eid': 1, 'name': 'Test Expense',
-#         #          'amount': 100, 'date': '2024-05-16'}]
-#         balance = 500
-
-#         result = process_expense_data(data, balance)
-
-#         assert result == [{'id': 6, 'name': 'test expense', 'amount': 100,
-#                            'date': '2024-05-16', 'before': 500, 'balance': 400}]
-
-# def test_process_expense_data(create_app, setup_data):
-#     with create_app.app_context():
-#         # Assuming Expenses model has an attribute 'eid' representing the expense ID
-#         create_expense(
-#             "test6", 100, "2022-01-01", "test description6", 1)
-#         fetched_data = get_expense_by_id(6)
-#         # assert fetched_data is not None  # Check if fetched data is not None
-
-#         balance = 500
-#         result = process_expense_data(fetched_data, balance)
-
-#         assert result == [{'id': 6, 'name': "test6",
-#                            'amount': 100, 'date': "2022-01-01",
-#                            'before': 500, 'balance': 400}]
-
-
 def test_get_budget_with_joint(create_app, setup_data):
     with create_app.app_context():
         customer1 = get_customer_by_cid(1)
@@ -393,6 +321,36 @@ def test_update_budget(user):
     assert user.budget == 1000
     user.joint = "invalid_email"
     assert user.budget == 1000
+
+
+# test manage.py
+
+
+def test_populate_expenses(create_app, setup_data):
+    with create_app.app_context():
+        Expenses.query.delete()
+        db.session.commit()
+        populate_expenses()
+        expenses = Expenses.query.all()
+        assert len(expenses) > 0
+
+
+def test_populate_customers(create_app, setup_data):
+    with create_app.app_context():
+        Customers.query.delete()
+        db.session.commit()
+        populate_customers()
+        customers = Customers.query.all()
+        assert len(customers) > 0
+
+
+def test_populate_shares(create_app, setup_data):
+    with create_app.app_context():
+        Shares.query.delete()
+        db.session.commit()
+        populate_shares()
+        shares = Shares.query.all()
+        assert len(shares) > 0
 
 
 if __name__ == '__main__':

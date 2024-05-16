@@ -1,3 +1,37 @@
+:root  {
+--dark-bg-color-: #fefefe;
+--light-bg-color: rgb(0, 0, 0);
+--dark-text-color: black;
+--light-text-color: white;
+
+}
+body {
+  background-color: var(--light-bg-color);
+  color: var(--light-text-color);
+}
+h1{
+  background-color: var(--light-bg-color);
+  color: var(--light-text-color);
+}
+
+.main-content {
+  background-color: var(--light-bg-color-);
+  color: var(--light-text-color);
+  
+}
+.content {
+  background-color: var(--light-bg-color);
+  color: var(--light-text-color);
+}
+.overview-section {
+  background-color: var(--light-bg-color);
+  color: var(--light-text-color);
+}
+.history-section {
+  background-color: var(--light-bg-color);
+  color: var(--light-text-color);
+}
+
 .modal {
     display: none;
     z-index: 1;
@@ -44,4 +78,51 @@
     margin: 4px 2px;
     cursor: pointer;
     border-radius: 4px;
+  }
+  /* .main-content #darkMode{
+    display:none; */
+  /* } */
+  
+  /* .main-content #darkMode, .history-section, .overview-section, .send-section, .request-section, .card, .table, .table td, .table th, .table tr, .table tbody, .table thead {
+   */ 
+#dmtoggle {
+    width: 30px;;
+    height: 60px;;
+    position: relative;
+    right: 15px;
+    top: 15px;
+    display: block;
+    background: #ebebeb;
+    border-radius: 200px;
+    box-shadow: inset 0px 5px 15px rgba(0,0,0,0.4), inset 0px -5px 15px rgba(5, 5, 5, 0.4);
+    cursor: pointer;
+  }
+  label:after {
+    content: "";
+    width:15px;
+    height: 30px;
+    position: absolute;
+    top: 15px;;
+    right:10px;
+    background: linear-gradient(180deg,#060703be,#0f0f0765);
+    border-radius: 180px;
+    box-shadow: 0px 5px 10px rgba(0,0,0,0.4);
+  }
+  input[name="dmtoggle"] {
+    width: 0;
+    height: 0;
+    visibility: hidden;
+  }
+  input:checked + label {
+    background: #242424;
+  }
+  input:checked + label:after {
+    
+    transform: translateY(100%);
+    background: linear-gradient(180deg,#fff789,#f5e503);
+    box-shadow: 0px 5px 10px rgba(255, 251, 2, 1);
+   
+  }
+  label, label:after {
+    transition: 0.3s
   }

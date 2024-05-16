@@ -1,9 +1,7 @@
-
 from flask import Flask, redirect, render_template, request, url_for, session
 from pathlib import Path
 from db import db
 from models import Customers, Expenses, Shares
-from models import Expenses, Customers
 
 app = Flask(__name__)
 
@@ -15,19 +13,121 @@ db.init_app(app)
 app.secret_key = 'super'
 
 
+def get_customer_by_cid(cid):
+    return db.session.execute(db.select(Customers).where(Customers.cid == cid)).scalar()
+
+
+def get_expenses_by_cid(cid):
+    return db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid))
+
+
+def get_expenses_by_cid_and_search(cid, search):
+    return db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid).filter(Expenses.name.like('%'+search+'%')))
+
+
+def get_customer_by_email(email):
+    return db.session.query(Customers).filter(Customers.email == email).first()
+
+
+def get_share_by_joint_id_1(cid):
+    return db.session.query(Shares).filter(Shares.joint_id_1 == cid).first()
+
+
+def get_expense_by_id(id):
+    return db.get_or_404(Expenses, id)
+
+
+def create_expense(name, amount, date, description, cid):
+    expense = Expenses(name=name, amount=amount, date=date,
+                       description=description, customer_id=cid)
+    db.session.add(expense)
+    db.session.commit()
+
+
+def create_customer(email, password, first_name, last_name):
+    user = Customers(email=email, password=password,
+                     first_name=first_name, last_name=last_name)
+    db.session.add(user)
+    db.session.commit()
+
+
+def delete_expense(expense):
+    db.session.delete(expense)
+    db.session.commit()
+
+
+def update_customer(customer):
+    db.session.add(customer)
+    db.session.commit()
+
+
+def update_customer_budget(customer, budget, balance, joint="N/A"):
+    joint_customer = get_customer_by_email(joint)
+    if joint_customer or joint == "N/A":
+        customer.joint = joint
+    customer.budget = budget
+    customer.balance = balance
+    db.session.add(customer)
+    db.session.commit()
+
+
+def create_share(customer, joint_customer):
+    share = Shares.query.filter_by(joint_id_1=customer.cid).first()
+
+    if not share:
+        share = Shares(joint_id_1=customer.cid, joint_id_2=joint_customer.cid)
+    else:
+        share.joint_id_2 = joint_customer.cid
+
+    customer.budget = joint_customer.budget
+    db.session.add(share)
+    db.session.commit()
+
+
+def get_expense_data(cid, search):
+    if search is not None:
+        return get_expenses_by_cid_and_search(cid, search)
+    else:
+        return get_expenses_by_cid(cid)
+
+
+def process_expense_data(data, balance):
+    processed_data = []
+    before = balance
+    for i in data.scalars():
+        u = {
+            'id': i.eid,
+            'name': i.name,
+            'amount': i.amount,
+            'date': i.date,
+            'before': before,
+            'balance': before - i.amount
+        }
+        before -= i.amount
+        processed_data.append(u)
+    processed_data.reverse()
+    return processed_data
+
+
+def get_budget(customer):
+    joint = customer.joint
+    if joint != 'None':
+        customer_joint = get_customer_by_email(joint)
+        return customer_joint.budget if customer_joint else customer.budget
+    else:
+        return customer.budget
+
+
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        user = db.session.query(Customers).filter_by(email=email).first()
-        if user is None:
+        user = get_customer_by_email(email)
+        if user is None or user.password != password:
             return redirect(url_for('login'))
-        if user.password == password:
-            session['cid'] = user.cid
-            # print("User logged in. CID:", session['cid'])
-            return redirect(url_for('homepage'))
-        return redirect(url_for('login'))
+        session['cid'] = user.cid
+        return redirect(url_for('expense_homepage'))
     return render_template("login.html")
 
 
@@ -39,7 +139,6 @@ def index():
 @app.route("/home")
 def homepage():
     if 'cid' not in session:
-        # print("User not logged in. Redirecting to login page.")  # Add this line for debugging
         return redirect(url_for('login'))
     else:
         return render_template("base.html")
@@ -55,58 +154,17 @@ def submit_form():
 def expense_homepage():
     if 'cid' not in session:
         return redirect(url_for('login'))
-
     cid = session['cid']
-
-    customer = db.session.execute(
-        db.select(Customers).where(Customers.cid == cid)).scalar()
-    try:
-        search = request.args.get("search")
-    except:
-        search = None
-
-    if search != None:
-        data = db.session.execute(
-            db.select(Expenses).filter(Expenses.customer_id == cid).filter(Expenses.name.like('%'+search+'%')))
-    else:
-        data = db.session.execute(
-            db.select(Expenses).filter(Expenses.customer_id == cid))
-    processed_data = []
-
+    customer = get_customer_by_cid(cid)
+    search = request.args.get("search", None)
+    data = get_expense_data(cid, search)
     balance = customer.balance
-    before = balance
-    bal_data = db.session.execute(
-        db.select(Expenses).filter(Expenses.customer_id == cid))
+    processed_data = process_expense_data(data, balance)
+    bal_data = get_expenses_by_cid(cid)
     for i in bal_data.scalars():
         balance -= i.amount
-
-    for i in data.scalars():
-        u = {
-            'id': i.eid,
-            'name': i.name,
-            'amount': i.amount,
-            'date': i.date,
-            # 'description': i.description if i.description else 'N/A',
-            'before': before,
-            'balance': before - i.amount
-        }
-        before -= i.amount
-        processed_data.append(u)
-    # print(data)
-    processed_data.reverse()
-    budget = customer.budget
-    joint = customer.joint
-    if joint != 'None':
-        customer_joint = db.session.query(Customers).filter(
-            Customers.email == joint).first()
-        if not customer_joint:
-            budget = customer.budget
-        else:
-            budget = customer_joint.budget
-    else:
-        budget = customer.budget
-
-    return render_template("expense.html", transactions=processed_data, balance=balance, joint=joint, budget=budget, search=search)
+    budget = get_budget(customer)
+    return render_template("expense.html", transactions=processed_data, balance=balance, joint=customer.joint, budget=budget, search=search)
 
 
 @app.route("/expenses", methods=['POST'])
@@ -114,60 +172,28 @@ def expense_update():
     if 'cid' not in session:
         return redirect(url_for('login'))
     cid = session['cid']
-
-    customer = db.session.execute(
-        db.select(Customers).where(Customers.cid == cid)).scalar()
-
+    customer = get_customer_by_cid(cid)
     budget = float(request.form.get("budget") or 0)
     balance = float(request.form.get("balance") or 0)
     joint = request.form.get("joint") or "N/A"
-
-    customer.budget = budget
-    customer.balance = balance
-
-    db.session.add(customer)
-    db.session.commit()
-
-    joint_customer = db.session.query(Customers).filter(
-        Customers.email == joint).first()
+    update_customer_budget(customer, budget, balance, joint)
+    joint_customer = get_customer_by_email(joint)
 
 # when users input valid joint_customer, create a share record
     if joint_customer:
         customer.joint = joint
-        share = db.session.query(Shares).filter(
-            Shares.joint_id_1 == cid).first()
-        # if the logged customer doesn't exit in the share table as joint_id_1, then create
-        if not share:
-            share = Shares(joint_id_1=cid, joint_id_2=joint_customer.cid)
-            # if the logged customer exits in the share table as joint_id_1, then update
-        else:
-            share = db.session.execute(
-                db.select(Shares).where(Shares.joint_id_1 == cid)).scalar()
-            share.joint_id_2 = joint_customer.cid
-        customer.budget = joint_customer.budget
-        db.session.add(share)
-        db.session.commit()
+        create_share(customer, joint_customer)
         jsonString = {"message": (
             f"{customer.email} is successfully sharing budget with {joint}")}
-
-
-# when users leave "joint" box empty, meaning this user doesn't want to share any more, balance and budget will be updated in database
+# when users leave "joint" box empty, meaning this user doesn't want to share any more, nothing happens to database
     elif joint == "N/A":
-        # print("budget", budget)
-        # print("budgetc", customer.budget)
-        customer.budget = budget
-        customer.balance = balance
-        customer.joint = joint
-        db.session.add(customer)
-        db.session.commit()
+        update_customer_budget(customer, budget, balance, joint)
         jsonString = {"message":
-                      "You didn't input a joint customer, you are not sharing budget with others!"}
-
-
+                      "You didn't input a joint customer!"}
 # when users input content not exiting in database, nothing happen to database
     elif not joint_customer:
-        jsonString = {"message": (
-            f"{customer.email} is not sharing budget with {joint}")}
+        jsonString = {"message":
+                      "The joint customer doesn't exit!"}
     return jsonString
 
 
@@ -176,7 +202,6 @@ def create():
     if 'cid' not in session:
         return redirect(url_for('login'))
     else:
-
         expense = Expenses(name=request.form.get("name"), amount=request.form.get(
             "amount"), date=request.form.get("date"), description=request.form.get("des"), customer_id=session['cid'] if 'cid' in session else 1)
         db.session.add(expense)
@@ -220,7 +245,6 @@ def register():
 @app.route("/logout")
 def logout():
     session.pop('email', None)
-    # print("User logged out.")
     return redirect(url_for('login'))
 
 
@@ -228,12 +252,8 @@ def logout():
 def set():
     if 'cid' not in session:
         return redirect(url_for('login'))
-    # auto fill form with previous data
-    # do it later
     customer = db.session.execute(db.select(Customers).where(
         Customers.cid == session['cid'])).scalar()
-    print(customer.balance)
-    print(customer.budget)
     return render_template('settings.html', balance=customer.balance, budget=customer.budget, joint=customer.joint)
 
 

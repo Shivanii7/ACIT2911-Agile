@@ -1,10 +1,10 @@
 :root  {
---dark-bg-color-: #fefefe;
---light-bg-color: rgb(0, 0, 0);
---dark-text-color: black;
---light-text-color: white;
-
+--light-bg-color: white;
+--dark-bg-color: black;
+--light-text-color: black;
+--dark-text-color: white;
 }
+/* }
 body {
   background-color: var(--light-bg-color);
   color: var(--light-text-color);
@@ -12,8 +12,27 @@ body {
 h1{
   background-color: var(--light-bg-color);
   color: var(--light-text-color);
-}
+} */
 
+body.dark{
+  background-color: var(--dark-bg-color);
+  color: var(--dark-text-color);
+}
+body.dark  {
+  :is(h1, .main-content, .content, .overview-section, .history-section) {
+    background-color: var(--dark-bg-color);
+    color: var(--dark-text-color);
+
+  }
+}
+body {
+  :is(h1, .main-content, .content, .overview-section, .history-section) {
+    background-color: var(--light-bg-color-);
+    color: var(--light-text-color);
+
+  }
+}
+/* 
 .main-content {
   background-color: var(--light-bg-color-);
   color: var(--light-text-color);
@@ -30,7 +49,7 @@ h1{
 .history-section {
   background-color: var(--light-bg-color);
   color: var(--light-text-color);
-}
+} */
 
 .modal {
     display: none;

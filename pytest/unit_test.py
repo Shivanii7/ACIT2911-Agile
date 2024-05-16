@@ -4,6 +4,7 @@ from flask import url_for
 from flask_testing import TestCase
 from main import app, create_share, get_budget, get_expense_data, process_expense_data
 from db import db
+from manage import populate_customers, populate_expenses, populate_shares
 from models import Customers, Expenses
 
 import pytest
@@ -218,6 +219,46 @@ def test_get_expense_data_without_search(mock_get_expenses_by_cid_and_search, mo
                        'amount': 100, 'date': '2024-05-16'}]
 
 
+def test_populate_expenses(create_app, setup_data):
+    with create_app.app_context():
+        # Clear the Expenses table
+        Expenses.query.delete()
+        db.session.commit()
+
+        # Call the function under test
+        populate_expenses()
+
+        # Assert that the Expenses table is not empty
+        expenses = Expenses.query.all()
+        assert len(expenses) > 0
+
+
+def test_populate_customers(create_app, setup_data):
+    with create_app.app_context():
+        # Clear the Customers table
+        Customers.query.delete()
+        db.session.commit()
+
+        # Call the function under test
+        populate_customers()
+
+        # Assert that the Customers table is not empty
+        customers = Customers.query.all()
+        assert len(customers) > 0
+
+
+def test_populate_shares(create_app, setup_data):
+    with create_app.app_context():
+        # Clear the Shares table
+        Shares.query.delete()
+        db.session.commit()
+
+        # Call the function under test
+        populate_shares()
+
+        # Assert that the Shares table is not empty
+        shares = Shares.query.all()
+        assert len(shares) > 0
 # def test_process_expense_data(create_app):
 #     with create_app.app_context():
 #         print_database_state(create_app)
@@ -248,6 +289,7 @@ def test_get_expense_data_without_search(mock_get_expenses_by_cid_and_search, mo
 #         assert result == [{'id': 6, 'name': "test6",
 #                            'amount': 100, 'date': "2022-01-01",
 #                            'before': 500, 'balance': 400}]
+
 
 def test_get_budget_with_joint(create_app, setup_data):
     with create_app.app_context():

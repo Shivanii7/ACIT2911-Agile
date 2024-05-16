@@ -1,40 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Register</title>
-    <style>
-        form {
-            max-width: 300px;
-            margin: auto;
-        }
-        input {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        button {
-            width: 100%;
-            background-color: #007bff;
-            color: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
+    <link rel="stylesheet" href="../static/register.css" />
+  </head>
+  <body>
+    <h1>Welcome To<br />Frugal Rock Financing</h1>
     <h2>Register</h2>
+    <p id="instructions">Please create your account</p>
+    <p id="instructions">Please create your account</p>
     <form action="/register" method="POST">
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="text" name="first_name" placeholder="First Name" required>
-        <input type="text" name="last_name" placeholder="Last Name" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Register</button>
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="text" name="first_name" placeholder="First Name" required />
+      <input type="text" name="last_name" placeholder="Last Name" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Register</button>
     </form>
     <p>Already have an account? <a href="/login">Login</a></p>
-</body>
+  </body>
 </html>

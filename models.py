@@ -7,7 +7,6 @@ class Expenses(db.Model):
     eid = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
     amount = Column(Integer, nullable=False)
-    # NOTE put date instead of a string
     date = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False, default='N/A')
     customer_id = Column(Integer, ForeignKey("customers.cid",
@@ -48,7 +47,6 @@ class Customers(db.Model):
             'balance': self.balance,
             'budget': self.budget,
             'joint': self.joint
-
         }
 
 

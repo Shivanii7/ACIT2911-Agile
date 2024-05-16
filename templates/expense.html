@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename = '../static/expense.css') }}" />
 <div class="main-content">
     <header>
       <h1>Your Account</h1>
-      <input type="search" placeholder="Search" />
+      <form action="{{ url_for('submit_form') }}" method="post">
+        <input type="search" placeholder="Search" name="search"/>
+    </form>
       <img
         class="profile-pic"
         src="{{ url_for('static', filename = 'profile.jpg') }}"
@@ -17,10 +21,13 @@
         <h3>Total Budget</h3>
         <p>${{ budget }}</p>
         <h3>Joint with</h3>
-        <p>${{ joint }}</p>
+        <p>{{ joint }}</p>
       </section>
       <section class="history-section">
         <h2>Expense History</h2>
+        {% if search %}
+          <p>Search results for "{{ search }}"</p>
+        {% endif %}
         <div>
           <table class="table">
             <tr class="expense_items">
@@ -50,13 +57,34 @@
             </tr>
             {% endfor %}
           </table>
-          <form method="POST" action="{{ url_for('fill') }}">
-            <button type="submit" class="add_button">Add</button>
-          </form>
         </div>
+        <button onclick="openModal()" class="add_button">Add</button>
       </section>
     </div>
   </div>
-</div>   
-{% endblock %}
 
+  <div id="expenseModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span> 
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+<script>
+  function openModal() {
+    document.getElementById('expenseModal').style.display = 'block';
+    fetch("{{ url_for('fill') }}")
+
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('modalContent').innerHTML = html;
+      })
+      .catch(error => console.error('Error fetching create.html:', error));
+  }
+
+  function closeModal() {
+    document.getElementById('expenseModal').style.display = 'none';
+  }
+</script>
+
+{% endblock %}

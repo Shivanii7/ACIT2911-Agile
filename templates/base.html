@@ -4,32 +4,34 @@
     <meta charset="UTF-8" />
     <title>Finance Dashboard</title>
     <link rel="stylesheet" href="../static/style.css" />
+    <link rel="stylesheet" href="../static/base.css" />
+    {% block head %} {% endblock %}
   </head>
   <body>
     <div class="dashboard">
       <aside class="sidebar">
-        <div class="logo">
-          <span>💎</span>
-        </div>
+        
         <nav>
           <ul>
-            <li><a href="{{ url_for('homepage') }}" class="active">🏠</a></li>
-            <li><a href="{{ url_for('expense_homepage_get') }}">💸</a></li>
-            <li><a href="{{ url_for('set') }}">👤</a></li>
+            <li><a href="{{ url_for('homepage') }}" class="active" title="Home">🏠</a></li>
+            <li><a href="{{ url_for('expense_homepage') }}" title="Expense">💸</a></li>
+            <li><a href="{{ url_for('set') }}" title="Settings">🤝</a></li>
+          </ul>
+          <ul class="bottom-icons">
+            <li><a href="{{ url_for('logout') }}" title="Logout">🏃</a></li>
           </ul>
         </nav>
       </aside>
-      <button>
-        <a href="{{ url_for('logout') }}">Logout</a>
-      </button>
-      {% block content %}
-      <h1>Dashboard</h1> 
-      <!-- This is a dashboard welcoming user, and providing links to homepage and expense page. -->
-      
+      <!-- <button>
+        <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+      </button> -->
 
-
-      {% endblock %}
-      
+  {% block content %} 
+  <section class="main">
+    <div class="container">
+      <h1 class="form-title">Welcome to the Finance Dashboard</h1>
+    </div>
+  {% endblock %}
   </body>
 </html>
 

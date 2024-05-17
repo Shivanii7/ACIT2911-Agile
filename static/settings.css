@@ -1,3 +1,22 @@
+:root  {
+    --light-bg-color: rgb(216, 197, 197);
+    --dark-bg-color: rgb(37, 33, 33);
+    --light-text-color: rgb(34, 31, 31);
+    --dark-text-color: rgb(230, 217, 217);
+    }
+    body.dark{
+        background-color: var(--dark-bg-color);
+        color: var(--dark-text-color);
+      }
+      body.dark  {
+        :is(label,.input,.container,h1, .main-content, .content, .overview-section, .history-section) {
+          background-color: var(--dark-bg-color);
+          color: var(--dark-text-color);
+      
+        }
+      }
+
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f7f7f7;
@@ -13,11 +32,11 @@ body {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     border: 1px solid #ddd;
 }
-
+/* changed margin because im dumb */
 h1 {
     color: #333;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: -40px;
 }
 
 form {
@@ -56,3 +75,70 @@ input[type="submit"] {
 input[type="submit"]:hover {
     background-color: #45a049;
 }
+.expense-form {
+    position: relative;
+    padding-top: 20px; /* Add padding to the top if needed */
+}
+
+.checkbox-label {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+.expense-form {
+    position: relative;
+    padding-top: 10px; /* Adjust padding to accommodate the checkbox */
+}
+
+/* .checkbox-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+} */
+
+#dmtoggle {
+    width: 30px;
+    height: 60px;
+    position: relative;
+    display: block;
+    background: none;
+    border: none;
+    border-radius: 200px;
+    box-shadow: inset 0px 5px 15px rgba(0,0,0,0.4), inset 0px -5px 15px rgba(5, 5, 5, 0.4);
+    cursor: pointer;
+    visibility: hidden;
+}
+
+#dmtoggle + label {
+    content: "";
+    width: 30px;
+    height: 60px;
+    display: block;
+    position: relative;
+    cursor: pointer;
+    transition: 0s;
+}
+
+#dmtoggle + label:after {
+    content: "";
+    width: 15px;
+    height: 30px;
+    position: absolute;
+    top: -150px;
+    right: -1150px;
+    background: linear-gradient(180deg, #060703be, #0f0f0765);
+    border-radius: 180px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.4);
+    transition: 0s;
+}
+
+/* #dmtoggle:checked + label {
+    background: #242424;
+} */
+
+#dmtoggle:checked + label:after {
+    transform: translateY(100%);
+    background: linear-gradient(180deg, #fff789, #f5e503);
+    box-shadow: 0px 5px 10px rgba(255, 251, 2, 1);
+}
+

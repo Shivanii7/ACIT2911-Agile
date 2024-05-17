@@ -1,9 +1,9 @@
 :root  {
---light-bg-color: white;
---dark-bg-color: black;
---light-text-color: black;
---dark-text-color: white;
-}
+  --light-bg-color: rgb(216, 197, 197);
+  --dark-bg-color: rgb(37, 33, 33);
+  --light-text-color: rgb(34, 31, 31);
+  --dark-text-color: rgb(230, 217, 217);
+  }
 /* }
 body {
   background-color: var(--light-bg-color);
@@ -25,13 +25,13 @@ body.dark  {
 
   }
 }
-body {
+/* body {
   :is(h1, .main-content, .content, .overview-section, .history-section) {
     background-color: var(--light-bg-color-);
     color: var(--light-text-color);
 
   }
-}
+} */
 /* 
 .main-content {
   background-color: var(--light-bg-color-);
@@ -143,5 +143,5 @@ body {
    
   }
   label, label:after {
-    transition: 0.3s
+    transition: 0s
   }

@@ -87,8 +87,8 @@ text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
 /* Dark mode */
 body.darkMode {
     
-    color: #FFF;
-    background: rgba(29, 28, 28, 0.856);
+  color: rgb(230, 217, 217);
+  background: rgba(37, 33, 33);
     
 
 }

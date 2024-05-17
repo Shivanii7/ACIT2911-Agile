@@ -412,7 +412,3 @@ def test_populate_shares(create_app, setup_data):
         populate_shares()
         shares = Shares.query.all()
         assert len(shares) > 0
-
-
-if __name__ == '__main__':
-    pytest.main()

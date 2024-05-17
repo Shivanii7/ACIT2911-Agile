@@ -12,13 +12,9 @@ def populate_expenses():
             reader = DictReader(file)
             expenses = list(reader)
             for row in expenses:
-                # print(row)
                 date_str = row['date']
-                date_obj = datetime.strptime(date_str, '%Y-%M-%d')
-                date = date_obj.strftime('%B %d, %Y')
                 expense = Expenses(
-                    name=row['items'], amount=row['expense'], date=date, customer_id=row['cid'])
-                # print(expense.to_json())
+                    name=row['items'], amount=row['expense'], date=date_str, customer_id=row['cid'])
                 db.session.add(expense)
             db.session.commit()
 
@@ -47,10 +43,9 @@ def populate_shares():
             db.session.commit()
 
 
-if __name__ == '__main__':
-    with app.app_context():
-        db.drop_all()
-        db.create_all()
-        populate_expenses()
-        populate_customers()
-        populate_shares()
+with app.app_context():
+    db.drop_all()
+    db.create_all()
+    populate_expenses()
+    populate_customers()
+    populate_shares()

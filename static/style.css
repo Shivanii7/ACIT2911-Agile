@@ -207,6 +207,76 @@ header input[type="search"] {
     background-color: #d14836;
 }
 
+
+
+
+
+/* 
+
+:root  {
+    color-scheme: light dark; --> apply color scheme light/dark in elements to keep them that style i.e buttons and input bars 
+    --grey-scale: #181717dc;
+}
+ #toggle {
+        background-color: black;
+        border-radius: 20px;
+        border-width: 50px;
+        height: 10px;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+      }
+body.darkMode {
+    
+        color: #FFF;
+        background: var(--grey-scale);
+        
+    
+}
+body.darkMode #toggle {
+    background-color: white;
+    border-radius: 20px;
+    
+    height: 10px;
+    color: black;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+  }
+
+  /* Dark mode styles
+--textbox-background: ;rgba(255, 255, 255, 0.05);
+--textbox-text: white;
+--default-background: var(--dark-black);
+--default-text: white;
+*/
+
+/* Light mode styles
+--textbox-background: #EEE;
+--textbox-text: var(--dark-black);
+--default-background: white;
+--default-text: black;
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .logout-button {
     position: absolute;
     top: 20px;

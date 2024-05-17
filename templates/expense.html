@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-
+<script src="../static/expense.js" defer></script> 
+<link rel="stylesheet" href="../static/expense.css" />
 <link rel="stylesheet" href="{{ url_for('static', filename = '../static/expense.css') }}" />
-<div class="main-content">
+<div  class="main-content">
     <header>
       <h1>Your Account</h1>
       <form action="{{ url_for('submit_form') }}" method="post">
@@ -14,7 +15,9 @@
         alt="Profile Picture"
       />
     </header>
-    <div class="content">
+    <input type="checkbox" name="dmtoggle" id="dmtoggle">
+    <label for="dmtoggle"></label>
+    <div  class="content">
       <section class="overview-section">
         <h2>Total Balance</h2>
         <p>${{ balance }}</p>

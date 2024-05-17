@@ -62,10 +62,18 @@ def update_customer(customer):
 
 
 def update_customer_budget(customer, budget, balance, joint="N/A"):
+    print("b", budget)
+    print("joint", joint)
     joint_customer = get_customer_by_email(joint)
-    if joint_customer or joint == "N/A":
+    print(joint_customer)
+    if joint_customer is not None or joint == "N/A":
+        print(1)
         customer.joint = joint
-    customer.budget = budget
+        customer.budget = joint_customer.budget if joint_customer is not None else budget
+    else:
+        print(2)
+        customer.budget = budget
+
     customer.balance = balance
     db.session.add(customer)
     db.session.commit()
@@ -174,10 +182,12 @@ def expense_update():
     cid = session['cid']
     customer = get_customer_by_cid(cid)
     budget = float(request.form.get("budget") or 0)
+    print(budget)
     balance = float(request.form.get("balance") or 0)
     joint = request.form.get("joint") or "N/A"
     update_customer_budget(customer, budget, balance, joint)
     joint_customer = get_customer_by_email(joint)
+    print(joint)
 
 # when users input valid joint_customer, create a share record
     if joint_customer:

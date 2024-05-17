@@ -6,7 +6,6 @@ from db import db
 from models import Customers, Expenses
 
 
-
 class MyTest(TestCase):
 
     def create_app(self):
@@ -65,11 +64,8 @@ class MyTest(TestCase):
         # Logout
         logout_response = self.client.get(url_for('logout'))
         assert logout_response.status_code == 302
-        
-        #Clean up
-        db.session.delete(db.session.query(Customers).filter_by(email = "test!@gmail.com").first())
+
+        # Clean up
+        db.session.delete(db.session.query(Customers).filter_by(
+            email="test!@gmail.com").first())
         db.session.commit()
-
-
-if __name__ == '__main__':
-    pytest.main()

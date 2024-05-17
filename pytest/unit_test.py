@@ -1,7 +1,7 @@
 from unittest.mock import patch
 import pytest
 from sqlalchemy import StaticPool, create_engine
-from main import app, create_share, get_budget, get_expense_data, process_expense_data
+from main import app, create_share, get_budget, get_expense_data, process_expense_data, validate_amount, validate_description, validate_name
 from db import Base, db
 from manage import populate_customers, populate_expenses, populate_shares
 from main import get_customer_by_cid, get_expenses_by_cid, get_expenses_by_cid_and_search, get_customer_by_email, get_share_by_joint_id_1, get_expense_by_id, create_expense, create_customer, delete_expense, update_customer, update_customer_budget
@@ -16,17 +16,7 @@ Build up testing database
 @pytest.fixture
 def create_app():
     app.config['TESTING'] = True
-    SQLALCHEMY_DATABASE_URL = "sqlite://"
-
-    engine = create_engine(
-        SQLALCHEMY_DATABASE_URL,
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
-    TestingSessionLocal = sessionmaker(
-        autocommit=False, autoflush=False, bind=engine)
-
-    Base.metadata.create_all(bind=engine)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
     return app
 
 
@@ -85,6 +75,35 @@ def print_database_state(create_app):
 '''
 Tests begin!!!
 '''
+'''
+Test validation
+'''
+
+
+def test_validate_name(create_app):
+    with create_app.app_context():
+        assert validate_name("Valid Name") is True
+        assert validate_name("") is False
+        assert validate_name(None) is False
+        assert validate_name(123) is False
+
+
+def test_validate_amount(create_app):
+    with create_app.app_context():
+        assert validate_amount("123.45") == 123.45
+        assert validate_amount("invalid") is None
+        assert validate_amount(None) is None
+        assert validate_amount("123") == 123.0
+
+
+def test_validate_description(create_app):
+    with create_app.app_context():
+        assert validate_description("Valid Description") is True
+        assert validate_description("") is False
+        assert validate_description(None) is False
+        assert validate_description(123) is False
+
+
 '''
 Test the database is built up properly
 '''
@@ -167,7 +186,6 @@ Test the correct customer by cid=1
 
 
 def test_get_customer_by_cid(create_app, setup_data):
-    # print_database_state(create_app)
     with create_app.app_context():
         customer = get_customer_by_cid(1)
         assert isinstance(customer, Customers)
@@ -180,7 +198,6 @@ Test get the correct expenses by cid=1
 
 
 def test_get_expenses_by_cid(create_app, setup_data):
-    # print_database_state(create_app)
     with create_app.app_context():
         expenses = get_expenses_by_cid(1)
         for expense in expenses:
@@ -226,13 +243,12 @@ def test_get_expense_by_id(create_app, setup_data):
 
 
 '''
-Test create an expense with correct name, amount, date and description
+Test create an expense with correct name, amount and description
 '''
 
 
 def test_create_expense(create_app, setup_data):
     with create_app.app_context():
-        # print_database_state(create_app)
         create_expense("test5", 100, "2022-01-01", "test description5", 1)
         expense = get_expense_by_id(6)
         assert expense.name == "test5"
@@ -284,41 +300,35 @@ def test_get_expenses_by_cid_and_search(create_app, setup_data):
             assert "test" in expense[0].name
 
 
-@pytest.fixture
-def mock_get_expenses_by_cid_and_search():
-    with patch('main.get_expenses_by_cid_and_search') as mock:
-        yield mock
+def test_get_expense_data_under_search(create_app, setup_data):
+    with create_app.app_context():
+        cid = 1
+        search = None
+        expenses = get_expenses_by_cid(cid)
+        expense_list = []
+        for expense in expenses:
+            expense_list.append(expense[0])
+        results = get_expense_data(cid, search)
+        result_list = []
+        for result in results:
+            result_list.append(result)
 
+        assert len(result_list) == len(expense_list)
+        assert result_list[0][0] == expense_list[0]
+    with create_app.app_context():
+        cid = 1
+        search = "1"
+        expenses = get_expenses_by_cid_and_search(cid, search)
+        expense_list = []
+        for expense in expenses:
+            expense_list.append(expense[0])
+        results = get_expense_data(cid, search)
+        result_list = []
+        for result in results:
+            result_list.append(result)
 
-@pytest.fixture
-def mock_get_expenses_by_cid():
-    with patch('main.get_expenses_by_cid') as mock:
-        yield mock
-
-
-def test_get_expense_data_without_search(mock_get_expenses_by_cid_and_search, mock_get_expenses_by_cid):
-    cid = 1
-    search = None
-    mock_get_expenses_by_cid.return_value = [
-        {'eid': 1, 'name': 'Test Expense', 'amount': 100, 'date': '2024-05-16'}]
-
-    result = get_expense_data(cid, search)
-    assert mock_get_expenses_by_cid.called
-    assert not mock_get_expenses_by_cid_and_search.called
-    assert result == [{'eid': 1, 'name': 'Test Expense',
-                       'amount': 100, 'date': '2024-05-16'}]
-
-
-def test_get_expense_data_with_search(mock_get_expenses_by_cid_and_search, mock_get_expenses_by_cid):
-    cid = 1
-    search = "Test"
-    mock_get_expenses_by_cid_and_search.return_value = [
-        {'eid': 1, 'name': 'Test1 Expense', 'amount': 100, 'date': '2024-05-16'}, {'eid': 2, 'name': 'Test2 Expense', 'amount': 100, 'date': '2024-05-16'}]
-    result = get_expense_data(cid, search)
-    assert not mock_get_expenses_by_cid.called
-    assert mock_get_expenses_by_cid_and_search.called
-    assert result == [
-        {'eid': 1, 'name': 'Test1 Expense', 'amount': 100, 'date': '2024-05-16'}, {'eid': 2, 'name': 'Test2 Expense', 'amount': 100, 'date': '2024-05-16'}]
+        assert len(result_list) == len(expense_list)
+        assert result_list[0][0] == expense_list[0]
 
 
 '''
@@ -343,7 +353,6 @@ def test_update_customer_budget(create_app):
 
 def test_create_share(create_app, setup_data):
     with create_app.app_context():
-        # print_database_state(create_app)
         customer = get_customer_by_cid(1)
         joint_customer = get_customer_by_cid(2)
         create_share(customer, joint_customer)

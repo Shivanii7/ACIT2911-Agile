@@ -1,4 +1,5 @@
-from flask import Flask, redirect, render_template, request, url_for, session
+import datetime
+from flask import Flask, flash, redirect, render_template, request, url_for, session
 from pathlib import Path
 from db import db
 from models import Customers, Expenses, Shares
@@ -62,16 +63,12 @@ def update_customer(customer):
 
 
 def update_customer_budget(customer, budget, balance, joint="N/A"):
-    print("b", budget)
-    print("joint", joint)
+
     joint_customer = get_customer_by_email(joint)
-    print(joint_customer)
     if joint_customer is not None or joint == "N/A":
-        print(1)
         customer.joint = joint
         customer.budget = joint_customer.budget if joint_customer is not None else budget
     else:
-        print(2)
         customer.budget = budget
 
     customer.balance = balance
@@ -81,7 +78,6 @@ def update_customer_budget(customer, budget, balance, joint="N/A"):
 
 def create_share(customer, joint_customer):
     share = Shares.query.filter_by(joint_id_1=customer.cid).first()
-
     if not share:
         share = Shares(joint_id_1=customer.cid, joint_id_2=joint_customer.cid)
     else:
@@ -125,6 +121,30 @@ def get_budget(customer):
     else:
         return customer.budget
 
+# validation functions
+
+
+def validate_name(name):
+    if not name or not isinstance(name, str):
+        # flash("Invalid name.")
+        return False
+    return True
+
+
+def validate_amount(amount):
+    try:
+        return float(amount)
+    except (ValueError, TypeError):
+        # flash("Invalid amount.")
+        return None
+
+
+def validate_description(description):
+    if not description or not isinstance(description, str):
+        # flash("Invalid description.")
+        return False
+    return True
+
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -154,7 +174,6 @@ def homepage():
 
 @app.route("/submit_form", methods=['POST'])
 def submit_form():
-    print(request.form.get("search"))
     return redirect(url_for('expense_homepage') + "?search=" + request.form.get("search"))
 
 
@@ -182,12 +201,11 @@ def expense_update():
     cid = session['cid']
     customer = get_customer_by_cid(cid)
     budget = float(request.form.get("budget") or 0)
-    print(budget)
     balance = float(request.form.get("balance") or 0)
     joint = request.form.get("joint") or "N/A"
     update_customer_budget(customer, budget, balance, joint)
     joint_customer = get_customer_by_email(joint)
-    print(joint)
+
 
 # when users input valid joint_customer, create a share record
     if joint_customer:
@@ -211,12 +229,27 @@ def expense_update():
 def create():
     if 'cid' not in session:
         return redirect(url_for('login'))
-    else:
-        expense = Expenses(name=request.form.get("name"), amount=request.form.get(
-            "amount"), date=request.form.get("date"), description=request.form.get("des"), customer_id=session['cid'] if 'cid' in session else 1)
-        db.session.add(expense)
-        db.session.commit()
+    name = request.form.get("name")
+    amount = request.form.get("amount")
+    date = request.form.get("date")
+    description = request.form.get("des")
+    customer_id = session['cid'] if 'cid' in session else 1
+
+    if not validate_name(name):
         return redirect(url_for("expense_homepage"))
+
+    amount = validate_amount(amount)
+    if amount is None:
+        return redirect(url_for("expense_homepage"))
+
+    if not validate_description(description):
+        return redirect(url_for("expense_homepage"))
+
+    expense = Expenses(name=name, amount=amount, date=date,
+                       description=description, customer_id=customer_id)
+    db.session.add(expense)
+    db.session.commit()
+    return redirect(url_for("expense_homepage"))
 
 
 @app.route("/expenses/fillform", methods=['POST', 'GET'])

@@ -14,11 +14,11 @@ h1{
   color: var(--light-text-color);
 } */
 
-body.dark{
+body.darkmode{
   background-color: var(--dark-bg-color);
   color: var(--dark-text-color);
 }
-body.dark  {
+body.darkmode  {
   :is(h1, .main-content, .content, .overview-section, .history-section) {
     background-color: var(--dark-bg-color);
     color: var(--dark-text-color);

@@ -85,14 +85,14 @@ text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Dark mode */
-body.darkMode {
+body.darkmode {
     
   color: rgb(230, 217, 217);
   background: rgba(37, 33, 33);
     
 
 }
-body.darkMode #toggle {
+body.darkmode #toggle {
 content: "Brighter";
 background-color: white;
 border-radius: 50%;

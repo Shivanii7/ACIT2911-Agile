@@ -1,21 +1,29 @@
-let darko = false;
-let buttontext = document.getElementById('dmtoggle');
 
-function textswap() {
-    var buttontext = document.getElementById('dmtoggle');
-    if (buttontext.innerText == 'Dimmer') {
-        buttontext.innerText = 'Brighter', darktime();
+let darko = localStorage.getItem('darko') === 'true';
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    if (darko) {
+        document.body.classList.add('darkmode');
+        document.getElementById('dmtoggle').checked = true; 
+        console.log('darkness');
     } else {
-        buttontext.innerText = 'Dimmer', darktime();
+        document.body.classList.remove('darkmode');
+        document.getElementById('dmtoggle').checked = false; 
+    }
+});
+
+function darktime() {
+    console.log('darkness');
+    darko = !darko;
+    if (darko) {
+        document.body.classList.add('darkmode');
+        localStorage.setItem('darko', 'true');
+    } else {
+        document.body.classList.remove('darkmode');
+        localStorage.setItem('darko', 'false');
     }
 }
-function darktime() {
-    console.log('darkness')
-    darko = !darko
-    if (darko) {
-        document.body.classList.add('dark')
-    } else {
-        document.body.classList.remove('dark')
-    }
-    }
-document.getElementById('dmtoggle').onclick = darktime
+
+document.getElementById('dmtoggle').onclick = darktime;
+
+

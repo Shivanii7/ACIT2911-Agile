@@ -19,7 +19,7 @@ body.darkmode{
   color: var(--dark-text-color);
 }
 body.darkmode  {
-  :is(h1, .main-content, .content, .overview-section, .history-section) {
+  :is(h1, .main-content, .content, .overview-section, .history-section,.Modal) {
     background-color: var(--dark-bg-color);
     color: var(--dark-text-color);
 
@@ -60,6 +60,7 @@ body.darkmode  {
     height: 100%;
     overflow: auto;
     background-color: #a4a4a9c0;
+    
   }
 
   .modal-content {
@@ -70,7 +71,7 @@ body.darkmode  {
     border-radius: 5px;
     width: 80%;
   }
-
+  
   .close {
     color: #aaa;
     float: right;
@@ -116,7 +117,7 @@ body.darkmode  {
     box-shadow: inset 0px 5px 15px rgba(0,0,0,0.4), inset 0px -5px 15px rgba(5, 5, 5, 0.4);
     cursor: pointer;
   }
-  label:after {
+  #dmtoggle + label:after {
     content: "";
     width:15px;
     height: 30px;
@@ -127,15 +128,17 @@ body.darkmode  {
     border-radius: 180px;
     box-shadow: 0px 5px 10px rgba(0,0,0,0.4);
   }
+    
+  
   input[name="dmtoggle"] {
     width: 0;
     height: 0;
     visibility: hidden;
   }
-  input:checked + label {
+  #dmtoggle:checked + label {
     background: #242424;
   }
-  input:checked + label:after {
+  #dmtoggle:checked + label:after {
     
     transform: translateY(100%);
     background: linear-gradient(180deg,#fff789,#f5e503);

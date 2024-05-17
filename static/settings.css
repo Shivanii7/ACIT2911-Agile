@@ -4,11 +4,11 @@
     --light-text-color: rgb(34, 31, 31);
     --dark-text-color: rgb(230, 217, 217);
     }
-    body.dark{
+    body.darkmode{
         background-color: var(--dark-bg-color);
         color: var(--dark-text-color);
       }
-      body.dark  {
+      body.darkmode  {
         :is(label,.input,.container,h1, .main-content, .content, .overview-section, .history-section) {
           background-color: var(--dark-bg-color);
           color: var(--dark-text-color);

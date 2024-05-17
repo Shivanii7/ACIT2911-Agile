@@ -1,21 +1,32 @@
 from unittest.mock import patch
 import pytest
-from flask import url_for
-from flask_testing import TestCase
+from sqlalchemy import StaticPool, create_engine
 from main import app, create_share, get_budget, get_expense_data, process_expense_data
-from db import db
+from db import Base, db
 from manage import populate_customers, populate_expenses, populate_shares
-from models import Customers, Expenses
-
-import pytest
 from main import get_customer_by_cid, get_expenses_by_cid, get_expenses_by_cid_and_search, get_customer_by_email, get_share_by_joint_id_1, get_expense_by_id, create_expense, create_customer, delete_expense, update_customer, update_customer_budget
 from models import Customers, Expenses, Shares
+from sqlalchemy.orm import sessionmaker
+
+'''
+Build up testing database
+'''
 
 
 @pytest.fixture
 def create_app():
     app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+    SQLALCHEMY_DATABASE_URL = "sqlite://"
+
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    TestingSessionLocal = sessionmaker(
+        autocommit=False, autoflush=False, bind=engine)
+
+    Base.metadata.create_all(bind=engine)
     return app
 
 
@@ -24,7 +35,6 @@ def setup_data(create_app):
     with create_app.app_context():
         db.drop_all()
         db.create_all()
-        # Create a test customer
         customer1 = Customers(cid=1, email="test@test.com",
                               password="password", first_name="first", last_name="last")
         customer2 = Customers(cid=2, email="test2@test.com",
@@ -33,7 +43,6 @@ def setup_data(create_app):
         db.session.add(customer2)
         db.session.commit()
 
-        # Create some test expenses for the customer
         for i in range(5):
             expense = Expenses(name=f"test{
                                i}", amount=i*100, date="2022-01-01", description=f"test description{i}", customer_id=1)
@@ -47,23 +56,19 @@ def setup_data(create_app):
     yield
 
     with create_app.app_context():
-        # Clean up the data after the test runs
-        Expenses.query.delete()
-        Customers.query.delete()
-        Shares.query.delete()
-        db.session.commit()
+        db.session.rollback()
+        db.session.close()
 
 
 def print_database_state(create_app):
     with create_app.app_context():
-        # Print all customers
+
         customers = db.session.query(Customers).all()
         print("Customers:")
         for customer in customers:
             print(f"ID: {customer.cid}, Email: {customer.email}, First Name: {
                   customer.first_name}, Last Name: {customer.last_name}")
 
-        # Print all expenses
         expenses = db.session.query(Expenses).all()
         print("Expenses:")
         for expense in expenses:
@@ -77,16 +82,105 @@ def print_database_state(create_app):
                   share.joint_id_1}, joint_id_2: {share.joint_id_2}")
 
 
+'''
+Tests begin!!!
+'''
+'''
+Test the database is built up properly
+'''
+
+
+def test_customers_exist(create_app, setup_data):
+    with create_app.app_context():
+        customers = Customers.query.all()
+        assert len(customers) == 2
+        assert customers[0].email == "test@test.com"
+        assert customers[1].email == "test2@test.com"
+
+
+def test_expenses_exist(create_app, setup_data):
+    with create_app.app_context():
+        expenses = Expenses.query.filter_by(customer_id=1).all()
+        assert len(expenses) == 5
+        for i, expense in enumerate(expenses):
+            assert expense.name == f"test{i}"
+            assert expense.amount == i * 100
+            assert expense.description == f"test description{i}"
+
+
+def test_share_exists(create_app, setup_data):
+    with create_app.app_context():
+        share = Shares.query.first()
+        assert share is not None
+        assert share.joint_id_1 == 1
+        assert share.joint_id_2 == 2
+
+
+def test_customers_to_json(create_app, setup_data):
+    with create_app.app_context():
+        customer = db.session.query(Customers).filter_by(cid=1).scalar()
+        customer_json = customer.to_json()
+        expected = {
+            'id': 1,
+            'email': 'test@test.com',
+            'first_name': 'first',
+            'last_name': 'last',
+            'password': 'password',
+            'balance': 0,
+            'budget': 0,
+            'joint': None
+        }
+        assert customer_json == expected
+
+
+def test_expenses_to_json(create_app, setup_data):
+    with create_app.app_context():
+        expense = db.session.query(Expenses).filter_by(eid=1).scalar()
+        expense_json = expense.to_json()
+        expected = {
+            'id': 1,
+            'name': 'test0',
+            'amount': 0,
+            'date': '2022-01-01',
+            'description': 'test description0',
+            'customer_id': 1
+        }
+        assert expense_json == expected
+
+
+def test_shares_to_json(create_app, setup_data):
+    with create_app.app_context():
+        share = db.session.query(Shares).filter_by(sid=1).scalar()
+        share_json = share.to_json()
+        expected = {
+            'id': 1,
+            'item': 'budget',
+            'joint_id_1': 1,
+            'joint_id_2': 2
+        }
+        assert share_json == expected
+
+
+'''
+Test the correct customer by cid=1
+'''
+
+
 def test_get_customer_by_cid(create_app, setup_data):
-    print_database_state(create_app)
+    # print_database_state(create_app)
     with create_app.app_context():
         customer = get_customer_by_cid(1)
         assert isinstance(customer, Customers)
         assert customer.cid == 1
 
 
+'''
+Test get the correct expenses by cid=1
+'''
+
+
 def test_get_expenses_by_cid(create_app, setup_data):
-    print_database_state(create_app)
+    # print_database_state(create_app)
     with create_app.app_context():
         expenses = get_expenses_by_cid(1)
         for expense in expenses:
@@ -94,13 +188,9 @@ def test_get_expenses_by_cid(create_app, setup_data):
             assert expense[0].customer_id == 1
 
 
-def test_get_expenses_by_cid_and_search(create_app, setup_data):
-    with create_app.app_context():
-        expenses = get_expenses_by_cid_and_search(1, "test")
-        for expense in expenses:
-            assert isinstance(expense[0], Expenses)
-            assert expense[0].customer_id == 1
-            assert "test" in expense[0].name
+'''
+Test get the correct customer by email
+'''
 
 
 def test_get_customer_by_email(create_app, setup_data):
@@ -110,11 +200,21 @@ def test_get_customer_by_email(create_app, setup_data):
         assert customer.email == "test@test.com"
 
 
+'''
+Test get the correct share record by joint_id_1
+'''
+
+
 def test_get_share_by_joint_id_1(create_app, setup_data):
     with create_app.app_context():
         share = get_share_by_joint_id_1(1)
         assert isinstance(share, Shares)
         assert share.joint_id_1 == 1
+
+
+'''
+Test get the correct expense by eid
+'''
 
 
 def test_get_expense_by_id(create_app, setup_data):
@@ -125,9 +225,14 @@ def test_get_expense_by_id(create_app, setup_data):
         assert expense.eid == 1
 
 
+'''
+Test create an expense with correct name, amount, date and description
+'''
+
+
 def test_create_expense(create_app, setup_data):
     with create_app.app_context():
-        print_database_state(create_app)
+        # print_database_state(create_app)
         create_expense("test5", 100, "2022-01-01", "test description5", 1)
         expense = get_expense_by_id(6)
         assert expense.name == "test5"
@@ -165,13 +270,18 @@ def test_update_customer(create_app, setup_data):
         assert updated_customer.first_name == "updated"
 
 
-def test_update_customer_budget(create_app, setup_data):
+'''
+Test Feature 2 -- get the correct expenses by cid=1 and search word
+'''
+
+
+def test_get_expenses_by_cid_and_search(create_app, setup_data):
     with create_app.app_context():
-        customer = get_customer_by_cid(1)
-        update_customer_budget(customer, 200, 100)
-        updated_customer = get_customer_by_cid(1)
-        assert updated_customer.budget == 200
-        assert updated_customer.balance == 100
+        expenses = get_expenses_by_cid_and_search(1, "test")
+        for expense in expenses:
+            assert isinstance(expense[0], Expenses)
+            assert expense[0].customer_id == 1
+            assert "test" in expense[0].name
 
 
 @pytest.fixture
@@ -186,15 +296,54 @@ def mock_get_expenses_by_cid():
         yield mock
 
 
-@pytest.fixture
-def mock_get_customer_by_email():
-    with patch('main.get_customer_by_email') as mock:
-        yield mock
+def test_get_expense_data_without_search(mock_get_expenses_by_cid_and_search, mock_get_expenses_by_cid):
+    cid = 1
+    search = None
+    mock_get_expenses_by_cid.return_value = [
+        {'eid': 1, 'name': 'Test Expense', 'amount': 100, 'date': '2024-05-16'}]
+
+    result = get_expense_data(cid, search)
+    assert mock_get_expenses_by_cid.called
+    assert not mock_get_expenses_by_cid_and_search.called
+    assert result == [{'eid': 1, 'name': 'Test Expense',
+                       'amount': 100, 'date': '2024-05-16'}]
+
+
+def test_get_expense_data_with_search(mock_get_expenses_by_cid_and_search, mock_get_expenses_by_cid):
+    cid = 1
+    search = "Test"
+    mock_get_expenses_by_cid_and_search.return_value = [
+        {'eid': 1, 'name': 'Test1 Expense', 'amount': 100, 'date': '2024-05-16'}, {'eid': 2, 'name': 'Test2 Expense', 'amount': 100, 'date': '2024-05-16'}]
+    result = get_expense_data(cid, search)
+    assert not mock_get_expenses_by_cid.called
+    assert mock_get_expenses_by_cid_and_search.called
+    assert result == [
+        {'eid': 1, 'name': 'Test1 Expense', 'amount': 100, 'date': '2024-05-16'}, {'eid': 2, 'name': 'Test2 Expense', 'amount': 100, 'date': '2024-05-16'}]
+
+
+'''
+Test feature 1 -- update customer's budget
+'''
+
+
+def test_update_customer_budget(create_app):
+    with create_app.app_context():
+        customer1 = get_customer_by_cid(1)
+        update_customer_budget(customer1, 200, 100)
+        assert customer1.budget == 200
+        assert customer1.balance == 100
+        customer2 = get_customer_by_cid(2)
+        update_customer_budget(customer1, 200, 100, customer2.email)
+        assert customer1.budget == customer2.budget
+        assert customer1.balance == 100
+        update_customer_budget(customer1, 200, 100)
+        assert customer1.budget == 200
+        assert customer1.balance == 100
 
 
 def test_create_share(create_app, setup_data):
     with create_app.app_context():
-        print_database_state(create_app)
+        # print_database_state(create_app)
         customer = get_customer_by_cid(1)
         joint_customer = get_customer_by_cid(2)
         create_share(customer, joint_customer)
@@ -203,20 +352,6 @@ def test_create_share(create_app, setup_data):
         assert share is not None
         assert share.joint_id_2 == 2
         assert customer.budget == joint_customer.budget
-
-
-def test_get_expense_data_without_search(mock_get_expenses_by_cid_and_search, mock_get_expenses_by_cid):
-    cid = 1
-    search = None
-    mock_get_expenses_by_cid.return_value = [
-        {'eid': 1, 'name': 'Test Expense', 'amount': 100, 'date': '2024-05-16'}]
-
-    result = get_expense_data(cid, search)
-
-    assert mock_get_expenses_by_cid.called
-    assert not mock_get_expenses_by_cid_and_search.called
-    assert result == [{'eid': 1, 'name': 'Test Expense',
-                       'amount': 100, 'date': '2024-05-16'}]
 
 
 def test_get_budget_with_joint(create_app, setup_data):
@@ -236,94 +371,11 @@ def test_get_budget_without_joint(create_app, setup_data):
         customer2 = get_customer_by_cid(2)
         customer1.budget = 500
         customer1.joint = None
-
         result = get_budget(customer1)
-
         assert result == 500
 
 
-@pytest.fixture
-def expense():
-    expense = Expenses(name='test', amount=100,
-                       date='2021-01-01', description='test', customer_id=1)
-    return expense
-
-
-@pytest.fixture
-def user():
-    user = Customers(email="test@gmail.com", password="test1234",
-                     first_name="test_first", last_name="test_last")
-    return user
-
-
-def test_expense(expense):
-    """
-    GIVEN an Expense model
-    WHEN a new expense is created
-    THEN this expense has correct items recorded
-    """
-
-    assert expense.name == 'test'
-    assert expense.amount == 100
-    assert expense.date == '2021-01-01'
-    assert expense.description == 'test'
-    assert expense.customer_id == 1
-
-# @pytest.fixture
-# def users():
-#     users = [Customers(email="user1@gmail.com",
-#                        password="test", first_name="test", last_name="test"), Customers(email="user2@gmail.com",
-#                                                                                         password="test", first_name="test", last_name="test")]
-#     return users
-
-
-# def test_register(user):
-#     """
-#     GIVEN a User model
-#     WHEN a new User is registered
-#     THEN check the email, password, first_name, last_name, balance, budget, and joint are defined correctly
-#     """
-
-#     assert user.email == "test@gmail.com"
-#     assert user.password == "test1234"
-#     assert user.first_name == "test_first"
-#     assert user.last_name == "test_last"
-#     assert user.balance == None
-#     assert user.budget == None
-#     assert user.joint == None
-
-
-# def test_update_balance(user):
-#     """
-#     GIVEN a Customer model
-#     WHEN balance is updated
-#     THEN check the the balance before and after update
-#     """
-#     assert user.balance == None
-#     user.balance = 1000
-#     assert user.balance == 1000
-#     user.joint = ""
-#     assert user.balance == 1000
-#     user.joint = "invalid_email"
-#     assert user.balance == 1000
-
-
-def test_update_budget(user):
-    """
-    GIVEN a Customer model
-    WHEN budget is updated
-    THEN check the the budget before and after update
-    """
-    assert user.budget == None
-    user.budget = 1000
-    assert user.budget == 1000
-    user.joint = ""
-    assert user.budget == 1000
-    user.joint = "invalid_email"
-    assert user.budget == 1000
-
-
-# test manage.py
+'''test manage.py'''
 
 
 def test_populate_expenses(create_app, setup_data):

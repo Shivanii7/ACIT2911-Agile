@@ -189,6 +189,8 @@ def homepage():
 def submit_form():
     return redirect(url_for('expense_homepage') + "?search=" + request.form.get("search"))
 
+#
+
 
 @app.route("/expenses/month_form", methods=['POST'])
 def accept_month():

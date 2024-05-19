@@ -1,7 +1,7 @@
 from unittest.mock import patch
 import pytest
 from sqlalchemy import StaticPool, create_engine
-from main import app, create_share, get_budget, get_expense_data, process_expense_data, validate_amount, validate_description, validate_name, get_customer_by_cid, get_expenses_by_cid, get_expenses_by_cid_and_search, get_customer_by_email, get_share_by_joint_id_1, get_expense_by_id, create_expense, create_customer, delete_expense, update_customer, update_customer_budget, balance_update
+from main import app, create_share, get_budget, get_expense_data, process_expense_data, validate_amount, validate_name, get_customer_by_cid, get_expenses_by_cid, get_expenses_by_cid_and_search, get_customer_by_email, get_share_by_joint_id_1, get_expense_by_id, create_expense, create_customer, delete_expense, update_customer, update_customer_budget, balance_update
 from db import Base, db
 from manage import populate_customers, populate_expenses, populate_shares
 from models import Customers, Expenses, Shares

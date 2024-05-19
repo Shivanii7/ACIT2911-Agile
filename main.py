@@ -15,27 +15,27 @@ app.secret_key = 'super'
 
 
 def get_customer_by_cid(cid):
-    return db.session.execute(db.select(Customers).where(Customers.cid == cid)).scalar()
+    return db.session.execute(db.select(Customers).where(Customers.cid == cid)).scalar() or None
 
 
 def get_expenses_by_cid(cid):
-    return db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid))
+    return db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid)) or None
 
 
 def get_expenses_by_cid_and_search(cid, search):
-    return db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid).filter(Expenses.name.like('%'+search+'%')))
+    return db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid).filter(Expenses.name.like('%'+search+'%'))) or None
 
 
 def get_customer_by_email(email):
-    return db.session.query(Customers).filter(Customers.email == email).first()
+    return db.session.query(Customers).filter(Customers.email == email).first() or None
 
 
 def get_share_by_joint_id_1(cid):
-    return db.session.query(Shares).filter(Shares.joint_id_1 == cid).first()
+    return db.session.query(Shares).filter(Shares.joint_id_1 == cid).first() or None
 
 
 def get_expense_by_id(id):
-    return db.get_or_404(Expenses, id)
+    return db.get_or_404(Expenses, id) or None
 
 
 def create_expense(name, amount, date, description, cid):
@@ -63,11 +63,10 @@ def update_customer(customer):
 
 
 def update_customer_budget(customer, budget, balance, joint="N/A"):
-
     joint_customer = get_customer_by_email(joint)
-    if joint_customer is not None or joint == "N/A":
+    if joint_customer:
         customer.joint = joint
-        customer.budget = joint_customer.budget if joint_customer is not None else budget
+        customer.budget = joint_customer.budget 
     else:
         customer.budget = budget
 
@@ -77,14 +76,18 @@ def update_customer_budget(customer, budget, balance, joint="N/A"):
 
 
 def create_share(customer, joint_customer):
-    share = Shares.query.filter_by(joint_id_1=customer.cid).first()
-    if not share:
-        share = Shares(joint_id_1=customer.cid, joint_id_2=joint_customer.cid)
+    if customer and joint_customer:
+        share = Shares.query.filter_by(joint_id_1=customer.cid).first()
     else:
-        share.joint_id_2 = joint_customer.cid
-
-    customer.budget = joint_customer.budget
-    db.session.add(share)
+        share = None
+        
+    if share:
+        share = Shares(joint_id_1=customer.cid, joint_id_2=joint_customer.cid)
+        customer.budget = joint_customer.budget
+        db.session.add(share)
+    else:
+        share = share
+    
     db.session.commit()
 
 
@@ -98,24 +101,39 @@ def get_expense_data(cid, search):
 def process_expense_data(data, balance):
     processed_data = []
     before = balance
-    for i in data.scalars():
+   
+    if isinstance (data,dict):
+        
         u = {
-            'id': i.eid,
-            'name': i.name,
-            'amount': i.amount,
-            'date': i.date,
+            'id': data["eid"],
+            'name': data["name"],
+            'amount': data["amount"],
+            'date': data["date"],
             'before': before,
-            'balance': before - i.amount
+            'balance': before - data["amount"]
         }
-        before -= i.amount
+        before -= data["amount"]
         processed_data.append(u)
+    else:
+        for i in data.scalars():
+            u = {
+                'id': i.eid,
+                'name': i.name,
+                'amount': i.amount,
+                'date': i.date,
+                'before': before,
+                'balance': before - i.amount
+            }
+            before -= i.amount
+            processed_data.append(u)
+        
     processed_data.reverse()
     return processed_data
 
 
 def get_budget(customer):
     joint = customer.joint
-    if joint != 'None':
+    if joint != None:
         customer_joint = get_customer_by_email(joint)
         return customer_joint.budget if customer_joint else customer.budget
     else:

@@ -26,7 +26,7 @@ def populate_customers():
             customers = list(reader)
             for row in customers:
                 customer = Customers(
-                    email=row['email'], first_name=row['first_name'], last_name=row['last_name'], password=row['password'], balance=row['balance'], budget=row['budget'], joint=row['joint'])
+                    email=row['email'], first_name=row['first_name'], last_name=row['last_name'], password=row['password'], balance=row['balance'], budget=row['budget'], joint=row['joint'], spent=row['spent'])
                 db.session.add(customer)
             db.session.commit()
 

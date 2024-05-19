@@ -1,92 +1,118 @@
-{% extends "base.html" %}
-{% block content %}
-<script src="../static/expense.js" defer></script> 
+{% extends "base.html" %} {% block content %}
+<script src="../static/expense.js" defer></script>
 <link rel="stylesheet" href="../static/expense.css" />
-<link rel="stylesheet" href="{{ url_for('static', filename = '../static/expense.css') }}" />
-<div  class="main-content">
-    <header>
-      <h1>Your Account</h1>
-      <form action="{{ url_for('submit_form') }}" method="post">
-        <input type="search" placeholder="Search" name="search"/>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename = '../static/expense.css') }}"
+/>
+<div class="main-content">
+  <header>
+    <h1>Your Account</h1>
+    <form action="{{ url_for('submit_form') }}" method="post">
+      <input type="search" placeholder="Search" name="search" />
     </form>
-      <img
-        class="profile-pic"
-        src="{{ url_for('static', filename = 'profile.jpg') }}"
-        alt="Profile Picture"
-      />
-    </header>
-    <input type="checkbox" name="dmtoggle" id="dmtoggle">
-    <label for="dmtoggle"></label>
-    <div  class="content">
-      <section class="overview-section">
-        <h2>Total Balance</h2>
-        <p>${{ balance }}</p>
-        <h3>Total Budget</h3>
-        <p>${{ budget }}</p>
-        <h3>Joint with</h3>
-        <p>{{ joint }}</p>
-      </section>
-      <section class="history-section">
-        <h2>Expense History</h2>
-        {% if search %}
-          <p>Search results for "{{ search }}"</p>
-        {% endif %}
-        <div>
-          <table class="table">
-            <tr class="expense_items">
-              <th>Name</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Balance</th>
-              <th>Delete</th>
-            </tr >
-            {% for transaction in transactions %}
-            <tr class="expense_items"> 
-              <td>{{ transaction['name'] }}</td>
-              <td>{{ transaction['date'] }}</td>
-              <td class="minus">-${{ transaction['amount'] }}</td>
-              <td class="balanceremaining">
-                {% if transaction['balance'] > 0 %}
-                  ${{ transaction['balance'] }}
-                {% else %}
-                -${{ transaction['balance'] }}
-                {% endif %}
-              </td>
-              <td>
-                <form method="POST" action="{{ url_for('expense_delete', id=transaction['id']) }}">
-                  <button type="submit" class="delete_button">Delete</button>
-                </form>      
-              </td>
-            </tr>
-            {% endfor %}
-          </table>
+    <img
+      class="profile-pic"
+      src="{{ url_for('static', filename = 'profile.jpg') }}"
+      alt="Profile Picture"
+    />
+  </header>
+  <input type="checkbox" name="dmtoggle" id="dmtoggle" />
+  <label for="dmtoggle"></label>
+  <div class="content">
+    <section class="overview-section">
+      <div class="container">
+        <div class="basic_info">
+          <h3>Total Balance: ${{ balance }}</h3>
+          <h3>Month Budget: ${{ budget }}</h3>
+          <h3>Sharing budget with:{{ joint }}</h3>
         </div>
-        <button onclick="openModal()" class="add_button">Add</button>
-      </section>
-    </div>
+        <div class="specific_info">
+          <h3>You spent ${{ total_spent }} totally</h3>
+          {% set
+          months=['January','Feburary','March','April','May','June','July','August','September','October','November','December']
+          %}
+          <form method="POST" action="{{ url_for('accept_month') }}">
+            <label for="months">Choose a month:</label>
+            <select name="months" id="months">
+              <option value="1">January</option>
+              <option value="2">Feburary</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+            <input type="submit" value="Submit" />
+          </form>
+          <h3>You spent ${{ month_spent }} in {{months[month-1]}}</h3>
+          
+    </section>
+    <section class="history-section">
+      <h2>Expense History</h2>
+      {% if search %}
+      <p>Search results for "{{ search }}"</p>
+      {% endif %}
+      <div>
+        <table class="table">
+          <tr class="expense_items">
+            <th>Name</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Balance</th>
+            <th>Delete</th>
+          </tr>
+          {% for transaction in transactions %}
+          <tr class="expense_items">
+            <td>{{ transaction['name'] }}</td>
+            <td>{{ transaction['date'] }}</td>
+            <td class="minus">-${{ transaction['amount'] }}</td>
+            <td class="balanceremaining">
+              {% if transaction['balance'] > 0 %} ${{ transaction['balance'] }}
+              {% else %} -${{ transaction['balance'] }} {% endif %}
+            </td>
+            <td>
+              <form
+                method="POST"
+                action="{{ url_for('expense_delete', id=transaction['id']) }}"
+              >
+                <button type="submit" class="delete_button">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      <button onclick="openModal()" class="add_button">Add</button>
+    </section>
   </div>
+</div>
 
-  <div id="expenseModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span> 
-      <div id="modalContent"></div>
-    </div>
+<div id="expenseModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <div id="modalContent"></div>
   </div>
+</div>
 
 <script>
   function openModal() {
-    document.getElementById('expenseModal').style.display = 'block';
+    document.getElementById("expenseModal").style.display = "block";
     fetch("{{ url_for('fill') }}")
-
-      .then(response => response.text())
-      .then(html => {
-        document.getElementById('modalContent').innerHTML = html;
+      .then((response) => response.text())
+      .then((html) => {
+        document.getElementById("modalContent").innerHTML = html;
       })
-      .catch(error => console.error('Error fetching create.html:', error));
+      .catch((error) => console.error("Error fetching create.html:", error));
   }
 
   function closeModal() {
-    document.getElementById('expenseModal').style.display = 'none';
+    document.getElementById("expenseModal").style.display = "none";
   }
 </script>
 

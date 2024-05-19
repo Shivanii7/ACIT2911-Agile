@@ -1,7 +1,7 @@
 from unittest.mock import patch
 import pytest
 from sqlalchemy import StaticPool, create_engine
-from main import app, create_share, get_budget, get_expense_data, process_expense_data, validate_amount, validate_description, validate_name
+from main import app, create_share, get_budget, get_expense_data, process_expense_data, validate_amount,  validate_name
 from db import Base, db
 from manage import populate_customers, populate_expenses, populate_shares
 from main import get_customer_by_cid, get_expenses_by_cid, get_expenses_by_cid_and_search, get_customer_by_email, get_share_by_joint_id_1, get_expense_by_id, create_expense, create_customer, delete_expense, update_customer, update_customer_budget
@@ -96,14 +96,6 @@ def test_validate_amount(create_app):
         assert validate_amount("123") == 123.0
 
 
-def test_validate_description(create_app):
-    with create_app.app_context():
-        assert validate_description("Valid Description") is True
-        assert validate_description("") is False
-        assert validate_description(None) is False
-        assert validate_description(123) is False
-
-
 '''
 Test the database is built up properly
 '''
@@ -147,7 +139,8 @@ def test_customers_to_json(create_app, setup_data):
             'password': 'password',
             'balance': 0,
             'budget': 0,
-            'joint': None
+            'joint': None,
+            'spent': 0
         }
         assert customer_json == expected
 

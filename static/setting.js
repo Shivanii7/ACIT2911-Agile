@@ -17,12 +17,14 @@ openModalButtons.forEach((button) => {
       body: formData,
     })
       .then((response) => {
+        console.log(response);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
       })
       .then((json) => {
+        console.log(json);
         modalBody.textContent = json.message;
       })
       .catch((e) => {

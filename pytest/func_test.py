@@ -1,11 +1,13 @@
 import pytest
 from flask import url_for
 from flask_testing import TestCase
+from sqlalchemy import true
 from main import app
 from db import db
 from models import Customers, Expenses
 from unittest.mock import patch, MagicMock
 import unittest
+import json
 
 
 class MyTest(TestCase):
@@ -33,9 +35,16 @@ class MyTest(TestCase):
     def test_register(self):
         response = self.client.get(url_for('register'))
         assert response.status_code == 200
+               
 
     def test_reg_log_cycle(self):
         # Registration
+        data = dict(email='test!@gmail.com', password='test123',
+                    first_name='test', last_name='test_last')
+        reg_response = self.client.post(url_for('register'), data=data)
+        assert reg_response.status_code == 302
+
+        # Registration fail
         data = dict(email='test!@gmail.com', password='test123',
                     first_name='test', last_name='test_last')
         reg_response = self.client.post(url_for('register'), data=data)
@@ -46,9 +55,26 @@ class MyTest(TestCase):
         login_response = self.client.post(url_for('login'), data=data)
         assert login_response.status_code == 302
         
+        # Joint
+        response = self.client.post(url_for('expense_update'), data=dict(joint='test@test.com'))
+        parsed_message = json.loads(response.text)
+        assert parsed_message["message"] == "The joint customer doesn't exit!"
+        response = self.client.post(url_for('expense_update'), data=dict(joint='nick123@gmail.com'))
+        parsed_message = json.loads(response.text)
+        assert parsed_message["message"] == 'test!@gmail.com is successfully sharing budget with nick123@gmail.com'
+        
         # Test homepage
         homepage = self.client.get(url_for('homepage'))
         assert homepage.status_code == 200
+        
+        # Create fail
+        create_response = self.client.post(url_for('create'), data=dict(name=None))
+        assert create_response.status_code == 302
+        create_response = self.client.post(url_for('create'), data=dict(name="good",amount="abc"))
+        assert create_response.status_code == 302
+        create_response = self.client.post(url_for('create'), data=dict(name="good",amount=123,des=None))
+        assert create_response.status_code == 302
+        
 
         # Test expense_homepage
         homepage = self.client.get(url_for('expense_homepage'))
@@ -97,10 +123,19 @@ class MyTest(TestCase):
     def test_expense_homepage(self):
         response = self.client.get(url_for('expense_homepage'))
         assert response.status_code == 302
-    
-    def test_expense_homepage_update(self):
-        response = self.client.get(url_for('expense_homepage'))
-        balance = 1000
         
+    def test_expense_update(self):
+        response = self.client.post(url_for('expense_update'))
+        assert response.status_code == 302
     
+    def test_create_fail(self):
+        response = self.client.post(url_for('create'))
+        assert response.status_code == 302
     
+    def test_delete_fail(self):
+        response = self.client.post(url_for('expense_delete', id=0))
+        assert response.status_code == 302
+        
+    def test_set(self):
+        response = self.client.get(url_for('set'))
+        assert response.status_code == 302

@@ -1,7 +1,7 @@
 from unittest.mock import patch
 import pytest
 from sqlalchemy import StaticPool, create_engine
-from main import app, create_share, get_budget, get_expense_data, process_expense_data, validate_amount, validate_description, validate_name, get_customer_by_cid, get_expenses_by_cid, get_expenses_by_cid_and_search, get_customer_by_email, get_share_by_joint_id_1, get_expense_by_id, create_expense, create_customer, delete_expense, update_customer, update_customer_budget
+from main import app, create_share, get_budget, get_expense_data, process_expense_data, validate_amount, validate_description, validate_name, get_customer_by_cid, get_expenses_by_cid, get_expenses_by_cid_and_search, get_customer_by_email, get_share_by_joint_id_1, get_expense_by_id, create_expense, create_customer, delete_expense, update_customer, update_customer_budget, balance_update
 from db import Base, db
 from manage import populate_customers, populate_expenses, populate_shares
 from models import Customers, Expenses, Shares
@@ -443,3 +443,13 @@ def test_populate_shares(create_app, setup_data):
         populate_shares()
         shares = Shares.query.all()
         assert len(shares) > 0
+
+def test_balance_update(create_app):
+    with create_app.app_context():
+        cid = 1
+        customer = get_customer_by_cid(cid)
+        bal_data = get_expenses_by_cid(cid)
+        balance = balance_update(customer.balance, bal_data)
+        assert balance == -1000.0
+    
+    

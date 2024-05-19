@@ -138,6 +138,11 @@ def get_budget(customer):
         return customer_joint.budget if customer_joint else customer.budget
     else:
         return customer.budget
+    
+def balance_update(balance, bal_data):
+    for i in bal_data.scalars():
+        balance -= i.amount
+    return balance
 
 # validation functions
 
@@ -206,8 +211,7 @@ def expense_homepage():
     balance = customer.balance
     processed_data = process_expense_data(data, balance)
     bal_data = get_expenses_by_cid(cid)
-    for i in bal_data.scalars():
-        balance -= i.amount
+    balance = balance_update(balance, bal_data)
     budget = get_budget(customer)
     return render_template("expense.html", transactions=processed_data, balance=balance, joint=customer.joint, budget=budget, search=search)
 
@@ -318,5 +322,5 @@ def set():
     return render_template('settings.html', balance=customer.balance, budget=customer.budget, joint=customer.joint)
 
 
-if __name__ == '__main__':
-    app.run(debug=True, port=3000)
+if __name__ == '__main__': # pragma: no cover
+    app.run(debug=True, port=3000)  # pragma: no cover

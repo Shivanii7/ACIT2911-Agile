@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from flask import Flask, flash, redirect, render_template, request, url_for, session
 from pathlib import Path
 from db import db
@@ -20,6 +20,18 @@ def get_customer_by_cid(cid):
 
 def get_expenses_by_cid(cid):
     return db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid)) or None
+
+
+def get_expenses_by_cid_and_month(cid, month_str):
+
+    print('month_str', month_str)
+    return db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid).filter(Expenses.date.like('%'+'-'+month_str+'-'+'%')))
+
+
+def get_expenses_by_cid_and_month(cid, month_str):
+
+    print('month_str', month_str)
+    return db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid).filter(Expenses.date.like('%'+'-'+month_str+'-'+'%')))
 
 
 def get_expenses_by_cid_and_search(cid, search):
@@ -66,7 +78,7 @@ def update_customer_budget(customer, budget, balance, joint="N/A"):
     joint_customer = get_customer_by_email(joint)
     if joint_customer:
         customer.joint = joint
-        customer.budget = joint_customer.budget 
+        customer.budget = joint_customer.budget
     else:
         customer.budget = budget
 
@@ -80,14 +92,14 @@ def create_share(customer, joint_customer):
         share = Shares.query.filter_by(joint_id_1=customer.cid).first()
     else:
         share = None
-        
+
     if share:
         share = Shares(joint_id_1=customer.cid, joint_id_2=joint_customer.cid)
         customer.budget = joint_customer.budget
         db.session.add(share)
     else:
         share = share
-    
+
     db.session.commit()
 
 
@@ -101,9 +113,9 @@ def get_expense_data(cid, search):
 def process_expense_data(data, balance):
     processed_data = []
     before = balance
-   
-    if isinstance (data,dict):
-        
+
+    if isinstance(data, dict):
+
         u = {
             'id': data["eid"],
             'name': data["name"],
@@ -126,7 +138,7 @@ def process_expense_data(data, balance):
             }
             before -= i.amount
             processed_data.append(u)
-        
+
     processed_data.reverse()
     return processed_data
 
@@ -138,13 +150,28 @@ def get_budget(customer):
         return customer_joint.budget if customer_joint else customer.budget
     else:
         return customer.budget
-    
+
+
 def balance_update(balance, bal_data):
     for i in bal_data.scalars():
         balance -= i.amount
     return balance
 
-# validation functions
+
+def update_spent(customer, spent):
+    customer.spent = spent
+    db.session.add(customer)
+    db.session.commit()
+
+
+def convert_month(month):
+    if month % 10 == month:
+        month_str = '0'+str(month)
+    else:
+        month_str = str(month)
+    return month_str
+
+    # validation functions
 
 
 def validate_name(name):
@@ -160,13 +187,6 @@ def validate_amount(amount):
     except (ValueError, TypeError):
         # flash("Invalid amount.")
         return None
-
-
-def validate_description(description):
-    if not description or not isinstance(description, str):
-        # flash("Invalid description.")
-        return False
-    return True
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -199,8 +219,30 @@ def homepage():
 def submit_form():
     return redirect(url_for('expense_homepage') + "?search=" + request.form.get("search"))
 
+#
 
-@app.route("/expenses")
+
+@app.route("/expenses/month_form", methods=['POST'])
+def accept_month():
+    if 'cid' not in session:
+        return redirect(url_for('login'))
+    cid = session['cid']
+    if not request.form.get("months"):
+        datee = datetime.today()
+        month = datee.month
+    else:
+        month = int(request.form.get("months"))
+    month_str = convert_month(month)
+    expenses_month = get_expenses_by_cid_and_month(cid, month_str)
+    month_spent = 0
+    for i in expenses_month.scalars():
+        month_spent += i.amount
+    session['month_spent'] = month_spent
+    session['month_int'] = month
+    return redirect(url_for('expense_homepage'))
+
+
+@app.route("/expenses", methods=['GET'])
 def expense_homepage():
     if 'cid' not in session:
         return redirect(url_for('login'))
@@ -211,19 +253,29 @@ def expense_homepage():
     balance = customer.balance
     processed_data = process_expense_data(data, balance)
     bal_data = get_expenses_by_cid(cid)
-    balance = balance_update(balance, bal_data)
+    total_spent = 0
+    for i in bal_data.scalars():
+        total_spent += i.amount
+        balance -= i.amount
+    update_spent(customer, total_spent)
     budget = get_budget(customer)
-    return render_template("expense.html", transactions=processed_data, balance=balance, joint=customer.joint, budget=budget, search=search)
+    month_spent = session.get('month_spent', 0)
+    month = session.get('month_int', 0)
+    return render_template("expense.html", transactions=processed_data, month_spent=month_spent, total_spent=total_spent, balance=balance, joint=customer.joint, budget=budget, search=search, month=month)
 
 
 @app.route("/expenses", methods=['POST'])
 def expense_update():
+    print(0000)
     if 'cid' not in session:
         return redirect(url_for('login'))
     cid = session['cid']
     customer = get_customer_by_cid(cid)
+    print(10)
     budget = float(request.form.get("budget") or 0)
+    print("budget", budget)
     balance = float(request.form.get("balance") or 0)
+    print("balance", balance)
     joint = request.form.get("joint") or "N/A"
     update_customer_budget(customer, budget, balance, joint)
     joint_customer = get_customer_by_email(joint)
@@ -262,9 +314,6 @@ def create():
 
     amount = validate_amount(amount)
     if amount is None:
-        return redirect(url_for("expense_homepage"))
-
-    if not validate_description(description):
         return redirect(url_for("expense_homepage"))
 
     expense = Expenses(name=name, amount=amount, date=date,
@@ -322,5 +371,5 @@ def set():
     return render_template('settings.html', balance=customer.balance, budget=customer.budget, joint=customer.joint)
 
 
-if __name__ == '__main__': # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
     app.run(debug=True, port=3000)  # pragma: no cover

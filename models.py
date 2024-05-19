@@ -36,6 +36,7 @@ class Customers(db.Model):
     balance = Column(Float, default=0)
     budget = Column(Float, default=0)
     joint = Column(String(255), default=None)
+    spent = Column(Float, default=0)
 
     def to_json(self):
         return {
@@ -46,7 +47,8 @@ class Customers(db.Model):
             'password': self.password,
             'balance': self.balance,
             'budget': self.budget,
-            'joint': self.joint
+            'joint': self.joint,
+            'spent': self.spent
         }
 
 

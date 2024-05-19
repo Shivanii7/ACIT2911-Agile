@@ -1,10 +1,9 @@
 from unittest.mock import patch
 import pytest
 from sqlalchemy import StaticPool, create_engine
-from main import app, create_share, get_budget, get_expense_data, process_expense_data, validate_amount, validate_description, validate_name
+from main import app, create_share, get_budget, get_expense_data, process_expense_data, validate_amount, validate_description, validate_name, get_customer_by_cid, get_expenses_by_cid, get_expenses_by_cid_and_search, get_customer_by_email, get_share_by_joint_id_1, get_expense_by_id, create_expense, create_customer, delete_expense, update_customer, update_customer_budget, balance_update
 from db import Base, db
 from manage import populate_customers, populate_expenses, populate_shares
-from main import get_customer_by_cid, get_expenses_by_cid, get_expenses_by_cid_and_search, get_customer_by_email, get_share_by_joint_id_1, get_expense_by_id, create_expense, create_customer, delete_expense, update_customer, update_customer_budget
 from models import Customers, Expenses, Shares
 from sqlalchemy.orm import sessionmaker
 
@@ -245,8 +244,30 @@ def test_get_expense_by_id(create_app, setup_data):
 '''
 Test create an expense with correct name, amount and description
 '''
-
-
+def test_process_expense_data_single(create_app, setup_data):
+    with create_app.app_context():
+        data = {"eid":6,"name":"test", "amount":100, "date":"2022-01-01"}
+        balance = 100
+        
+        expense = process_expense_data(data, balance)[0]
+        
+        assert expense["name"] == "test"
+        assert expense["amount"] == 100
+        assert expense["date"] == "2022-01-01"
+        
+def test_process_expense_data(create_app, setup_data):
+    with create_app.app_context():       
+        data = db.session.execute(db.select(Expenses))
+        balance = 100
+        expense = process_expense_data(data, balance)
+        expense.reverse()
+        assert len(expense) == 5
+        for i, e in enumerate(expense):
+            print(i,e)
+            assert e["name"] == f"test{i}"
+            assert e["amount"] == i * 100
+            assert e["date"] == "2022-01-01"
+                
 def test_create_expense(create_app, setup_data):
     with create_app.app_context():
         create_expense("test5", 100, "2022-01-01", "test description5", 1)
@@ -358,9 +379,14 @@ def test_create_share(create_app, setup_data):
         create_share(customer, joint_customer)
 
         share = Shares.query.filter_by(joint_id_1=1).first()
-        assert share is not None
+        assert share
         assert share.joint_id_2 == 2
         assert customer.budget == joint_customer.budget
+        
+        customer = get_customer_by_cid(1)
+        joint_customer = None
+        create_share(customer, joint_customer)
+        assert customer.budget == customer.budget
 
 
 def test_get_budget_with_joint(create_app, setup_data):
@@ -373,6 +399,11 @@ def test_get_budget_with_joint(create_app, setup_data):
 
         assert result == 1000
 
+def test_get_budget_none(create_app, setup_data):
+    with create_app.app_context():
+        customer1 = get_customer_by_cid(1)
+        result = get_budget(customer1)
+        assert result == 0
 
 def test_get_budget_without_joint(create_app, setup_data):
     with create_app.app_context():
@@ -412,3 +443,13 @@ def test_populate_shares(create_app, setup_data):
         populate_shares()
         shares = Shares.query.all()
         assert len(shares) > 0
+
+def test_balance_update(create_app):
+    with create_app.app_context():
+        cid = 1
+        customer = get_customer_by_cid(cid)
+        bal_data = get_expenses_by_cid(cid)
+        balance = balance_update(customer.balance, bal_data)
+        assert balance == -1000.0
+    
+    

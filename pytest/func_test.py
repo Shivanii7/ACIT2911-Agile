@@ -1,3 +1,4 @@
+from calendar import month
 import pytest
 from flask import url_for
 from flask_testing import TestCase
@@ -91,6 +92,13 @@ class MyTest(TestCase):
             assert create_response.status_code == 302
             id = db.session.query(Expenses).order_by(
                 Expenses.eid.desc()).first()
+            
+            response = self.client.post(url_for('accept_month'), data=dict())
+            assert response.status_code == 302
+            
+            response = self.client.post(url_for('accept_month'), data=dict(months=1))
+            assert response.status_code == 302
+            
             delete_response = self.client.post(
                 url_for('expense_delete', id=id.eid))
             print(delete_response)
@@ -134,6 +142,10 @@ class MyTest(TestCase):
 
     def test_delete_fail(self):
         response = self.client.post(url_for('expense_delete', id=0))
+        assert response.status_code == 302
+        
+    def test_accept_month_fail(self):
+        response = self.client.post(url_for('accept_month'))
         assert response.status_code == 302
 
     def test_set(self):

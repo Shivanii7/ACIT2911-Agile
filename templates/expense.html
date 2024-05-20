@@ -5,17 +5,17 @@
   rel="stylesheet"
   href="{{ url_for('static', filename = '../static/expense.css') }}"
 />
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename = 'reminder.css') }}"
+/>
 <div class="main-content">
   <header>
     <h1>Your Account</h1>
     <form action="{{ url_for('submit_form') }}" method="post">
       <input type="search" placeholder="Search" name="search" />
     </form>
-    <img
-      class="profile-pic"
-      src="{{ url_for('static', filename = 'profile.jpg') }}"
-      alt="Profile Picture"
-    />
+    <div class="reminder_container" id="reminder">Insufficient Budget!</div>
   </header>
   <input type="checkbox" name="dmtoggle" id="dmtoggle" />
   <label for="dmtoggle"></label>
@@ -23,12 +23,22 @@
     <section class="overview-section">
       <div class="container">
         <div class="basic_info">
-          <h3>Total Balance: ${{ balance }}</h3>
-          <h3>Month Budget: ${{ budget }}</h3>
-          <h3>Sharing budget with:{{ joint }}</h3>
+          <h3>Current Balance: ${{ balance }}</h3>
+          <h3>
+            This month Budget: <span style="color: green">${{ budget }}</span>
+          </h3>
+          <h3>
+            This month Spent:<span style="color: rgb(213, 40, 9)"
+              >${{ spent }}</span
+            >
+          </h3>
+          <h3>
+            Sharing budget with:<span style="color: rgb(233, 134, 20)"
+              >{{ joint }}</span
+            >
+          </h3>
         </div>
         <div class="specific_info">
-          <h3>You spent ${{ total_spent }} totally</h3>
           {% set
           months=['January','Feburary','March','April','May','June','July','August','September','October','November','December']
           %}
@@ -50,8 +60,13 @@
             </select>
             <input type="submit" value="Submit" />
           </form>
-          <h3>You spent ${{ month_spent }} in {{months[month-1]}}</h3>
-          
+          <p>
+            You spent <strong>${{ month_spent }}</strong> in<strong>
+              {{months[month-1]}}</strong
+            >
+          </p>
+        </div>
+      </div>
     </section>
     <section class="history-section">
       <h2>Expense History</h2>
@@ -114,6 +129,16 @@
   function closeModal() {
     document.getElementById("expenseModal").style.display = "none";
   }
+
+  function show_noti(value) {
+    if (value <= 0) {
+      console.log(value)
+      var reminder = document.getElementById("reminder");
+      reminder.classList.add("show");
+    }
+  }
+
+  show_noti({{value}});
 </script>
 
 {% endblock %}

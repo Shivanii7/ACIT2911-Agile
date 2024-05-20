@@ -1,3 +1,4 @@
+from math import e
 from unittest.mock import patch
 import pytest
 from sqlalchemy import StaticPool, create_engine
@@ -350,6 +351,38 @@ def test_get_expense_data_under_search(create_app, setup_data):
 
 
 '''
+Test Feature -- get the correct expenses by cid=1 and month
+'''
+
+
+def test_get_expenses_by_cid_and_month(create_app, setup_data):
+    with create_app.app_context():
+        expenses = get_expenses_by_cid_and_month(1, "01")
+        for expense in expenses:
+            # print(expense[0].date)
+            assert isinstance(expense[0], Expenses)
+            assert expense[0].customer_id == 1
+            assert "2022-01" in expense[0].date
+
+
+'''
+Test Feature -- convert month
+'''
+
+
+def test_convert_month(create_app, setup_data):
+    with create_app.app_context():
+        month = 1
+        result = convert_month(month)
+        assert result == "01"
+        month = 2
+        result = convert_month(month)
+        assert result == "02"
+        month = 12
+        assert convert_month(month) == "12"
+
+
+'''
 Test feature 1 -- update customer's budget
 '''
 
@@ -450,4 +483,5 @@ def test_balance_update(create_app):
         customer = get_customer_by_cid(cid)
         bal_data = get_expenses_by_cid(cid)
         balance = balance_update(customer.balance, bal_data)
-        assert balance == -1000.0
+        print(balance)
+        assert balance[0] == -1000.0

@@ -1,6 +1,9 @@
 from datetime import datetime
+from turtle import up
 from flask import Flask, flash, redirect, render_template, request, url_for, session
 from pathlib import Path
+
+from flask.config import T
 from db import db
 from models import Customers, Expenses, Shares
 
@@ -23,7 +26,7 @@ def get_expenses_by_cid(cid):
 
 
 def get_expenses_by_cid_and_month(cid, month_str):
-    return db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid).filter(Expenses.date.like('%'+'-'+month_str+'-'+'%')))
+    return db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid).filter(Expenses.date.like('%'+'-'+month_str+'-'+'%'))) or None
 
 
 def get_expenses_by_cid_and_search(cid, search):
@@ -148,9 +151,11 @@ def process_expense_data(data, balance):
 
 
 def balance_update(balance, bal_data):
+    total_spent = 0
     for i in bal_data.scalars():
+        total_spent += i.amount
         balance -= i.amount
-    return balance
+    return [balance, total_spent]
 
 
 def update_spent(customer, spent):
@@ -221,8 +226,8 @@ def accept_month():
         return redirect(url_for('login'))
     cid = session['cid']
     if not request.form.get("months"):
-        datee = datetime.today()
-        month = datee.month
+        date = datetime.today()
+        month = date.month
     else:
         month = int(request.form.get("months"))
     month_str = convert_month(month)

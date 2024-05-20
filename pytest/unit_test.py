@@ -1,7 +1,7 @@
 from unittest.mock import patch
 import pytest
 from sqlalchemy import StaticPool, create_engine
-from main import app, create_share, get_budget, get_expense_data, process_expense_data, validate_amount, validate_name, get_customer_by_cid, get_expenses_by_cid, get_expenses_by_cid_and_search, get_customer_by_email, get_share_by_joint_id_1, get_expense_by_id, create_expense, create_customer, delete_expense, update_customer, update_customer_budget, balance_update
+from main import app, create_share,  get_expense_data, process_expense_data, validate_amount, validate_name, get_customer_by_cid, get_expenses_by_cid, get_expenses_by_cid_and_search, get_customer_by_email, get_share_by_joint_id_1, get_expense_by_id, create_expense, create_customer, delete_expense, update_customer, update_customer_budget, balance_update
 from db import Base, db
 from manage import populate_customers, populate_expenses, populate_shares
 from models import Customers, Expenses, Shares
@@ -386,32 +386,32 @@ def test_create_share(create_app, setup_data):
         assert customer.budget == customer.budget
 
 
-def test_get_budget_with_joint(create_app, setup_data):
-    with create_app.app_context():
-        customer1 = get_customer_by_cid(1)
-        customer2 = get_customer_by_cid(2)
-        customer1.joint = customer2.email
-        customer2.budget = 1000
-        result = get_budget(customer1)
+# def test_get_budget_with_joint(create_app, setup_data):
+#     with create_app.app_context():
+#         customer1 = get_customer_by_cid(1)
+#         customer2 = get_customer_by_cid(2)
+#         customer1.joint = customer2.email
+#         customer2.budget = 1000
+#         result = get_budget(customer1)
 
-        assert result == 1000
-
-
-def test_get_budget_none(create_app, setup_data):
-    with create_app.app_context():
-        customer1 = get_customer_by_cid(1)
-        result = get_budget(customer1)
-        assert result == 0
+#         assert result == 1000
 
 
-def test_get_budget_without_joint(create_app, setup_data):
-    with create_app.app_context():
-        customer1 = get_customer_by_cid(1)
-        customer2 = get_customer_by_cid(2)
-        customer1.budget = 500
-        customer1.joint = None
-        result = get_budget(customer1)
-        assert result == 500
+# def test_get_budget_none(create_app, setup_data):
+#     with create_app.app_context():
+#         customer1 = get_customer_by_cid(1)
+#         result = get_budget(customer1)
+#         assert result == 0
+
+
+# def test_get_budget_without_joint(create_app, setup_data):
+#     with create_app.app_context():
+#         customer1 = get_customer_by_cid(1)
+#         customer2 = get_customer_by_cid(2)
+#         customer1.budget = 500
+#         customer1.joint = None
+#         result = get_budget(customer1)
+#         assert result == 500
 
 
 '''test manage.py'''

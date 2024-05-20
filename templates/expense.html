@@ -15,15 +15,7 @@
     <form action="{{ url_for('submit_form') }}" method="post">
       <input type="search" placeholder="Search" name="search" />
     </form>
-    <div class="notification">
-      <span class="reminder_container" onclick="show_noti({{value}})">
-        Budget Reminder
-        <span class="reminder_text" id="reminder"
-          >You have exceeded your month budget!</span
-        >
-      </span>
-      <span class="badge" id="badge">&nbsp;</span>
-    </div>
+    <div class="reminder_container" id="reminder">Insufficient Budget!</div>
   </header>
   <input type="checkbox" name="dmtoggle" id="dmtoggle" />
   <label for="dmtoggle"></label>
@@ -31,12 +23,12 @@
     <section class="overview-section">
       <div class="container">
         <div class="basic_info">
-          <h3>Total Balance: ${{ balance }}</h3>
+          <h3>Current Balance: ${{ balance }}</h3>
           <h3>
-            Current Budget: <span style="color: green">${{ budget }}</span>
+            This month Budget: <span style="color: green">${{ budget }}</span>
           </h3>
           <h3>
-            Current Spent:<span style="color: rgb(213, 40, 9)"
+            This month Spent:<span style="color: rgb(213, 40, 9)"
               >${{ spent }}</span
             >
           </h3>
@@ -69,8 +61,9 @@
             <input type="submit" value="Submit" />
           </form>
           <p>
-            You spent <strong><span>${{ month_spent }}</span></strong> in
-            {{months[month-1]}}
+            You spent <strong>${{ month_spent }}</strong> in<strong>
+              {{months[month-1]}}</strong
+            >
           </p>
         </div>
       </div>
@@ -139,20 +132,13 @@
 
   function show_noti(value) {
     if (value <= 0) {
+      console.log(value)
       var reminder = document.getElementById("reminder");
-      reminder.classList.toggle("show");
+      reminder.classList.add("show");
     }
   }
 
-  function show_badge(value) {
-    console.log(value)
-    if (value <= 0) {
-      var badge = document.getElementById("badge");
-      badge.classList.add("show");
-    }
-  }
-
-  show_badge({{value}});
+  show_noti({{value}});
 </script>
 
 {% endblock %}

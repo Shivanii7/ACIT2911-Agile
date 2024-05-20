@@ -58,7 +58,7 @@ class MyTest(TestCase):
         response = self.client.post(
             url_for('expense_update'), data=dict(joint='test@test.com'))
         parsed_message = json.loads(response.text)
-        assert parsed_message["message"] == "The joint customer doesn't exit!"
+        assert parsed_message["message"] == "Set successfully! You are not sharing budget with others!"
         response = self.client.post(
             url_for('expense_update'), data=dict(joint='nick123@gmail.com'))
         parsed_message = json.loads(response.text)

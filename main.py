@@ -23,13 +23,6 @@ def get_expenses_by_cid(cid):
 
 
 def get_expenses_by_cid_and_month(cid, month_str):
-
-    print('month_str', month_str)
-    return db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid).filter(Expenses.date.like('%'+'-'+month_str+'-'+'%')))
-
-
-def get_expenses_by_cid_and_month(cid, month_str):
-
     print('month_str', month_str)
     return db.session.execute(db.select(Expenses).filter(Expenses.customer_id == cid).filter(Expenses.date.like('%'+'-'+month_str+'-'+'%')))
 
@@ -75,11 +68,14 @@ def update_customer(customer):
 
 
 def update_customer_budget(customer, budget, balance, joint="N/A"):
+    print("joint", joint)
     joint_customer = get_customer_by_email(joint)
     if joint_customer:
+        print(00000)
         customer.joint = joint
         customer.budget = joint_customer.budget
     else:
+        print(11111)
         customer.budget = budget
 
     customer.balance = balance
@@ -253,15 +249,23 @@ def expense_homepage():
     balance = customer.balance
     processed_data = process_expense_data(data, balance)
     bal_data = get_expenses_by_cid(cid)
-    total_spent = 0
+    current_month = datetime.today().month
+    current_month_str = convert_month(current_month)
+    expenses_current_month = get_expenses_by_cid_and_month(
+        cid, current_month_str)
+    current_month_spent = 0
+    for i in expenses_current_month.scalars():
+        current_month_spent += i.amount
     for i in bal_data.scalars():
-        total_spent += i.amount
         balance -= i.amount
-    update_spent(customer, total_spent)
-    budget = get_budget(customer)
+    update_spent(customer, current_month_spent)
+    # budget = get_budget(customer)
+    budget = customer.budget
     month_spent = session.get('month_spent', 0)
     month = session.get('month_int', 0)
-    return render_template("expense.html", transactions=processed_data, month_spent=month_spent, total_spent=total_spent, balance=balance, joint=customer.joint, budget=budget, search=search, month=month)
+    value = budget-current_month_spent
+    print(value)
+    return render_template("expense.html", value=value, transactions=processed_data, month_spent=month_spent, spent=current_month_spent, balance=balance, joint=customer.joint, budget=budget, search=search, month=month)
 
 
 @app.route("/expenses", methods=['POST'])
@@ -271,7 +275,6 @@ def expense_update():
         return redirect(url_for('login'))
     cid = session['cid']
     customer = get_customer_by_cid(cid)
-    print(10)
     budget = float(request.form.get("budget") or 0)
     print("budget", budget)
     balance = float(request.form.get("balance") or 0)

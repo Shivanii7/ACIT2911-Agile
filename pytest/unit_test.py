@@ -1,4 +1,5 @@
 from math import e
+from math import e
 from unittest.mock import patch
 import pytest
 from sqlalchemy import StaticPool, create_engine

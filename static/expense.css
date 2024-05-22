@@ -249,50 +249,6 @@ input[type="submit"]:hover {
   background-color: #45a049;
 }
 
-
-/* .content {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  grid-template-rows: auto auto;
-  gap: 20px;
-} */
-
-/* .cards-section {
-  display: flex;
-  justify-content: space-between;
-} */
-
-/* .card {
-  flex: 1;
-  background-color: #ebf0f7;
-  border-radius: 10px;
-  padding: 20px;
-  margin-right: 10px;
-  text-align: center;
-  color: #555;
-}
-
-.card:last-child {
-  margin-right: 0;
-} */
-
-/* .send-btn, .request-btn {
-  border: none;
-  padding: 10px 20px;
-  margin: 10px;
-  border-radius: 5px;
-}
-
-.send-btn {
-  background-color: #00bc77;
-  color: #fff;
-}
-
-.request-btn {
-  background-color: #ff5e5e;
-  color: #fff;
-} */
-
 .chart-section, .history-section {
   grid-column: span 2;
   background-color: #f9fbfc;

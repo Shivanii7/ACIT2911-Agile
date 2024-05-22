@@ -61,14 +61,14 @@ body {
     background-color: #45a049; 
 }
 
-body.darkmode{
-    background-color: var(--dark-bg-color);
-    color: var(--dark-text-color);
+/* body.darkmode{
+  background-color: var(--dark-bg-color);
+  color: var(--dark-text-color);
 }
 
 body.darkmode  {
-    :is(h1, .main-content, .content, .overview-section, .history-section,.Modal) {
-        background-color: var(--dark-bg-color);
-        color: var(--dark-text-color);
-    }
-}
+  :is(h1, .main-content, .content, .overview-section, .history-section,.Modal) {
+    background-color: var(--dark-bg-color);
+    color: var(--dark-text-color);
+  }
+} */

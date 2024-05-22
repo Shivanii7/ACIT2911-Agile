@@ -1,9 +1,27 @@
-/* :root  {
+:root  {
   --light-bg-color: rgb(216, 197, 197);
   --dark-bg-color: rgb(37, 33, 33);
   --light-text-color: rgb(34, 31, 31);
   --dark-text-color: rgb(230, 217, 217);
-} */
+}
+
+body.darkmode {
+  background-color: var(--dark-bg-color);
+  color: var(--dark-text-color);
+}
+body.darkmode {
+  :is(
+      h1,
+      .main-content,
+      .content,
+      .overview-section,
+      .history-section,
+      .Modal
+    ) {
+    background-color: var(--dark-bg-color);
+    color: var(--dark-text-color);
+  }
+}
 
 body {
   color: var(--light-text-color);

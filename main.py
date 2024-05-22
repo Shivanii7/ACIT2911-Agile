@@ -40,7 +40,6 @@ def get_customer_by_email(email):
 def get_share_by_joint_id_1(cid):
     return db.session.query(Shares).filter(Shares.joint_id_1 == cid).first() or None
 
-
 def get_expense_by_id(id):
     return db.get_or_404(Expenses, id) or None
 

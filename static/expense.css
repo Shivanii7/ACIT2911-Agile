@@ -70,6 +70,10 @@ header h1 {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.overview-section h2 {
+  margin: 10px;
+}
+
 .history-section {
   font-size: small;
   margin-top: 10px;
@@ -208,10 +212,17 @@ label, label:after {
 
 .basic_info,
 .specific_info {
-  flex: 1;
-  margin: 10px;
   padding: 10px;
   box-sizing: border-box;
+}
+
+.basic_info {
+  margin-top: 0%;
+}
+
+.specific_info {
+  margin-top: 15px;
+  font-size: 14px;
 }
 
 body {
@@ -357,4 +368,17 @@ body.darkMode #toggle {
 --default-text: black;
 */
 
+.reminder_container {
+  visibility: hidden;
+  width: 100%;
+  color: red;
+  text-align: center;
+  padding: 5px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.reminder_container.show {
+  visibility: visible;
+}
 

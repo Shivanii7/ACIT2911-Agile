@@ -10,10 +10,11 @@
     </form>
     <input type="checkbox" name="dmtoggle" id="dmtoggle" />
     <label for="dmtoggle"></label>
-    <div class="reminder_container" id="reminder">Insufficient Budget!</div>
   </header>
   <div class="content">
     <section class="overview-section">
+      <h2>Account Overview</h2>
+      <div class="reminder_container" id="reminder">Alert! You have exceeded your budget</div>
       <div class="container">
         <div class="basic_info">
           <h3>Current Balance: ${{ balance }}</h3>
@@ -62,7 +63,7 @@
       </div>
     </section>
     <section class="history-section">
-      <h2>Expense History</h2>
+      <h2>Transactions</h2>
       {% if search %}
       <p>Search results for "{{ search }}"</p>
       {% endif %}

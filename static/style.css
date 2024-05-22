@@ -193,24 +193,6 @@ header input[type="search"] {
     background-color: #009c63;
 }
 
-.delete_button {
-    background-color: #ff5e5e;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.delete_button:hover {
-    background-color: #d14836;
-}
-
-
-
-
-
 /* 
 
 :root  {

@@ -7,6 +7,7 @@ body {
 
 .container {
     max-width: 800px; 
+    display: block;
     width: 80%; 
     margin: 80px auto;
     padding: 20px;
@@ -59,3 +60,15 @@ body {
 .submit-button:hover {
     background-color: #45a049; 
 }
+
+/* body.darkmode{
+  background-color: var(--dark-bg-color);
+  color: var(--dark-text-color);
+}
+
+body.darkmode  {
+  :is(h1, .main-content, .content, .overview-section, .history-section,.Modal) {
+    background-color: var(--dark-bg-color);
+    color: var(--dark-text-color);
+  }
+} */

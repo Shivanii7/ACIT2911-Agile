@@ -3,16 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <title>Finance Dashboard</title>
-    <link rel="stylesheet" href="../static/style.css" />
     <link rel="stylesheet" href="../static/base.css" />
     <script src="../static/expense.js" defer></script> 
-
-    {% block head %} {% endblock %}
   </head>
   <body class="">
     <div class="dashboard">
       <aside class="sidebar">
-        
         <nav>
           <ul>
             <li><a href="{{ url_for('homepage') }}" class="active" title="Home">🏠</a></li>
@@ -24,10 +20,6 @@
           </ul>
         </nav>
       </aside>
-      <!-- <button>
-        <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
-      </button> -->
-
   {% block content %} 
   <section class="main">
     <div class="container">

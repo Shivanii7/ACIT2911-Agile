@@ -1,26 +1,20 @@
-{% extends "base.html" %} {% block content %}
-<script src="../static/expense.js" defer></script>
+{% extends "base.html" %} 
+{% block content %}
 <link rel="stylesheet" href="../static/expense.css" />
-<link
-  rel="stylesheet"
-  href="{{ url_for('static', filename = '../static/expense.css') }}"
-/>
-<link
-  rel="stylesheet"
-  href="{{ url_for('static', filename = 'reminder.css') }}"
-/>
+<link rel="script" href="../static/expense.js" />
 <div class="main-content">
   <header>
     <h1>Your Account</h1>
     <form action="{{ url_for('submit_form') }}" method="post">
-      <input type="search" placeholder="Search" name="search" />
+      <input class="search-bar" type="search" placeholder="Search" name="search" />
     </form>
-    <div class="reminder_container" id="reminder">Insufficient Budget!</div>
+    <input type="checkbox" name="dmtoggle" id="dmtoggle" />
+    <label for="dmtoggle"></label>
   </header>
-  <input type="checkbox" name="dmtoggle" id="dmtoggle" />
-  <label for="dmtoggle"></label>
   <div class="content">
     <section class="overview-section">
+      <h2>Account Overview</h2>
+      <div class="reminder_container" id="reminder">Alert! You have exceeded your budget</div>
       <div class="container">
         <div class="basic_info">
           <h3>Current Balance: ${{ balance }}</h3>
@@ -69,11 +63,11 @@
       </div>
     </section>
     <section class="history-section">
-      <h2>Expense History</h2>
+      <h2>Transactions</h2>
       {% if search %}
       <p>Search results for "{{ search }}"</p>
       {% endif %}
-      <div>
+      <div class="scrollable-history">
         <table class="table">
           <tr class="expense_items">
             <th>Name</th>
@@ -81,7 +75,10 @@
             <th>Amount</th>
             <th>Balance</th>
             <th>Delete</th>
+            <th>Edit</th>
           </tr>
+        </thead>
+        <tbody>
           {% for transaction in transactions %}
           <tr class="expense_items">
             <td>{{ transaction['name'] }}</td>
@@ -92,11 +89,13 @@
               {% else %} -${{ transaction['balance'] }} {% endif %}
             </td>
             <td>
-              <form
-                method="POST"
-                action="{{ url_for('expense_delete', id=transaction['id']) }}"
-              >
+              <form method="POST" action="{{ url_for('expense_delete', id=transaction['id']) }}">
                 <button type="submit" class="delete_button">Delete</button>
+              </form>
+            </td>
+            <td>
+              <form>
+                <button type="button" class="edit_button" onclick="openEditModal('{{ transaction['id'] }}')">Edit</button>
               </form>
             </td>
           </tr>
@@ -115,8 +114,43 @@
   </div>
 </div>
 
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeEditModal()">&times;</span> 
+    <div id="editModalContent"></div>
+  </div>
+</div>
+
 <script>
-  function openModal() {
+  
+let darko = localStorage.getItem('darko') === 'true';
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    if (darko) {
+        document.body.classList.add('darkmode');
+        document.getElementById('dmtoggle').checked = true; 
+        console.log('darkness');
+    } else {
+        document.body.classList.remove('darkmode');
+        document.getElementById('dmtoggle').checked = false; 
+    }
+});
+
+function darktime() {
+    console.log('darkness');
+    darko = !darko;
+    if (darko) {
+        document.body.classList.add('darkmode');
+        localStorage.setItem('darko', 'true');
+    } else {
+        document.body.classList.remove('darkmode');
+        localStorage.setItem('darko', 'false');
+    }
+}
+
+document.getElementById('dmtoggle').onclick = darktime;
+
+function openModal() {
     document.getElementById("expenseModal").style.display = "block";
     fetch("{{ url_for('fill') }}")
       .then((response) => response.text())
@@ -139,6 +173,20 @@
   }
 
   show_noti({{value}});
+
+  function openEditModal(transaction_id) {
+    document.getElementById('editModal').style.display = 'block';
+    fetch(`{{ url_for('edit_form') }}?id=${transaction_id}`)
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('editModalContent').innerHTML = html;
+      })
+      .catch(error => console.error('Error fetching edit form:', error));
+  }
+
+  function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+  }
 </script>
 
 {% endblock %}

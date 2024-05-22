@@ -3,7 +3,6 @@ from turtle import up
 from turtle import up
 from flask import Flask, flash, redirect, render_template, request, url_for, session
 from pathlib import Path
-
 from flask.config import T
 from db import db
 from models import Customers, Expenses, Shares
@@ -41,21 +40,18 @@ def get_customer_by_email(email):
 def get_share_by_joint_id_1(cid):
     return db.session.query(Shares).filter(Shares.joint_id_1 == cid).first() or None
 
-
 def get_expense_by_id(id):
     return db.get_or_404(Expenses, id) or None
 
 
 def create_expense(name, amount, date, description, cid):
-    expense = Expenses(name=name, amount=amount, date=date,
-                       description=description, customer_id=cid)
+    expense = Expenses(name=name, amount=amount, date=date, description=description, customer_id=cid)
     db.session.add(expense)
     db.session.commit()
 
 
 def create_customer(email, password, first_name, last_name):
-    user = Customers(email=email, password=password,
-                     first_name=first_name, last_name=last_name)
+    user = Customers(email=email, password=password, first_name=first_name, last_name=last_name)
     db.session.add(user)
     db.session.commit()
 
@@ -101,6 +97,19 @@ def create_share(customer, joint_customer):
 
     db.session.commit()
 
+def get_transaction_by_id(transaction_id):
+    transaction = db.session.execute(db.select(Expenses).where(Expenses.eid == transaction_id)).scalar()
+    return transaction
+
+def update_transaction(transaction_id, name, date, amount):
+    transaction = get_transaction_by_id(transaction_id)
+    if transaction is None:
+        print(f"No transaction found with id {transaction_id}")
+        return
+    transaction.name = name
+    transaction.date = date
+    transaction.amount = amount
+    db.session.commit()
 
 def get_expense_data(cid, search):
     if search is not None:
@@ -112,9 +121,7 @@ def get_expense_data(cid, search):
 def process_expense_data(data, balance):
     processed_data = []
     before = balance
-
     if isinstance(data, dict):
-
         u = {
             'id': data["eid"],
             'name': data["name"],
@@ -141,7 +148,6 @@ def process_expense_data(data, balance):
     processed_data.reverse()
     return processed_data
 
-
 # def get_budget(customer):
 #     joint = customer.joint
 #     if joint != None:
@@ -150,7 +156,6 @@ def process_expense_data(data, balance):
 #     else:
 #         return customer.budget
 
-
 def balance_update(balance, bal_data):
     total_spent = 0
     for i in bal_data.scalars():
@@ -158,12 +163,10 @@ def balance_update(balance, bal_data):
         balance -= i.amount
     return [balance, total_spent]
 
-
 def update_spent(customer, spent):
     customer.spent = spent
     db.session.add(customer)
     db.session.commit()
-
 
 def convert_month(month):
     if month % 10 == month:
@@ -174,13 +177,11 @@ def convert_month(month):
 
 # validation functions
 
-
 def validate_name(name):
     if not name or not isinstance(name, str):
         # flash("Invalid name.")
         return False
     return True
-
 
 def validate_amount(amount):
     try:
@@ -188,7 +189,6 @@ def validate_amount(amount):
     except (ValueError, TypeError):
         # flash("Invalid amount.")
         return None
-
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -325,8 +325,7 @@ def create():
     if amount is None:
         return redirect(url_for("expense_homepage"))
 
-    expense = Expenses(name=name, amount=amount, date=date,
-                       description=description, customer_id=customer_id)
+    expense = Expenses(name=name, amount=amount, date=date, description=description, customer_id=customer_id)
     db.session.add(expense)
     db.session.commit()
     return redirect(url_for("expense_homepage"))
@@ -336,6 +335,31 @@ def create():
 def fill():
     return render_template('create.html')
 
+@app.route('/edit_form')
+def edit_form():
+    transaction_id = request.args.get('id')
+    #print(f"Transaction ID: {transaction_id}")
+    transaction = get_transaction_by_id(transaction_id) 
+    return render_template('edit_form.html', transaction=transaction)
+
+@app.route('/edit_transaction', methods=['POST'])
+def edit_transaction():
+    form_data = request.form
+    print(f"Form data: {form_data}")  
+    transaction_id = form_data.get('id')
+    transaction = get_transaction_by_id(transaction_id)
+
+    transaction.name = form_data.get('name')
+    transaction.date = form_data.get('date')
+    transaction.amount = form_data.get('amount')
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        print(f"Error committing transaction: {e}")
+        return "Error: Could not save changes"
+
+    return redirect(url_for('expense_homepage'))
 
 @app.route("/expenses/delete/<id>", methods=['POST'])
 def expense_delete(id):
@@ -357,8 +381,7 @@ def register():
         last_name = request.form['last_name']
         if db.session.query(Customers).filter_by(email=email).first():
             return redirect(url_for('register'))
-        user = Customers(email=email, password=password,
-                         first_name=first_name, last_name=last_name)
+        user = Customers(email=email, password=password, first_name=first_name, last_name=last_name)
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('login'))

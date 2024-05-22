@@ -1,4 +1,3 @@
-
 let darko = localStorage.getItem('darko') === 'true';
 
 document.addEventListener('DOMContentLoaded', (event) => {

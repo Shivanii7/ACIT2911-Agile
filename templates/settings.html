@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block head %}
 <link
   rel="stylesheet"
-  href="{{ url_for('static', filename = 'settings.css') }}"
+  href="{{ url_for('static', filename = '../static/settings.css') }}"
 />
 
 {% endblock %} {% block content %}
@@ -10,23 +10,23 @@
   <h1>Sharing</h1>
 
   <form method="POST" action="{{ url_for('expense_update') }}">
-    <input type="checkbox" name="dmtoggle" id="dmtoggle" />
-    <label for="dmtoggle"></label>
-    <label for="balance">What is your original balance?</label>
+    <input type="checkbox" name="dmtoggle" id="dmtoggle">
+      <label for="dmtoggle"></label>
+    <label for="balance">Balance:</label>
     <input
       type="number"
       id="balance"
       name="balance"
       placeholder="${{ balance }}"
     /><br />
-    <label for="budget">How much is your current budget?</label>
+    <label for="budget">Budget:</label>
     <input
       type="number"
       id="budget"
       name="budget"
       placeholder=" ${{ budget }}"
     /><br />
-    <label for="joint">Whose budget do you want to share with?</label>
+    <label for="joint">Joint:</label>
     <input
       type="text"
       id="joint"

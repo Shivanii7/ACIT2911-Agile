@@ -3,7 +3,6 @@ from turtle import up
 from turtle import up
 from flask import Flask, flash, redirect, render_template, request, url_for, session
 from pathlib import Path
-
 from flask.config import T
 from db import db
 from models import Customers, Expenses, Shares
@@ -327,8 +326,7 @@ def create():
     if amount is None:
         return redirect(url_for("expense_homepage"))
 
-    expense = Expenses(name=name, amount=amount, date=date,
-                       description=description, customer_id=customer_id)
+    expense = Expenses(name=name, amount=amount, date=date, description=description, customer_id=customer_id)
     db.session.add(expense)
     db.session.commit()
     return redirect(url_for("expense_homepage"))

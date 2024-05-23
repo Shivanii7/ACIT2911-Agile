@@ -197,13 +197,14 @@ def test_get_transaction_by_id(app,setup_data):
 
 def test_pdate_transaction(app,setup_data):
     with app.app_context():
-        result = update_transaction(6, "apple", "2024-05-10", 100, )
+        result = update_transaction(6, "apple", "2024-05-10", 100, "expense")
         assert result is None
         transaction = get_transaction_by_id(1)
-        update_transaction(1,"apple","2024-05-10",100)
+        update_transaction(1,"apple","2024-05-10",100,"expense")
         assert transaction.name=="apple"        
         assert transaction.date == "2024-05-10"
         assert transaction.amount == 100
+        assert transaction.transaction_category == "expense"
 
 
 

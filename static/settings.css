@@ -97,52 +97,49 @@ input[type="submit"]:hover {
 } */
 
 #dmtoggle {
-  width: 30px;
-  height: 60px;
+  width: 30px;;
+  height: 60px;;
   position: relative;
+  right: 15px;
+  top: 15px;
   display: block;
-  background: none;
-  border: none;
+  background: #ebebeb;
   border-radius: 200px;
   box-shadow: inset 0px 5px 15px rgba(0,0,0,0.4), inset 0px -5px 15px rgba(5, 5, 5, 0.4);
   cursor: pointer;
-  visibility: hidden;
-}
-
-#dmtoggle + label {
-  content: "";
-  width: 30px;
-  height: 60px;
-  display: block;
-  position: relative;
-  cursor: pointer;
-  transition: 0s;
 }
 
 #dmtoggle + label:after {
-  content: "";
-  width: 15px;
-  height: 30px;
-  position: absolute;
-  top: -150px;
-  right: -1150px;
-  background: linear-gradient(180deg, #060703be, #0f0f0765);
-  border-radius: 180px;
-  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.4);
-  transition: 0s;
+content: "";
+width:15px;
+height: 30px;
+position: absolute;
+top: 15px;;
+right:10px;
+background: linear-gradient(180deg,#060703be,#0f0f0765);
+border-radius: 180px;
+box-shadow: 0px 5px 10px rgba(0,0,0,0.4);
 }
 
-/* #dmtoggle:checked + label {
-  background: #242424;
-} */
-
-#dmtoggle:checked + label:after {
-  transform: translateY(100%);
-  background: linear-gradient(180deg, #fff789, #f5e503);
-  box-shadow: 0px 5px 10px rgba(255, 251, 2, 1);
+input[name="dmtoggle"] {
+width: 0;
+height: 0;
+visibility: hidden;
 }
 
+#dmtoggle:checked + label {
+background: #242424;
+}
 
+#dmtoggle:checked + label:after { 
+transform: translateY(100%);
+background: linear-gradient(180deg,#fff789,#f5e503);
+box-shadow: 0px 5px 10px rgba(255, 251, 2, 1); 
+}
+
+label, label:after {
+transition: 0s
+}
 
 .modal {
 position: fixed;

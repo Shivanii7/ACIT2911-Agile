@@ -43,7 +43,7 @@ def setup_data(app):
         db.session.commit()
 
         for i in range(5):
-            expense = Expenses(name=f"test{i}", amount=i*100, date="2022-01-01", customer_id=1)
+            expense = Expenses(name=f"test{i}", amount=i*100, date="2022-01-01", customer_id=1, transaction_category="expense")
             db.session.add(expense)
         db.session.commit()
 
@@ -60,20 +60,17 @@ def print_database_state(app):
         customers = db.session.query(Customers).all()
         print("Customers:")
         for customer in customers:
-            print(f"ID: {customer.cid}, Email: {customer.email}, First Name: {
-                  customer.first_name}, Last Name: {customer.last_name}")
+            print(f"ID: {customer.cid}, Email: {customer.email}, First Name: {customer.first_name}, Last Name: {customer.last_name}")
 
         expenses = db.session.query(Expenses).all()
         print("Expenses:")
         for expense in expenses:
-            print(f"ID: {expense.eid}, Name: {expense.name}, Amount: {expense.amount}, Date: {
-                  expense.date},  Customer ID: {expense.customer_id}")
+            print(f"ID: {expense.eid}, Name: {expense.name}, Amount: {expense.amount}, Date: {expense.date}, Customer ID: {expense.customer_id}, Transaction Category: {expense.transaction_category}")
 
         shares = db.session.query(Shares).all()
         print("Shares:")
         for share in shares:
-            print(f"ID: {share.sid}, joint_id_1: {
-                  share.joint_id_1}, joint_id_2: {share.joint_id_2}")
+            print(f"ID: {share.sid}, joint_id_1: {share.joint_id_1}, joint_id_2: {share.joint_id_2}")
 
 
 '''
@@ -158,6 +155,7 @@ def test_expenses_to_json(app, setup_data):
             'name': 'test0',
             'amount': 0,
             'date': '2022-01-01',
+            'transaction_category': 'expense',
             # 'description': 'test description0',
             'customer_id': 1
         }
@@ -196,13 +194,15 @@ def test_get_transaction_by_id(app,setup_data):
 
 def test_pdate_transaction(app,setup_data):
     with app.app_context():
-        result = update_transaction(6, "apple", "2024-05-10", 100)
+        result = update_transaction(6, "apple", "2024-05-10", 100, "expense")
         assert result is None
         transaction = get_transaction_by_id(1)
-        update_transaction(1,"apple","2024-05-10",100)
+        update_transaction(1,"apple","2024-05-10",100,"expense")
         assert transaction.name=="apple"        
         assert transaction.date == "2024-05-10"
         assert transaction.amount == 100
+        assert transaction.transaction_category == "expense"
+
 
 
 '''
@@ -262,7 +262,7 @@ Test create an expense with correct name, amount and description
 
 def test_process_expense_data_single(app, setup_data):
     with app.app_context():
-        data = {"eid": 6, "name": "test", "amount": 100, "date": "2022-01-01"}
+        data = {"eid": 6, "name": "test", "amount": 100, "date": "2022-01-01", "transaction_category": "expense"}
         balance = 100
 
         expense = process_expense_data(data, balance)[0]
@@ -270,6 +270,8 @@ def test_process_expense_data_single(app, setup_data):
         assert expense["name"] == "test"
         assert expense["amount"] == 100
         assert expense["date"] == "2022-01-01"
+        assert expense["transaction_category"] == "expense"
+    
 
 
 def test_process_expense_data(app, setup_data):
@@ -288,13 +290,14 @@ def test_process_expense_data(app, setup_data):
 
 def test_create_expense(app, setup_data):
     with app.app_context():
-        create_expense("test5", 100, "2022-01-01", 1)
+        create_expense("test5", 100, "2022-01-01", "expense", 1)
         expense = get_expense_by_id(6)
         assert expense.name == "test5"
         assert expense.amount == 100
         assert expense.date == "2022-01-01"
         # assert expense.description == "test description5"
         assert expense.customer_id == 1
+        assert expense.transaction_category == "expense"
 
 
 def test_create_customer(app, setup_data):
@@ -309,7 +312,7 @@ def test_create_customer(app, setup_data):
 
 def test_delete_expense(app, setup_data):
     with app.app_context():
-        create_expense("test", 100, "2022-01-01",  1)
+        create_expense("test", 100, "2022-01-01", "expense", 1)
         expense = get_expense_by_id(1)
         delete_expense(expense)
         with pytest.raises(Exception):
@@ -455,7 +458,7 @@ def test_balance_update(app, setup_data):
 '''test manage.py'''
 
 
-@patch('manage.open', new_callable=mock_open, read_data='items,expense,date,cid\nitem1,100,2022-01-01,1\nitem2,200,2022-01-02,2')
+@patch('manage.open', new_callable=mock_open, read_data='items,expense,date,cid,transaction_category\nitem1,100,2022-01-01,1,expense\nitem2,200,2022-01-02,2,expense')
 @patch('manage.db.session.commit')
 @patch('manage.db.session.add')
 def test_populate_expenses(mock_db_add, mock_db_commit, mock_file):

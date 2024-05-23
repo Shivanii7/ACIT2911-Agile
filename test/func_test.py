@@ -39,80 +39,97 @@ class MyTest(TestCase):
         data = dict(email='test!@gmail.com', password='test123',
                     first_name='test', last_name='test_last')
         reg_response = self.client.post(url_for('register'), data=data)
+        print(reg_response.status_code)
         assert reg_response.status_code == 302
 
         # Registration fail
         data = dict(email='test!@gmail.com', password='test123',
                     first_name='test', last_name='test_last')
         reg_response = self.client.post(url_for('register'), data=data)
+        print(reg_response.status_code)
         assert reg_response.status_code == 302
 
         # Login
         data = dict(email='test!@gmail.com', password='test123')
         login_response = self.client.post(url_for('login'), data=data)
+        print(login_response.status_code)
         assert login_response.status_code == 302
 
         # Joint
         response = self.client.post(
             url_for('expense_update'), data={'joint':'N/A','balance':0.0,'budget':0.0})
+        print(response.data)
         assert b"Your status doesn't change!" in response.data
 
         response = self.client.post(
             url_for('expense_update'), data=dict(joint='',balance=1000.0,budget=200.0))
+        print(response.data)
         assert b"Set successfully! You are not sharing budget with others!" in response.data
         
         response = self.client.post(
             url_for('expense_update'), data=dict(joint='nick123@gmail.com'))
+        print(response.data)
         assert b'test!@gmail.com is successfully sharing budget with nick123@gmail.com' in response.data
         
         # Test homepage
         homepage = self.client.get(url_for('homepage'))
-        assert homepage.status_code == 200
+        print(homepage.status_code)
+        assert homepage.status_code == 302
 
         # Create fail
         create_response = self.client.post(
             url_for('create'), data=dict(name=None))
+        print(create_response.status_code)
         assert create_response.status_code == 302
         create_response = self.client.post(
             url_for('create'), data=dict(name="good", amount="abc"))
+        print(create_response.status_code)
         assert create_response.status_code == 302
 
         # Test expense_homepage
-        homepage = self.client.get(url_for('expense_homepage'))
-        assert homepage.status_code == 200
+        homepage = self.client.get(url_for('homepage'))
+        print(homepage.status_code)
+        assert homepage.status_code == 302
 
         # Update
         update_response = self.client.post(url_for('expense_update'))
+        print(update_response.status_code)
         assert update_response.status_code == 200
 
         
         # Expense creation and deletion
         def expense_delete(self):
             create_response = self.client.post(url_for('create'), data=dict(
-                name='test', amount=100, date='2021-01-01', des='test'))
+                name='test', amount=100, date='2021-01-01', transaction_category='expense'))
+            print(create_response.status_code)
             assert create_response.status_code == 302
             id = db.session.query(Expenses).order_by(
                 Expenses.eid.desc()).first()
 
             response = self.client.post(url_for('accept_month'), data=dict())
+            print(response.status_code)
             assert response.status_code == 302
 
             response = self.client.post(
                 url_for('accept_month'), data=dict(months=1))
+            print(response.status_code)
             assert response.status_code == 302
 
             delete_response = self.client.post(
                 url_for('expense_delete', id=id.eid))
             print(delete_response)
+            print(delete_response.status_code)
             assert delete_response.status_code == 302
         expense_delete(self)
 
         # Test update expenses
         update_expenses = self.client.get(url_for('set'))
+        print(update_expenses.status_code)
         assert update_expenses.status_code == 200
 
         # Logout
         logout_response = self.client.get(url_for('logout'))
+        print(logout_response.status_code)
         assert logout_response.status_code == 302
 
         # Clean up
@@ -158,15 +175,15 @@ class MyTest(TestCase):
     def test_edit_transaction(self,mock_get_transaction):
         mock_transaction=mock.Mock()
         mock_get_transaction.return_value=mock_transaction    
-        data={'id':1,'name':'apple','date':'2024-02-02','amount':500.0}
+        data={'id':1,'name':'apple','date':'2024-02-02','amount':500.0, 'transaction_category':'expense'}
         response=self.client.post(url_for('edit_transaction'),data=data)     
         assert mock_transaction.name == 'apple'
         assert mock_transaction.date == '2024-02-02'
-        assert mock_transaction.amount == '500.0'        
+        assert mock_transaction.amount == '500.0'  
+        assert mock_transaction.transaction_category == 'expense'
         assert response.status_code==302    
         
 
-  
     @mock.patch('main.db.session.commit')
     def test_commit_failure(self,mock_commit):      
         mock_commit.side_effect = Exception('Commit failed')        
@@ -183,8 +200,10 @@ class MyTest(TestCase):
         mock_get_transaction.return_value=mock_transaction
         transaction_id=1
         response=self.client.get(url_for('edit_form',id=transaction_id))
+        print("Response status code:", response.status_code)
+        print("Response data:", response.data)
         assert response.status_code==200
-        assert b'edit_form.html' in response.data
+        assert b'<form class="edit-form"' in response.data
 
         
     

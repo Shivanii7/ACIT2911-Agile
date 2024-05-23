@@ -110,8 +110,9 @@ def create_share(customer, joint_customer):
 
 
 def get_transaction_by_id(transaction_id):
-    transaction = db.session.execute(db.select(Expenses).where(
-        Expenses.eid == transaction_id)).scalar()
+    # transaction = db.session.execute(db.select(Expenses).where(
+    #     Expenses.eid == transaction_id)).scalar()
+    transaction = db.session.query(Expenses).filter(Expenses.eid == transaction_id).first()
     return transaction
 
 def update_transaction(transaction_id, name, date, amount, transaction_category):
@@ -253,7 +254,7 @@ def homepage():
     if 'cid' not in session:
         return redirect(url_for('login'))
     else:
-        return render_template("expense_homepage.html")
+        return redirect(url_for('expense_homepage')) 
 
 
 @app.route("/submit_form", methods=['POST'])

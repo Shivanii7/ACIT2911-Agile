@@ -315,7 +315,7 @@ def test_create_customer(app, setup_data):
 
 def test_delete_expense(app, setup_data):
     with app.app_context():
-        create_expense("test", 100, "2022-01-01",  1)
+        create_expense("test", 100, "2022-01-01", "expense", 1)
         expense = get_expense_by_id(1)
         delete_expense(expense)
         with pytest.raises(Exception):

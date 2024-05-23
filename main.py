@@ -167,8 +167,11 @@ def process_expense_data(data, balance):
 def balance_update(balance, bal_data):
     total_spent = 0
     for i in bal_data.scalars():
-        total_spent += i.amount
-        balance -= i.amount
+        if i.transaction_category == "expense":
+            balance -= i.amount
+            total_spent += i.amount  
+        elif i.transaction_category == "income":
+            balance += i.amount
     return [balance, total_spent]
 
 def update_spent(customer, spent):
@@ -243,7 +246,7 @@ def accept_month():
     expenses_month = get_expenses_by_cid_and_month(cid, month_str)
     month_spent = 0
     for i in expenses_month.scalars():
-        month_spent += i.amount
+        month_spent += i.amount if i.transaction_category == "expense" else 0
     session['month_spent'] = month_spent
     session['month_int'] = month
     return redirect(url_for('expense_homepage'))
@@ -266,9 +269,14 @@ def expense_homepage():
         cid, current_month_str)
     current_month_spent = 0
     for i in expenses_current_month.scalars():
-        current_month_spent += i.amount
+        current_month_spent += i.amount if i.transaction_category == "expense" else 0
     for i in bal_data.scalars():
-        balance -= i.amount
+        # balance -= i.amount if i.transaction_category == "expense" else i
+        if i.transaction_category == "expense":
+            balance -= i.amount
+        elif i.transaction_category == "income":
+            balance += i.amount
+
     update_spent(customer, current_month_spent)
     budget = customer.budget
     month_spent = session.get('month_spent', 0)

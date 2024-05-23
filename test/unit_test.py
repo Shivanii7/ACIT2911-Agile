@@ -461,7 +461,7 @@ def test_balance_update(app, setup_data):
 '''test manage.py'''
 
 
-@patch('manage.open', new_callable=mock_open, read_data='items,expense,date,cid\nitem1,100,2022-01-01,1\nitem2,200,2022-01-02,2')
+@patch('manage.open', new_callable=mock_open, read_data='items,expense,date,cid,transaction_category\nitem1,100,2022-01-01,1,expense\nitem2,200,2022-01-02,2,expense')
 @patch('manage.db.session.commit')
 @patch('manage.db.session.add')
 def test_populate_expenses(mock_db_add, mock_db_commit, mock_file):

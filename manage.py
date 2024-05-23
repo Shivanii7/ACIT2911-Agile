@@ -1,8 +1,10 @@
-from main import app
+from main import create_app
 from db import db
 from models import Expenses, Customers, Shares
 from csv import DictReader
-from datetime import datetime
+
+
+app = create_app()
 
 
 def populate_expenses():

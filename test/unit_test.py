@@ -293,13 +293,14 @@ def test_process_expense_data(app, setup_data):
 
 def test_create_expense(app, setup_data):
     with app.app_context():
-        create_expense("test5", 100, "2022-01-01", 1)
+        create_expense("test5", 100, "2022-01-01", "expense", 1)
         expense = get_expense_by_id(6)
         assert expense.name == "test5"
         assert expense.amount == 100
         assert expense.date == "2022-01-01"
         # assert expense.description == "test description5"
         assert expense.customer_id == 1
+        assert expense.transaction_category == "expense"
 
 
 def test_create_customer(app, setup_data):

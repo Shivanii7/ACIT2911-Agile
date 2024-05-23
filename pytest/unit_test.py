@@ -35,8 +35,7 @@ def setup_data(create_app):
         db.session.commit()
 
         for i in range(5):
-            expense = Expenses(name=f"test{
-                               i}", amount=i*100, date="2022-01-01", description=f"test description{i}", customer_id=1)
+            expense = Expenses(name=f"test{i}", amount=i*100, date="2022-01-01", customer_id=1)
             db.session.add(expense)
         db.session.commit()
 
@@ -64,7 +63,7 @@ def print_database_state(create_app):
         print("Expenses:")
         for expense in expenses:
             print(f"ID: {expense.eid}, Name: {expense.name}, Amount: {expense.amount}, Date: {
-                  expense.date}, Description: {expense.description}, Customer ID: {expense.customer_id}")
+                  expense.date},  Customer ID: {expense.customer_id}")
 
         shares = db.session.query(Shares).all()
         print("Shares:")
@@ -117,7 +116,7 @@ def test_expenses_exist(create_app, setup_data):
         for i, expense in enumerate(expenses):
             assert expense.name == f"test{i}"
             assert expense.amount == i * 100
-            assert expense.description == f"test description{i}"
+           
 
 
 def test_share_exists(create_app, setup_data):
@@ -155,7 +154,7 @@ def test_expenses_to_json(create_app, setup_data):
             'name': 'test0',
             'amount': 0,
             'date': '2022-01-01',
-            'description': 'test description0',
+            # 'description': 'test description0',
             'customer_id': 1
         }
         assert expense_json == expected
@@ -269,12 +268,12 @@ def test_process_expense_data(create_app, setup_data):
 
 def test_create_expense(create_app, setup_data):
     with create_app.app_context():
-        create_expense("test5", 100, "2022-01-01", "test description5", 1)
+        create_expense("test5", 100, "2022-01-01", 1)
         expense = get_expense_by_id(6)
         assert expense.name == "test5"
         assert expense.amount == 100
         assert expense.date == "2022-01-01"
-        assert expense.description == "test description5"
+        # assert expense.description == "test description5"
         assert expense.customer_id == 1
 
 
@@ -290,7 +289,7 @@ def test_create_customer(create_app, setup_data):
 
 def test_delete_expense(create_app, setup_data):
     with create_app.app_context():
-        create_expense("test", 100, "2022-01-01", "test description", 1)
+        create_expense("test", 100, "2022-01-01",  1)
         expense = get_expense_by_id(1)
         delete_expense(expense)
         with pytest.raises(Exception):

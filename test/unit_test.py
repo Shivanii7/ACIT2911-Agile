@@ -67,7 +67,7 @@ def print_database_state(app):
         print("Expenses:")
         for expense in expenses:
             print(f"ID: {expense.eid}, Name: {expense.name}, Amount: {expense.amount}, Date: {
-                  expense.date},  Customer ID: {expense.customer_id}")
+                  expense.date},  Customer ID: {expense.customer_id}, Transaction Category: {expense.transaction_category}")
 
         shares = db.session.query(Shares).all()
         print("Shares:")
@@ -196,13 +196,14 @@ def test_get_transaction_by_id(app,setup_data):
 
 def test_pdate_transaction(app,setup_data):
     with app.app_context():
-        result = update_transaction(6, "apple", "2024-05-10", 100)
+        result = update_transaction(6, "apple", "2024-05-10", 100, )
         assert result is None
         transaction = get_transaction_by_id(1)
         update_transaction(1,"apple","2024-05-10",100)
         assert transaction.name=="apple"        
         assert transaction.date == "2024-05-10"
         assert transaction.amount == 100
+
 
 
 '''
@@ -270,6 +271,7 @@ def test_process_expense_data_single(app, setup_data):
         assert expense["name"] == "test"
         assert expense["amount"] == 100
         assert expense["date"] == "2022-01-01"
+        assert expense["transaction_category"] == "expense"
 
 
 def test_process_expense_data(app, setup_data):

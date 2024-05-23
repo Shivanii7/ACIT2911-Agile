@@ -158,15 +158,15 @@ class MyTest(TestCase):
     def test_edit_transaction(self,mock_get_transaction):
         mock_transaction=mock.Mock()
         mock_get_transaction.return_value=mock_transaction    
-        data={'id':1,'name':'apple','date':'2024-02-02','amount':500.0}
+        data={'id':1,'name':'apple','date':'2024-02-02','amount':500.0, 'transaction_category':'expense'}
         response=self.client.post(url_for('edit_transaction'),data=data)     
         assert mock_transaction.name == 'apple'
         assert mock_transaction.date == '2024-02-02'
-        assert mock_transaction.amount == '500.0'        
+        assert mock_transaction.amount == '500.0'  
+        assert mock_transaction.transaction_category == 'expense'
         assert response.status_code==302    
         
 
-  
     @mock.patch('main.db.session.commit')
     def test_commit_failure(self,mock_commit):      
         mock_commit.side_effect = Exception('Commit failed')        
@@ -183,8 +183,10 @@ class MyTest(TestCase):
         mock_get_transaction.return_value=mock_transaction
         transaction_id=1
         response=self.client.get(url_for('edit_form',id=transaction_id))
+        print("Response status code:", response.status_code)
+        print("Response data:", response.data)
         assert response.status_code==200
-        assert b'edit_form.html' in response.data
+        assert b'<form class="edit-form"' in response.data
 
         
     

@@ -60,20 +60,17 @@ def print_database_state(app):
         customers = db.session.query(Customers).all()
         print("Customers:")
         for customer in customers:
-            print(f"ID: {customer.cid}, Email: {customer.email}, First Name: {
-                  customer.first_name}, Last Name: {customer.last_name}")
+            print(f"ID: {customer.cid}, Email: {customer.email}, First Name: {customer.first_name}, Last Name: {customer.last_name}")
 
         expenses = db.session.query(Expenses).all()
         print("Expenses:")
         for expense in expenses:
-            print(f"ID: {expense.eid}, Name: {expense.name}, Amount: {expense.amount}, Date: {
-                  expense.date},  Customer ID: {expense.customer_id}, Transaction Category: {expense.transaction_category}")
+            print(f"ID: {expense.eid}, Name: {expense.name}, Amount: {expense.amount}, Date: {expense.date}, Customer ID: {expense.customer_id}, Transaction Category: {expense.transaction_category}")
 
         shares = db.session.query(Shares).all()
         print("Shares:")
         for share in shares:
-            print(f"ID: {share.sid}, joint_id_1: {
-                  share.joint_id_1}, joint_id_2: {share.joint_id_2}")
+            print(f"ID: {share.sid}, joint_id_1: {share.joint_id_1}, joint_id_2: {share.joint_id_2}")
 
 
 '''

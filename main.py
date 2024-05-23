@@ -245,10 +245,13 @@ def accept_month():
     month_str = convert_month(month)
     expenses_month = get_expenses_by_cid_and_month(cid, month_str)
     month_spent = 0
+    month_earned = 0
     for i in expenses_month.scalars():
         month_spent += i.amount if i.transaction_category == "expense" else 0
+        month_earned += i.amount if i.transaction_category == "income" else 0
     session['month_spent'] = month_spent
     session['month_int'] = month
+    session['month_earned'] = month_earned
     return redirect(url_for('expense_homepage'))
 
 
@@ -280,9 +283,10 @@ def expense_homepage():
     update_spent(customer, current_month_spent)
     budget = customer.budget
     month_spent = session.get('month_spent', 0)
+    month_earned = session.get('month_earned', 0)
     month = session.get('month_int', 0)
     value = budget-current_month_spent
-    return render_template("expense.html", value=value, transactions=processed_data, month_spent=month_spent, spent=current_month_spent, balance=balance, joint=customer.joint, budget=budget, search=search, month=month)
+    return render_template("expense.html", value=value, transactions=processed_data, month_spent=month_spent, spent=current_month_spent, balance=balance, joint=customer.joint, budget=budget, search=search, month=month, month_earned=month_earned)
 
 
 @app.route("/expenses", methods=['POST'])

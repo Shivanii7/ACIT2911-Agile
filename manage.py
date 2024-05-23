@@ -3,7 +3,7 @@ from main import app
 from db import db
 from models import Expenses, Customers, Shares
 from csv import DictReader
-from datetime import datetime
+
 
 
 def populate_expenses():

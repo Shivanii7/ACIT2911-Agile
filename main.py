@@ -4,18 +4,29 @@ from turtle import up
 from unicodedata import category
 from flask import Flask, flash, redirect, render_template, request, url_for, session
 from pathlib import Path
-from flask.config import T
 from db import db
 from models import Customers, Expenses, Shares
 
-app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
-app.instance_path = Path('data').resolve()
+def create_app(testing=False):
+    app = Flask(__name__)
+    app.secret_key = 'super'
+    if testing:
+        # In-memory database for testing
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
+        app.instance_path = Path("./data").resolve()
+    else:
+        # Main database URI
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///data.db"
+        app.instance_path = Path("./data").resolve()
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-db.init_app(app)
+    # Initialize the database
+    db.init_app(app)
+    return app
 
-app.secret_key = 'super'
+
+app = create_app()
 
 
 def get_customer_by_cid(cid):
@@ -41,6 +52,7 @@ def get_customer_by_email(email):
 def get_share_by_joint_id_1(cid):
     return db.session.query(Shares).filter(Shares.joint_id_1 == cid).first() or None
 
+
 def get_expense_by_id(id):
     return db.get_or_404(Expenses, id) or None
 
@@ -52,7 +64,8 @@ def create_expense(name, amount, date, transaction_category, cid):
 
 
 def create_customer(email, password, first_name, last_name):
-    user = Customers(email=email, password=password, first_name=first_name, last_name=last_name)
+    user = Customers(email=email, password=password,
+                     first_name=first_name, last_name=last_name)
     db.session.add(user)
     db.session.commit()
 
@@ -95,20 +108,22 @@ def create_share(customer, joint_customer):
         share = share
     db.session.commit()
 
+
 def get_transaction_by_id(transaction_id):
-    transaction = db.session.execute(db.select(Expenses).where(Expenses.eid == transaction_id)).scalar()
+    transaction = db.session.execute(db.select(Expenses).where(
+        Expenses.eid == transaction_id)).scalar()
     return transaction
 
 def update_transaction(transaction_id, name, date, amount, transaction_category):
     transaction = get_transaction_by_id(transaction_id)
     if transaction is None:
-        print(f"No transaction found with id {transaction_id}")
         return
     transaction.name = name
     transaction.date = date
     transaction.amount = amount
     transaction.transaction_category = transaction_category
     db.session.commit()
+
 
 def get_expense_data(cid, search):
     if search is not None:
@@ -156,13 +171,6 @@ def process_expense_data(data, balance):
     processed_data.reverse()
     return processed_data
 
-# def get_budget(customer):
-#     joint = customer.joint
-#     if joint != None:
-#         customer_joint = get_customer_by_email(joint)
-#         return customer_joint.budget if customer_joint else customer.budget
-#     else:
-#         return customer.budget
 
 def balance_update(balance, bal_data):
     total_spent = 0
@@ -174,10 +182,12 @@ def balance_update(balance, bal_data):
             balance += i.amount
     return [balance, total_spent]
 
+
 def update_spent(customer, spent):
     customer.spent = spent
     db.session.add(customer)
     db.session.commit()
+
 
 def convert_month(month):
     if month % 10 == month:
@@ -188,11 +198,13 @@ def convert_month(month):
 
 # validation functions
 
+
 def validate_name(name):
     if not name or not isinstance(name, str):
         # flash("Invalid name.")
         return False
     return True
+
 
 def validate_amount(amount):
     try:
@@ -200,6 +212,23 @@ def validate_amount(amount):
     except (ValueError, TypeError):
         # flash("Invalid amount.")
         return None
+    
+def get_current_month_spent(cid):
+    current_month = datetime.today().month
+    current_month_str = convert_month(current_month)
+    expenses_current_month = get_expenses_by_cid_and_month(
+        cid, current_month_str)
+    current_month_spent = 0
+    for i in expenses_current_month.scalars():
+        current_month_spent += i.amount
+    return current_month_spent
+
+def update_balance(cid,balance):
+    bal_data = get_expenses_by_cid(cid)
+    for i in bal_data.scalars():
+        balance -= i.amount
+ 
+
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -261,9 +290,11 @@ def expense_homepage():
         return redirect(url_for('login'))
     cid = session['cid']
     customer = get_customer_by_cid(cid)
+    balance = customer.balance   
+    budget = customer.budget
+    
     search = request.args.get("search", None)
-    data = get_expense_data(cid, search)
-    balance = customer.balance
+    data = get_expense_data(cid, search)    
     processed_data = process_expense_data(data, balance)
     bal_data = get_expenses_by_cid(cid)
     current_month = datetime.today().month
@@ -282,6 +313,12 @@ def expense_homepage():
 
     update_spent(customer, current_month_spent)
     budget = customer.budget
+   
+    current_month_spent=get_current_month_spent(cid)
+    update_spent(customer, current_month_spent)    
+ 
+    update_balance(cid,balance)
+  
     month_spent = session.get('month_spent', 0)
     month_earned = session.get('month_earned', 0)
     month = session.get('month_int', 0)
@@ -308,23 +345,12 @@ def expense_update():
         create_share(customer, joint_customer)
         jsonString = {"message": (
             f"{customer.email} is successfully sharing budget with {joint}")}
-    elif not joint and not balance and not budget:
+    elif joint=='N/A' and not balance and not budget:
         jsonString = {"message": "Your status doesn't change!"}
     else:
         jsonString = {
             "message": "Set successfully! You are not sharing budget with others!"}
 
-# # when users leave "joint" box empty, joint status doesn't change
-#     elif joint == "N/A" and budget:
-#         jsonString = {"message": (
-#             f"{customer.email} is successfully sharing budget with {joint}")}
-#         update_customer_budget(customer, budget, balance, joint)
-#         jsonString = {"message":
-#                       "Your sharing status doesn't change!"}
-# # when users input content not exiting in database, nothing happen to database
-#     elif not joint_customer:
-#         jsonString = {"message":
-#                       "The joint customer doesn't exit!"}
     return jsonString
 
 @app.route("/expenses/create", methods=['POST'])
@@ -354,17 +380,18 @@ def create():
 def fill():
     return render_template('create.html')
 
+
 @app.route('/edit_form')
 def edit_form():
     transaction_id = request.args.get('id')
-    #print(f"Transaction ID: {transaction_id}")
-    transaction = get_transaction_by_id(transaction_id) 
+    transaction = get_transaction_by_id(transaction_id)
     return render_template('edit_form.html', transaction=transaction)
+
 
 @app.route('/edit_transaction', methods=['POST'])
 def edit_transaction():
     form_data = request.form
-    print(f"Form data: {form_data}")  
+    print(f"Form data: {form_data}")
     transaction_id = form_data.get('id')
     transaction = get_transaction_by_id(transaction_id)
 
@@ -380,6 +407,7 @@ def edit_transaction():
         return "Error: Could not save changes"
 
     return redirect(url_for('expense_homepage'))
+
 
 @app.route("/expenses/delete/<id>", methods=['POST'])
 def expense_delete(id):
@@ -401,7 +429,8 @@ def register():
         last_name = request.form['last_name']
         if db.session.query(Customers).filter_by(email=email).first():
             return redirect(url_for('register'))
-        user = Customers(email=email, password=password, first_name=first_name, last_name=last_name)
+        user = Customers(email=email, password=password,
+                         first_name=first_name, last_name=last_name)
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('login'))

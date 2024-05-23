@@ -75,7 +75,6 @@ def update_customer_budget(customer, budget, balance, joint="N/A"):
     elif budget:
         customer.budget = budget
         customer.joint = "N/A"
-
     if balance:
         customer.balance = balance
 
@@ -88,14 +87,12 @@ def create_share(customer, joint_customer):
         share = Shares.query.filter_by(joint_id_1=customer.cid).first()
     else:
         share = None
-
     if share:
         share = Shares(joint_id_1=customer.cid, joint_id_2=joint_customer.cid)
         customer.budget = joint_customer.budget
         db.session.add(share)
     else:
         share = share
-
     db.session.commit()
 
 def get_transaction_by_id(transaction_id):
@@ -119,42 +116,9 @@ def get_expense_data(cid, search):
     else:
         return get_expenses_by_cid(cid)
 
-
-# def process_expense_data(data, balance):
-#     processed_data = []
-#     before = balance
-    
-#     if isinstance(data, dict):
-#         u = {
-#             'id': data["eid"],
-#             'name': data["name"],
-#             'amount': data["amount"],
-#             'date': data["date"],
-#             'before': before,
-#             'balance': before - data["amount"]
-#         }
-#         before -= data["amount"]
-#         processed_data.append(u)
-#     else:
-#         for i in data.scalars():
-#             u = {
-#                 'id': i.eid,
-#                 'name': i.name,
-#                 'amount': i.amount,
-#                 'date': i.date,
-#                 'before': before,
-#                 'balance': before - i.amount
-#             }
-#             before -= i.amount
-#             processed_data.append(u)
-
-#     processed_data.reverse()
-#     return processed_data
-
 def process_expense_data(data, balance):
     processed_data = []
     before = balance
-    
     if isinstance(data, dict):
         if data["transaction_category"] == "income":
             balance += data["amount"]
@@ -257,7 +221,7 @@ def homepage():
     if 'cid' not in session:
         return redirect(url_for('login'))
     else:
-        return render_template("base.html")
+        return render_template("expense_homepage.html")
 
 
 @app.route("/submit_form", methods=['POST'])
@@ -396,6 +360,7 @@ def edit_transaction():
     transaction.name = form_data.get('name')
     transaction.date = form_data.get('date')
     transaction.amount = form_data.get('amount')
+    transaction.transaction_category = form_data.get('transaction_category')
 
     try:
         db.session.commit()

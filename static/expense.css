@@ -288,6 +288,9 @@ input[type="submit"]:hover {
   color: #ff5e5e;
 }
 
+.plus{
+  color: #00bc77;
+}
 
 .table {
   width: 100%;

@@ -1,6 +1,7 @@
 from datetime import datetime
 from turtle import up
 from turtle import up
+from unicodedata import category
 from flask import Flask, flash, redirect, render_template, request, url_for, session
 from pathlib import Path
 from flask.config import T
@@ -44,8 +45,8 @@ def get_expense_by_id(id):
     return db.get_or_404(Expenses, id) or None
 
 
-def create_expense(name, amount, date, description, cid):
-    expense = Expenses(name=name, amount=amount, date=date, description=description, customer_id=cid)
+def create_expense(name, amount, date, transaction_category, cid):
+    expense = Expenses(name=name, amount=amount, date=date, transaction_category=transaction_category, customer_id=cid)
     db.session.add(expense)
     db.session.commit()
 
@@ -101,7 +102,7 @@ def get_transaction_by_id(transaction_id):
     transaction = db.session.execute(db.select(Expenses).where(Expenses.eid == transaction_id)).scalar()
     return transaction
 
-def update_transaction(transaction_id, name, date, amount):
+def update_transaction(transaction_id, name, date, amount, transaction_category):
     transaction = get_transaction_by_id(transaction_id)
     if transaction is None:
         print(f"No transaction found with id {transaction_id}")
@@ -109,6 +110,7 @@ def update_transaction(transaction_id, name, date, amount):
     transaction.name = name
     transaction.date = date
     transaction.amount = amount
+    transaction.transaction_category = transaction_category
     db.session.commit()
 
 def get_expense_data(cid, search):
@@ -118,31 +120,73 @@ def get_expense_data(cid, search):
         return get_expenses_by_cid(cid)
 
 
+# def process_expense_data(data, balance):
+#     processed_data = []
+#     before = balance
+    
+#     if isinstance(data, dict):
+#         u = {
+#             'id': data["eid"],
+#             'name': data["name"],
+#             'amount': data["amount"],
+#             'date': data["date"],
+#             'before': before,
+#             'balance': before - data["amount"]
+#         }
+#         before -= data["amount"]
+#         processed_data.append(u)
+#     else:
+#         for i in data.scalars():
+#             u = {
+#                 'id': i.eid,
+#                 'name': i.name,
+#                 'amount': i.amount,
+#                 'date': i.date,
+#                 'before': before,
+#                 'balance': before - i.amount
+#             }
+#             before -= i.amount
+#             processed_data.append(u)
+
+#     processed_data.reverse()
+#     return processed_data
+
 def process_expense_data(data, balance):
     processed_data = []
     before = balance
+    
     if isinstance(data, dict):
+        if data["transaction_category"] == "income":
+            balance += data["amount"]
+        elif data["transaction_category"] == "expense":
+            balance -= data["amount"]
         u = {
             'id': data["eid"],
             'name': data["name"],
+            'transaction_category': data["transaction_category"], 
             'amount': data["amount"],
             'date': data["date"],
             'before': before,
-            'balance': before - data["amount"]
+            'balance': balance
         }
-        before -= data["amount"]
+        before = balance
         processed_data.append(u)
     else:
         for i in data.scalars():
+            if i.transaction_category == "income":
+                balance += i.amount
+            elif i.transaction_category == "expense":
+                balance -= i.amount
             u = {
                 'id': i.eid,
                 'name': i.name,
                 'amount': i.amount,
+                'transaction_category': i.transaction_category,
                 'date': i.date,
                 'before': before,
-                'balance': before - i.amount
+                'balance': balance
             }
-            before -= i.amount
+            before = balance
             processed_data.append(u)
 
     processed_data.reverse()
@@ -315,7 +359,7 @@ def create():
     name = request.form.get("name")
     amount = request.form.get("amount")
     date = request.form.get("date")
-    description = request.form.get("des")
+    transaction_category = request.form.get("transaction_category")
     customer_id = session['cid'] if 'cid' in session else 1
 
     if not validate_name(name):
@@ -325,7 +369,7 @@ def create():
     if amount is None:
         return redirect(url_for("expense_homepage"))
 
-    expense = Expenses(name=name, amount=amount, date=date, description=description, customer_id=customer_id)
+    expense = Expenses(name=name, amount=amount, date=date, transaction_category=transaction_category, customer_id=customer_id)
     db.session.add(expense)
     db.session.commit()
     return redirect(url_for("expense_homepage"))

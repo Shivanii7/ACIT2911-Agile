@@ -72,6 +72,7 @@
           <tr class="expense_items">
             <th>Name</th>
             <th>Date</th>
+            <th>Type</th>
             <th>Amount</th>
             <th>Balance</th>
             <th>Delete</th>
@@ -83,10 +84,27 @@
           <tr class="expense_items">
             <td>{{ transaction['name'] }}</td>
             <td>{{ transaction['date'] }}</td>
-            <td class="minus">-${{ transaction['amount'] }}</td>
-            <td class="balanceremaining">
+            <td>
+              {% if transaction['transaction_category'] == 'income' %} Income
+              {% else %} Expense {% endif %}
+            </td>
+            <td>
+              {% if transaction['transaction_category'] == 'income' %}
+                <span class="plus">+${{ transaction['amount'] }}</span>
+              {% else %}
+                <span class="minus">-${{ transaction['amount'] }}</span>
+              {% endif %}                  
+            </td>
+            <!-- <td class="balanceremaining">
               {% if transaction['balance'] > 0 %} ${{ transaction['balance'] }}
               {% else %} -${{ transaction['balance'] }} {% endif %}
+            </td> -->
+            <td>
+              {% if transaction['balance'] > 0 %}
+              <span class="plus">${{ transaction['balance'] }}</span>
+              {% else %}
+                <span class="minus">${{ transaction['balance'] }}</span>
+              {% endif %}
             </td>
             <td>
               <form method="POST" action="{{ url_for('expense_delete', id=transaction['id']) }}">

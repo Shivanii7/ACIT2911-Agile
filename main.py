@@ -254,7 +254,7 @@ def homepage():
     if 'cid' not in session:
         return redirect(url_for('login'))
     else:
-        return render_template("expense_homepage.html")
+        return redirect(url_for('expense_homepage')) 
 
 
 @app.route("/submit_form", methods=['POST'])

@@ -1,4 +1,3 @@
-from calendar import JANUARY
 from unittest import mock
 from flask import url_for
 from flask_testing import TestCase

@@ -43,7 +43,7 @@ def setup_data(app):
         db.session.commit()
 
         for i in range(5):
-            expense = Expenses(name=f"test{i}", amount=i*100, date="2022-01-01", customer_id=1)
+            expense = Expenses(name=f"test{i}", amount=i*100, date="2022-01-01", customer_id=1, transaction_category="expense")
             db.session.add(expense)
         db.session.commit()
 
@@ -158,6 +158,7 @@ def test_expenses_to_json(app, setup_data):
             'name': 'test0',
             'amount': 0,
             'date': '2022-01-01',
+            'transaction_category': 'expense',
             # 'description': 'test description0',
             'customer_id': 1
         }

@@ -9,6 +9,7 @@ body.darkmode {
   background-color: var(--dark-bg-color);
   color: var(--dark-text-color);
 }
+
 body.darkmode {
   :is(
       h1,
@@ -42,6 +43,12 @@ header h1 {
   padding: 0;
 }
 
+header {
+  color: white;
+  padding: 5px;
+  text-align: center;
+}
+
 .main-content {
   align-items: center;
   justify-content: center;
@@ -65,7 +72,7 @@ header h1 {
   justify-content: center;
   font-size: small;
   width: 100%;
-  padding: 20px;
+  
 }
 
 .overview-section {
@@ -73,8 +80,9 @@ header h1 {
   height: 30%;
   width: 60%;
   background-color: white;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 1px 1px 1px 2px rgba(36, 35, 35, 0.1);
+  margin-top: 0px;
 }
 
 .overview-section h2 {
@@ -82,12 +90,11 @@ header h1 {
 }
 
 .history-section {
-  font-size: small;
   margin-top: 10px;
   width: 90%;
   background-color: white;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  
 }
 
 .modal {
@@ -199,17 +206,17 @@ label, label:after {
 
 .scrollable-history {
   overflow-y: scroll;
-  height: 200px;
+  height: 300px;
   width: 100%;
 }
 
 .delete_button, .edit_button {
-  background: linear-gradient(45deg, #ff5252, #e53935);
   color: white;
   border: none;
   padding: 8px 16px;
   border-radius: 5px;
   cursor: pointer;
+  background-color: #e53935;
 }
 
 .delete_button:hover, .edit_button:hover {
@@ -225,6 +232,10 @@ label, label:after {
 
 .basic_info {
   margin-top: 0%;
+}
+
+.edit_button{
+  background-color: rgb(233, 134, 20);
 }
 
 .specific_info {
@@ -295,6 +306,9 @@ input[type="submit"]:hover {
   color: #ff5e5e;
 }
 
+.plus{
+  color: #00bc77;
+}
 
 .table {
   width: 100%;

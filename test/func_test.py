@@ -1,13 +1,10 @@
-from calendar import month
-import pytest
+from unittest import mock
 from flask import url_for
 from flask_testing import TestCase
-from sqlalchemy import true
+import pytest
 from main import app
 from db import db
 from models import Customers, Expenses
-from unittest.mock import patch, MagicMock
-import unittest
 import json
 
 
@@ -57,14 +54,17 @@ class MyTest(TestCase):
 
         # Joint
         response = self.client.post(
-            url_for('expense_update'), data=dict(joint='test@test.com'))
-        parsed_message = json.loads(response.text)
-        assert parsed_message["message"] == "Set successfully! You are not sharing budget with others!"
+            url_for('expense_update'), data={'joint':'N/A','balance':0.0,'budget':0.0})
+        assert b"Your status doesn't change!" in response.data
+
+        response = self.client.post(
+            url_for('expense_update'), data=dict(joint='',balance=1000.0,budget=200.0))
+        assert b"Set successfully! You are not sharing budget with others!" in response.data
+        
         response = self.client.post(
             url_for('expense_update'), data=dict(joint='nick123@gmail.com'))
-        parsed_message = json.loads(response.text)
-        assert parsed_message["message"] == 'test!@gmail.com is successfully sharing budget with nick123@gmail.com'
-
+        assert b'test!@gmail.com is successfully sharing budget with nick123@gmail.com' in response.data
+        
         # Test homepage
         homepage = self.client.get(url_for('homepage'))
         assert homepage.status_code == 200
@@ -85,6 +85,7 @@ class MyTest(TestCase):
         update_response = self.client.post(url_for('expense_update'))
         assert update_response.status_code == 200
 
+        
         # Expense creation and deletion
         def expense_delete(self):
             create_response = self.client.post(url_for('create'), data=dict(
@@ -92,13 +93,14 @@ class MyTest(TestCase):
             assert create_response.status_code == 302
             id = db.session.query(Expenses).order_by(
                 Expenses.eid.desc()).first()
-            
+
             response = self.client.post(url_for('accept_month'), data=dict())
             assert response.status_code == 302
-            
-            response = self.client.post(url_for('accept_month'), data=dict(months=1))
+
+            response = self.client.post(
+                url_for('accept_month'), data=dict(months=1))
             assert response.status_code == 302
-            
+
             delete_response = self.client.post(
                 url_for('expense_delete', id=id.eid))
             print(delete_response)
@@ -143,7 +145,7 @@ class MyTest(TestCase):
     def test_delete_fail(self):
         response = self.client.post(url_for('expense_delete', id=0))
         assert response.status_code == 302
-        
+
     def test_accept_month_fail(self):
         response = self.client.post(url_for('accept_month'))
         assert response.status_code == 302
@@ -151,3 +153,40 @@ class MyTest(TestCase):
     def test_set(self):
         response = self.client.get(url_for('set'))
         assert response.status_code == 302
+
+    @mock.patch('main.get_transaction_by_id')
+    def test_edit_transaction(self,mock_get_transaction):
+        mock_transaction=mock.Mock()
+        mock_get_transaction.return_value=mock_transaction    
+        data={'id':1,'name':'apple','date':'2024-02-02','amount':500.0}
+        response=self.client.post(url_for('edit_transaction'),data=data)     
+        assert mock_transaction.name == 'apple'
+        assert mock_transaction.date == '2024-02-02'
+        assert mock_transaction.amount == '500.0'        
+        assert response.status_code==302    
+        
+
+  
+    @mock.patch('main.db.session.commit')
+    def test_commit_failure(self,mock_commit):      
+        mock_commit.side_effect = Exception('Commit failed')        
+        data={'id':1,'name':'apple','date':'2024-02-02','amount':500.0}
+        response=self.client.post(url_for('edit_transaction'),data=data) 
+        mock_commit.assert_called_once()          
+        assert response.status_code==200    
+        assert b'Error: Could not save changes' in response.data
+
+
+    @mock.patch('main.get_transaction_by_id')
+    def test_edit_form(self,mock_get_transaction):
+        mock_transaction=mock.Mock()
+        mock_get_transaction.return_value=mock_transaction
+        transaction_id=1
+        response=self.client.get(url_for('edit_form',id=transaction_id))
+        assert response.status_code==200
+        assert b'edit_form.html' in response.data
+
+        
+    
+
+

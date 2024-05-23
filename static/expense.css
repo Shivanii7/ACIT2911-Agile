@@ -10,25 +10,23 @@ body.darkmode {
   color: var(--dark-text-color);
 }
 
-body.darkmode {
+ body.darkmode {
   :is(
       h1,
-      .main-content,
-      .content,
-      .overview-section,
-      .history-section,
-      .Modal,
-      .basic_info,
       h2,
       h3,
-      .modal-content
       form,
       div,
-      section
+      section,
+      label,
     ) {
     background-color: var(--dark-bg-color);
     color: var(--dark-text-color);
   }
+} 
+body.darkmode + .form-group {
+  background-color: var(--dark-bg-color);
+  color: var(--dark-text-color);
 }
 
 body {

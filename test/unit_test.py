@@ -265,7 +265,7 @@ Test create an expense with correct name, amount and description
 
 def test_process_expense_data_single(app, setup_data):
     with app.app_context():
-        data = {"eid": 6, "name": "test", "amount": 100, "date": "2022-01-01"}
+        data = {"eid": 6, "name": "test", "amount": 100, "date": "2022-01-01", "transaction_category": "expense"}
         balance = 100
 
         expense = process_expense_data(data, balance)[0]
@@ -274,6 +274,7 @@ def test_process_expense_data_single(app, setup_data):
         assert expense["amount"] == 100
         assert expense["date"] == "2022-01-01"
         assert expense["transaction_category"] == "expense"
+    
 
 
 def test_process_expense_data(app, setup_data):

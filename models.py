@@ -1,3 +1,4 @@
+from unicodedata import category
 from sqlalchemy import Column, Float, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 from db import db
@@ -8,9 +9,8 @@ class Expenses(db.Model):
     name = Column(String(255), nullable=False)
     amount = Column(Integer, nullable=False)
     date = Column(String(255), nullable=False)
-    description = Column(String(255), nullable=False, default='N/A')
-    customer_id = Column(Integer, ForeignKey("customers.cid",
-                                             ondelete="CASCADE"), nullable=False)
+    transaction_category = Column(String(255), nullable=False, default='N/A')
+    customer_id = Column(Integer, ForeignKey("customers.cid", ondelete="CASCADE"), nullable=False)
     customer = relationship("Customers", back_populates="expenses")
 
     def to_json(self):
@@ -20,10 +20,8 @@ class Expenses(db.Model):
             'amount': self.amount,
             'date': self.date,
             'customer_id': self.customer_id,
-            'description': self.description
+            'transaction_category': self.transaction_category
         }
-
-
 class Customers(db.Model):
     cid = Column(Integer, primary_key=True)
     email = Column(String(255), nullable=False)

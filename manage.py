@@ -1,3 +1,4 @@
+from unicodedata import category
 from main import app
 from db import db
 from models import Expenses, Customers, Shares
@@ -13,8 +14,7 @@ def populate_expenses():
             expenses = list(reader)
             for row in expenses:
                 date_str = row['date']
-                expense = Expenses(
-                    name=row['items'], amount=row['expense'], date=date_str, customer_id=row['cid'])
+                expense = Expenses(name=row['items'], amount=row['expense'], date=date_str, transaction_category=row['transaction_category'], customer_id=row['cid'])
                 db.session.add(expense)
             db.session.commit()
 

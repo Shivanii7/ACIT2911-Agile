@@ -327,7 +327,6 @@ def expense_update():
 #                       "The joint customer doesn't exit!"}
     return jsonString
 
-
 @app.route("/expenses/create", methods=['POST'])
 def create():
     if 'cid' not in session:
@@ -408,12 +407,10 @@ def register():
         return redirect(url_for('login'))
     return render_template("register.html")
 
-
 @app.route("/logout")
 def logout():
     session.pop('email', None)
     return redirect(url_for('login'))
-
 
 @app.route("/settings/fillform")
 def set():
@@ -422,7 +419,6 @@ def set():
     customer = db.session.execute(db.select(Customers).where(
         Customers.cid == session['cid'])).scalar()
     return render_template('settings.html', balance=customer.balance, budget=customer.budget, joint=customer.joint)
-
 
 if __name__ == '__main__':  # pragma: no cover
     app.run(debug=True, port=3000)  # pragma: no cover

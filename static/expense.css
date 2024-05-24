@@ -19,14 +19,20 @@ body.darkmode {
       div,
       section,
       label,
+      .form-group
     ) {
     background-color: var(--dark-bg-color);
     color: var(--dark-text-color);
   }
 } 
-body.darkmode + .form-group {
+/* body.darkmode + .form-group {
   background-color: var(--dark-bg-color);
   color: var(--dark-text-color);
+} */
+
+body.darkmode .reminder_container {
+  background-color: var(--dark-bg-color);
+  color: red;
 }
 
 body {

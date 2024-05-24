@@ -5,7 +5,6 @@ from models import Expenses, Customers, Shares
 from csv import DictReader
 
 
-
 def populate_expenses():
     with app.app_context():
         with open('./data/expenses.csv', 'r') as file:

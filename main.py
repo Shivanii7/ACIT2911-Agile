@@ -6,7 +6,8 @@ from flask import Flask, flash, redirect, render_template, request, url_for, ses
 from pathlib import Path
 from db import db
 from models import Customers, Expenses, Shares
-
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_bcrypt import Bcrypt
 
 def create_app(testing=False):
     app = Flask(__name__)
@@ -27,6 +28,7 @@ def create_app(testing=False):
 
 
 app = create_app()
+bcrypt = Bcrypt(app)
 
 
 def get_customer_by_cid(cid):
@@ -237,10 +239,17 @@ def login():
         email = request.form['email']
         password = request.form['password']
         user = get_customer_by_email(email)
-        if user is None or user.password != password:
+
+        if user and bcrypt.check_password_hash(user.password, password):
+            session['cid'] = user.cid
+            return redirect(url_for('homepage'))
+        
+        else:
             return redirect(url_for('login'))
-        session['cid'] = user.cid
-        return redirect(url_for('expense_homepage'))
+        # if user is None or user.password != password:
+        #     return redirect(url_for('login'))
+        # session['cid'] = user.cid
+        # return redirect(url_for('expense_homepage'))
     return render_template("login.html")
 
 
@@ -428,9 +437,10 @@ def register():
         password = request.form['password']
         first_name = request.form['first_name']
         last_name = request.form['last_name']
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         if db.session.query(Customers).filter_by(email=email).first():
             return redirect(url_for('register'))
-        user = Customers(email=email, password=password,
+        user = Customers(email=email, password=hashed_password,
                          first_name=first_name, last_name=last_name)
         db.session.add(user)
         db.session.commit()

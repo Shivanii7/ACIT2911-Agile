@@ -215,14 +215,23 @@ def validate_amount(amount):
         # flash("Invalid amount.")
         return None
     
+def update_current_month_spent(cid, current_month_str):
+    print(cid, current_month_str)
+    x = get_expenses_by_cid_and_month(cid, current_month_str)
+    current_month_spent = 0
+    for i in x.scalars():
+        if i.transaction_category == "expense":
+            current_month_spent += i.amount 
+        else:
+            current_month_spent -= i.amount
+    return current_month_spent
+        
 def get_current_month_spent(cid):
     current_month = datetime.today().month
     current_month_str = convert_month(current_month)
     expenses_current_month = get_expenses_by_cid_and_month(
         cid, current_month_str)
-    current_month_spent = 0
-    for i in expenses_current_month.scalars():
-        current_month_spent += i.amount
+    current_month_spent = update_current_month_spent(cid, current_month_str)
     return current_month_spent
 
 def update_balance(cid,balance):
@@ -230,6 +239,14 @@ def update_balance(cid,balance):
     for i in bal_data.scalars():
         balance -= i.amount
  
+def update_current_month_spent_expense(cid, current_month_str):
+    x = get_expenses_by_cid_and_month(cid, current_month_str)
+    current_month_spent = 0
+    for i in x.scalars():
+        if i.transaction_category == "expense":
+            current_month_spent += i.amount 
+    return current_month_spent
+
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -316,18 +333,12 @@ def expense_homepage():
     bal_data = get_expenses_by_cid(cid)
     current_month = datetime.today().month
     current_month_str = convert_month(current_month)
-    expenses_current_month = get_expenses_by_cid_and_month(
-        cid, current_month_str)
-    current_month_spent = 0
-    for i in expenses_current_month.scalars():
-        current_month_spent += i.amount if i.transaction_category == "expense" else 0
-    for i in bal_data.scalars():
-        # balance -= i.amount if i.transaction_category == "expense" else i
-        if i.transaction_category == "expense":
-            balance -= i.amount
-        elif i.transaction_category == "income":
-            balance += i.amount
-
+    expenses_current_month = get_expenses_by_cid_and_month(cid, current_month_str)
+    current_month_spent = update_current_month_spent_expense(cid, current_month_str)
+    # for i in expenses_current_month.scalars():
+    #     current_month_spent += i.amount if i.transaction_category == "expense" else 0
+    
+    balance = balance_update(balance, bal_data)[0]
     update_spent(customer, current_month_spent)
     budget = customer.budget
    

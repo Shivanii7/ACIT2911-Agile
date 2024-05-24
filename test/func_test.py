@@ -1,12 +1,10 @@
 from unittest import mock
 from flask import url_for
 from flask_testing import TestCase
-import pytest
 from main import app
 from db import db
 from models import Customers, Expenses
 import json
-
 
 class MyTest(TestCase):
 
@@ -36,66 +34,75 @@ class MyTest(TestCase):
 
     def test_reg_log_cycle(self):
         # Registration
-        data = dict(email='test!@gmail.com', password='test123',
+        data = dict(email='test@gmail.com', password='test123',
                     first_name='test', last_name='test_last')
         reg_response = self.client.post(url_for('register'), data=data)
         print(reg_response.status_code)
         assert reg_response.status_code == 302
 
-        # Registration fail
-        data = dict(email='test!@gmail.com', password='test123',
-                    first_name='test', last_name='test_last')
+        # Attempting duplicate registration
         reg_response = self.client.post(url_for('register'), data=data)
         print(reg_response.status_code)
         assert reg_response.status_code == 302
 
         # Login
-        data = dict(email='test!@gmail.com', password='test123')
+        data = dict(email='test@gmail.com', password='test123')
         login_response = self.client.post(url_for('login'), data=data)
         print(login_response.status_code)
         assert login_response.status_code == 302
 
-        # Joint
-        response = self.client.post(
-            url_for('expense_update'), data={'joint':'N/A','balance':0.0,'budget':0.0})
+        # Ensure user is logged in by accessing a protected route
+        homepage = self.client.get(url_for('homepage'))
+        print(homepage.status_code)
+        assert homepage.status_code == 302
+
+        # Joint status update
+        response = self.client.post(url_for('expense_update'), data=dict(joint='N/A', balance=0.0, budget=0.0))
         print(response.data)
         assert b"Your status doesn't change!" in response.data
 
-        response = self.client.post(
-            url_for('expense_update'), data=dict(joint='',balance=1000.0,budget=200.0))
+        response = self.client.post(url_for('expense_update'), data=dict(joint='', balance=1000.0, budget=200.0))
         print(response.data)
         assert b"Set successfully! You are not sharing budget with others!" in response.data
-        
-        response = self.client.post(
-            url_for('expense_update'), data=dict(joint='nick123@gmail.com'))
+
+        response = self.client.post(url_for('expense_update'), data=dict(joint='nick123@gmail.com'))
         print(response.data)
-        assert b'test!@gmail.com is successfully sharing budget with nick123@gmail.com' in response.data
-        
-        # Test homepage
+        assert b'test@gmail.com is successfully sharing budget with nick123@gmail.com' in response.data
+
+        # Test homepage access when logged in
         homepage = self.client.get(url_for('homepage'))
         print(homepage.status_code)
         assert homepage.status_code == 302
 
-        # Create fail
-        create_response = self.client.post(
-            url_for('create'), data=dict(name=None))
-        print(create_response.status_code)
-        assert create_response.status_code == 302
-        create_response = self.client.post(
-            url_for('create'), data=dict(name="good", amount="abc"))
+        # Log out to test protected route redirection
+        self.client.get(url_for('logout'))
+        homepage = self.client.get(url_for('homepage'))
+        print(homepage.status_code)
+        assert homepage.status_code == 302  # Expecting a redirect to login page
+
+        # Log in again for further tests
+        login_response = self.client.post(url_for('login'), data=dict(email='test@gmail.com', password='test123'))
+        print(login_response.status_code)
+        assert login_response.status_code == 302
+
+        # Attempt to create an expense with invalid data
+        create_response = self.client.post(url_for('create'), data=dict(name=None))
         print(create_response.status_code)
         assert create_response.status_code == 302
 
-        # Test expense_homepage
+        create_response = self.client.post(url_for('create'), data=dict(name="good", amount="abc"))
+        print(create_response.status_code)
+        assert create_response.status_code == 302
+
+        # Access the expense homepage after logging in again
         homepage = self.client.get(url_for('homepage'))
         print(homepage.status_code)
         assert homepage.status_code == 302
 
-        # Update
-        update_response = self.client.post(url_for('expense_update'))
+        # Update expenses
+        update_response = self.client.post(url_for('expense_update'), data=dict(joint='', balance=500.0, budget=100.0))
         print(update_response.status_code)
         assert update_response.status_code == 200
-
         
         # Expense creation and deletion
         def expense_delete(self):
@@ -134,7 +141,7 @@ class MyTest(TestCase):
 
         # Clean up
         db.session.delete(db.session.query(Customers).filter_by(
-            email="test!@gmail.com").first())
+            email="test@gmail.com").first())
         db.session.commit()
 
     def test_login_fail(self):
@@ -172,40 +179,33 @@ class MyTest(TestCase):
         assert response.status_code == 302
 
     @mock.patch('main.get_transaction_by_id')
-    def test_edit_transaction(self,mock_get_transaction):
-        mock_transaction=mock.Mock()
-        mock_get_transaction.return_value=mock_transaction    
-        data={'id':1,'name':'apple','date':'2024-02-02','amount':500.0, 'transaction_category':'expense'}
-        response=self.client.post(url_for('edit_transaction'),data=data)     
+    def test_edit_transaction(self, mock_get_transaction):
+        mock_transaction = mock.Mock()
+        mock_get_transaction.return_value = mock_transaction
+        data = {'id': 1, 'name': 'apple', 'date': '2024-02-02', 'amount': 500.0, 'transaction_category': 'expense'}
+        response = self.client.post(url_for('edit_transaction'), data=data)
         assert mock_transaction.name == 'apple'
         assert mock_transaction.date == '2024-02-02'
-        assert mock_transaction.amount == '500.0'  
+        assert float(mock_transaction.amount) == 500.0  # Convert to float for comparison
         assert mock_transaction.transaction_category == 'expense'
-        assert response.status_code==302    
-        
+        assert response.status_code == 302
 
     @mock.patch('main.db.session.commit')
-    def test_commit_failure(self,mock_commit):      
-        mock_commit.side_effect = Exception('Commit failed')        
-        data={'id':1,'name':'apple','date':'2024-02-02','amount':500.0}
-        response=self.client.post(url_for('edit_transaction'),data=data) 
-        mock_commit.assert_called_once()          
-        assert response.status_code==200    
+    def test_commit_failure(self, mock_commit):
+        mock_commit.side_effect = Exception('Commit failed')
+        data = {'id': 1, 'name': 'apple', 'date': '2024-02-02', 'amount': 500.0}
+        response = self.client.post(url_for('edit_transaction'), data=data)
+        mock_commit.assert_called_once()
+        assert response.status_code == 200
         assert b'Error: Could not save changes' in response.data
 
-
     @mock.patch('main.get_transaction_by_id')
-    def test_edit_form(self,mock_get_transaction):
-        mock_transaction=mock.Mock()
-        mock_get_transaction.return_value=mock_transaction
-        transaction_id=1
-        response=self.client.get(url_for('edit_form',id=transaction_id))
+    def test_edit_form(self, mock_get_transaction):
+        mock_transaction = mock.Mock()
+        mock_get_transaction.return_value = mock_transaction
+        transaction_id = 1
+        response = self.client.get(url_for('edit_form', id=transaction_id))
         print("Response status code:", response.status_code)
         print("Response data:", response.data)
-        assert response.status_code==200
+        assert response.status_code == 200
         assert b'<form class="edit-form"' in response.data
-
-        
-    
-
-

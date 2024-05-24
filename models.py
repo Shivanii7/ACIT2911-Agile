@@ -27,7 +27,7 @@ class Customers(db.Model):
     email = Column(String(255), nullable=False)
     first_name = Column(String(255), nullable=False)
     last_name = Column(String(255), nullable=False)
-    password = Column(String(255), nullable=False)
+    password = Column(String(256), nullable=False)
     expenses = relationship("Expenses", back_populates="customer")
     shares_1 = relationship("Shares", foreign_keys="Shares.joint_id_1")
     shares_2 = relationship("Shares", foreign_keys="Shares.joint_id_2")

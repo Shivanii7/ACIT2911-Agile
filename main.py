@@ -281,6 +281,7 @@ def accept_month():
     else:
         month = int(request.form.get("months"))
     month_str = convert_month(month)
+    print("str",month_str)
     expenses_month = get_expenses_by_cid_and_month(cid, month_str)
     month_spent = 0
     month_earned = 0
@@ -290,7 +291,7 @@ def accept_month():
     session['month_spent'] = month_spent
     session['month_int'] = month
     session['month_earned'] = month_earned
-    return redirect(url_for('expense_homepage'))
+    return redirect(url_for('expense_homepage')+'?month=' + month_str)
 
 
 @app.route("/expenses", methods=['GET'])
@@ -303,7 +304,14 @@ def expense_homepage():
     budget = customer.budget
     
     search = request.args.get("search", None)
-    data = get_expense_data(cid, search)    
+    month_str=request.args.get("month", None)
+    print(month_str)
+    if search:
+        data = get_expense_data(cid, search) 
+    elif month_str:
+        data = get_expenses_by_cid_and_month(cid, month_str) 
+    else:
+        data = get_expense_data(cid,None)
     processed_data = process_expense_data(data, balance)
     bal_data = get_expenses_by_cid(cid)
     current_month = datetime.today().month

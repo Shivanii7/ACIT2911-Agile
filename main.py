@@ -30,6 +30,12 @@ def create_app(testing=False):
 app = create_app()
 bcrypt = Bcrypt(app)
 
+def hash_existing_passwords():
+    users = Customers.query.all()
+    for user in users:
+        hashed_password = bcrypt.generate_password_hash(user.password).decode('utf-8')
+        user.password = hashed_password
+    db.session.commit()
 
 def get_customer_by_cid(cid):
     return db.session.execute(db.select(Customers).where(Customers.cid == cid)).scalar() or None

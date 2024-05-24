@@ -3,7 +3,17 @@ from main import app
 from db import db
 from models import Expenses, Customers, Shares
 from csv import DictReader
+from flask_bcrypt import Bcrypt
 
+
+bcrypt = Bcrypt(app)
+
+def hash_existing_passwords():
+    users = Customers.query.all()
+    for user in users:
+        hashed_password = bcrypt.generate_password_hash(user.password).decode('utf-8')
+        user.password = hashed_password
+    db.session.commit()
 
 
 def populate_expenses():
@@ -49,3 +59,4 @@ with app.app_context():
     populate_expenses()
     populate_customers()
     populate_shares()
+    hash_existing_passwords()

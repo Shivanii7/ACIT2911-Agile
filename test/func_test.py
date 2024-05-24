@@ -73,6 +73,21 @@ class MyTest(TestCase):
         homepage = self.client.get(url_for('homepage'))
         print(homepage.status_code)
         assert homepage.status_code == 302
+        
+        # Test expense homepage access when logged in
+        expense_homepage = self.client.get(url_for('expense_homepage'))
+        print(expense_homepage.status_code)
+        assert expense_homepage.status_code == 200
+        
+        # Test expense homepade search
+        response = self.client.get(url_for('expense_homepage')+'?search='+'test')
+        print(response.status_code)
+        assert response.status_code == 200
+        
+        # Test expense homepade month
+        response = self.client.get(url_for('expense_homepage')+'?month='+'01')
+        print(response.status_code)
+        assert response.status_code == 200
 
         # Log out to test protected route redirection
         self.client.get(url_for('logout'))

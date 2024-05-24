@@ -1,12 +1,13 @@
 # import sys
 # sys.path.insert(
 #     0, "C:/Users/sarah/OneDrive/miniTerm/ACIT2911/ACIT2911-Agile/production")
+from datetime import datetime
 import pytest
 from unittest.mock import mock_open, patch
 from db import db
 from manage import populate_customers, populate_expenses, populate_shares
 from models import Customers, Expenses, Shares
-from main import convert_month, create_app, create_share,  get_expense_data, get_expenses_by_cid_and_month, get_transaction_by_id, process_expense_data, update_transaction, validate_amount, validate_name, get_customer_by_cid, get_expenses_by_cid, get_expenses_by_cid_and_search, get_customer_by_email, get_share_by_joint_id_1, get_expense_by_id, create_expense, create_customer, delete_expense, update_customer, update_customer_budget, balance_update
+from main import convert_month, create_app, create_share, get_current_month_spent,  get_expense_data, get_expenses_by_cid_and_month, get_transaction_by_id, process_expense_data, update_balance, update_current_month_spent, update_spent, update_transaction, validate_amount, validate_name, get_customer_by_cid, get_expenses_by_cid, get_expenses_by_cid_and_search, get_customer_by_email, get_share_by_joint_id_1, get_expense_by_id, create_expense, create_customer, delete_expense, update_customer, update_customer_budget, balance_update, update_current_month_spent_expense
 
 
 
@@ -44,6 +45,9 @@ def setup_data(app):
 
         for i in range(5):
             expense = Expenses(name=f"test{i}", amount=i*100, date="2022-01-01", customer_id=1, transaction_category="expense")
+            db.session.add(expense)
+        for i in range(5,10,1):
+            expense = Expenses(name=f"test{i}", amount=i*100, date="2022-01-01", customer_id=1, transaction_category="income")
             db.session.add(expense)
         db.session.commit()
 
@@ -113,7 +117,7 @@ def test_customers_exist(app, setup_data):
 def test_expenses_exist(app, setup_data):
     with app.app_context():
         expenses = Expenses.query.filter_by(customer_id=1).all()
-        assert len(expenses) == 5
+        assert len(expenses) == 10
         for i, expense in enumerate(expenses):
             assert expense.name == f"test{i}"
             assert expense.amount == i * 100
@@ -271,12 +275,24 @@ def test_process_expense_data_single(app, setup_data):
         assert expense["amount"] == 100
         assert expense["date"] == "2022-01-01"
         assert expense["transaction_category"] == "expense"
-    
+        
+def test_process_expense_data_income_single(app, setup_data):
+    with app.app_context():
+        data = {"eid": 6, "name": "test", "amount": 100, "date": "2022-01-01", "transaction_category": "income"}
+        balance = 100        
+        expense = process_expense_data(data, balance)
+        expense.reverse()
+        assert len(expense) == 1
+        for i, e in enumerate(expense):
+            print(i, e)
+            assert e["name"] == "test"
+            assert e["amount"] == i + 100
+            assert e["date"] == "2022-01-01"    
 
 
 def test_process_expense_data(app, setup_data):
     with app.app_context():
-        data = db.session.execute(db.select(Expenses))
+        data = db.session.execute(db.select(Expenses).where(Expenses.transaction_category == "expense"))
         balance = 100
         expense = process_expense_data(data, balance)
         expense.reverse()
@@ -286,13 +302,30 @@ def test_process_expense_data(app, setup_data):
             assert e["name"] == f"test{i}"
             assert e["amount"] == i * 100
             assert e["date"] == "2022-01-01"
+            
+
+def test_process_expense_data_income(app, setup_data):
+    print_database_state(app)
+    with app.app_context():
+        data = db.session.execute(db.select(Expenses).where(Expenses.transaction_category == "income"))
+        balance = 100
+        expense = process_expense_data(data, balance)
+        expense.reverse()
+        assert len(expense) == 5
+        for i, e in enumerate(expense):
+            print(i, e)
+            assert e["name"] == f"test{i+5}"
+            assert e["amount"] == (i+5) * 100
+            assert e["date"] == "2022-01-01"
+            
+
 
 
 def test_create_expense(app, setup_data):
     with app.app_context():
-        create_expense("test5", 100, "2022-01-01", "expense", 1)
-        expense = get_expense_by_id(6)
-        assert expense.name == "test5"
+        create_expense("test11", 100, "2022-01-01", "expense", 1)
+        expense = get_expense_by_id(11)
+        assert expense.name == "test11"
         assert expense.amount == 100
         assert expense.date == "2022-01-01"
         # assert expense.description == "test description5"
@@ -326,6 +359,14 @@ def test_update_customer(app, setup_data):
         update_customer(customer)
         updated_customer = get_customer_by_cid(1)
         assert updated_customer.first_name == "updated"
+        
+def test_update_spent(app, setup_data):
+    with app.app_context():
+        customer = get_customer_by_cid(1)
+        update_spent(customer, 200)
+        assert customer.budget == 0
+        assert customer.balance == 0
+        
 
 
 '''
@@ -373,6 +414,7 @@ def test_get_expense_data_under_search(app, setup_data):
         assert result_list[0][0] == expense_list[0]
 
 
+
 '''
 Test Feature -- get the correct expenses by cid=1 and month
 '''
@@ -387,6 +429,42 @@ def test_get_expenses_by_cid_and_month(app, setup_data):
             assert expense[0].customer_id == 1
             assert "2022-01" in expense[0].date
 
+
+'''
+Test Feature -- get current month expenses
+'''
+
+def test_get_current_month_spent(app,setup_data):
+    with app.app_context():
+        get_current_month_spent(1)
+        customer = get_customer_by_cid(1)
+        assert customer.budget == 0
+
+def test_update_current_amount_spent(app, setup_data):
+    with app.app_context():
+        x = update_current_month_spent(1, '01')
+        print(x)
+        customer = get_customer_by_cid(1)
+        assert customer.budget == 0
+        assert customer.balance == 0
+        
+def test_update_current_amount_spent_expense(app, setup_data):
+    with app.app_context():
+        x = update_current_month_spent_expense(1, '01' )
+        print(x)
+        customer = get_customer_by_cid(1)
+        assert customer.budget == 0
+        assert customer.balance == 0
+
+
+'''
+Test Feature -- update balance
+'''
+
+def test_update_balance(app, setup_data):
+    with app.app_context():
+        update_balance(1, 100)
+        assert get_customer_by_cid(1).balance == 0
 
 '''
 Test Feature -- convert month
@@ -404,6 +482,14 @@ def test_convert_month(app, setup_data):
         month = 12
         assert convert_month(month) == "12"
 
+'''
+Test feature -- update transaction fail
+'''
+
+def test_update_transactions(app, setup_data):
+    with app.app_context():
+        expense = update_transaction(12, "test", "2022-01-01", 100, "expense")
+        assert expense == None
 
 '''
 Test feature 1 -- update customer's budget
@@ -450,7 +536,7 @@ def test_balance_update(app, setup_data):
         bal_data = get_expenses_by_cid(cid)
         balance = balance_update(customer.balance, bal_data)
         print(balance)
-        assert balance[0] == -1000.0
+        assert balance[0] == 2500
 
 
 

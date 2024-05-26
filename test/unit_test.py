@@ -162,7 +162,7 @@ def test_expenses_to_json(app, setup_data):
             'transaction_category': 'expense',
             # 'description': 'test description0',
             'customer_id': 1,
-            'receipt_image_path': None
+            'receipt_image_path': "test0.jpg"
         }
         assert expense_json == expected
 

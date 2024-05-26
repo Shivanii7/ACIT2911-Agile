@@ -3,11 +3,12 @@ from turtle import up
 from turtle import up
 from unicodedata import category
 from flask import Flask, flash, redirect, render_template, request, url_for, session
+from werkzeug.utils import secure_filename
 from pathlib import Path
 from db import db
 from models import Customers, Expenses, Shares
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_bcrypt import Bcrypt
+import os
 
 def create_app(testing=False):
     app = Flask(__name__)
@@ -58,23 +59,39 @@ def get_expense_by_id(id):
     return db.get_or_404(Expenses, id) or None
 
 
-def create_expense(name, amount, date, transaction_category, cid):
-    expense = Expenses(name=name, amount=amount, date=date, transaction_category=transaction_category, customer_id=cid)
+UPLOAD_FOLDER = 'static/receipt_images'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_receipt_image(file):
+    if file:
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        return file_path
+    return None
+
+def create_expense(name, amount, date, transaction_category, cid, receipt_image_path=None):
+    receipt_image = request.files['receipt_image']
+    receipt_image_path = save_receipt_image(receipt_image)  
+    expense = Expenses(name=name, amount=amount, date=date, transaction_category=transaction_category, customer_id=cid, receipt_image_path=receipt_image_path)
     db.session.add(expense)
     db.session.commit()
 
-
 def create_customer(email, password, first_name, last_name):
-    user = Customers(email=email, password=password,
-                     first_name=first_name, last_name=last_name)
+    user = Customers(email=email, password=password, first_name=first_name, last_name=last_name)
     db.session.add(user)
     db.session.commit()
-
 
 def delete_expense(expense):
     db.session.delete(expense)
     db.session.commit()
-
 
 def update_customer(customer):
     db.session.add(customer)
@@ -117,6 +134,7 @@ def get_transaction_by_id(transaction_id):
 def update_transaction(transaction_id, name, date, amount, transaction_category):
     transaction = get_transaction_by_id(transaction_id)
     if transaction is None:
+        print(f"No transaction found with id {transaction_id}")
         return
     transaction.name = name
     transaction.date = date
@@ -146,7 +164,8 @@ def process_expense_data(data, balance):
             'amount': data["amount"],
             'date': data["date"],
             'before': before,
-            'balance': balance
+            'balance': balance,
+            'receipt_image_path': data["receipt_image_path"] if "receipt_image_path" in data else None
         }
         before = balance
         processed_data.append(u)
@@ -163,14 +182,14 @@ def process_expense_data(data, balance):
                 'transaction_category': i.transaction_category,
                 'date': i.date,
                 'before': before,
-                'balance': balance
+                'balance': balance,
+                'receipt_image_path': i.receipt_image_path if i.receipt_image_path else None
             }
             before = balance
             processed_data.append(u)
 
     processed_data.reverse()
     return processed_data
-
 
 def balance_update(balance, bal_data):
     total_spent = 0
@@ -381,15 +400,19 @@ def create():
     date = request.form.get("date")
     transaction_category = request.form.get("transaction_category")
     customer_id = session['cid'] if 'cid' in session else 1
+    receipt_image = request.files.get("receipt_image")
+    receipt_image_path = save_receipt_image(receipt_image)
 
     if not validate_name(name):
+        flash("Invalid name.")
         return redirect(url_for("expense_homepage"))
 
     amount = validate_amount(amount)
     if amount is None:
+        flash("Invalid amount.")
         return redirect(url_for("expense_homepage"))
 
-    expense = Expenses(name=name, amount=amount, date=date, transaction_category=transaction_category, customer_id=customer_id)
+    expense = Expenses(name=name, amount=amount, date=date, transaction_category=transaction_category, customer_id=customer_id, receipt_image_path=receipt_image_path)
     db.session.add(expense)
     db.session.commit()
     return redirect(url_for("expense_homepage"))
@@ -410,7 +433,7 @@ def edit_form():
 @app.route('/edit_transaction', methods=['POST'])
 def edit_transaction():
     form_data = request.form
-    print(f"Form data: {form_data}")
+    print(f"Form data: {form_data}")  
     transaction_id = form_data.get('id')
     transaction = get_transaction_by_id(transaction_id)
 
@@ -418,6 +441,11 @@ def edit_transaction():
     transaction.date = form_data.get('date')
     transaction.amount = form_data.get('amount')
     transaction.transaction_category = form_data.get('transaction_category')
+    receipt_image = request.files.get('receipt_image')
+
+    if receipt_image:
+        receipt_image_path = save_receipt_image(receipt_image)
+        transaction.receipt_image_path = receipt_image_path
 
     try:
         db.session.commit()
@@ -426,7 +454,6 @@ def edit_transaction():
         return "Error: Could not save changes"
 
     return redirect(url_for('expense_homepage'))
-
 
 @app.route("/expenses/delete/<id>", methods=['POST'])
 def expense_delete(id):
@@ -438,7 +465,6 @@ def expense_delete(id):
     db.session.commit()
     return redirect(url_for("expense_homepage"))
 
-
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -449,8 +475,7 @@ def register():
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         if db.session.query(Customers).filter_by(email=email).first():
             return redirect(url_for('register'))
-        user = Customers(email=email, password=hashed_password,
-                         first_name=first_name, last_name=last_name)
+        user = Customers(email=email, password=hashed_password, first_name=first_name, last_name=last_name)
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('login'))

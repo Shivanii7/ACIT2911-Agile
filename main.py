@@ -73,8 +73,13 @@ def save_receipt_image(file):
     if file:
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
-        return file_path
+        try:
+            file.save(file_path)
+            print(f"File saved successfully at {file_path}")
+            return file_path
+        except Exception as e:
+            print(f"Error saving file: {e}")
+            return None
     return None
 
 def create_expense(name, amount, date, transaction_category, cid, receipt_image_path=None):
@@ -260,8 +265,6 @@ def update_current_month_spent_expense(cid, current_month_str):
             current_month_spent += i.amount 
     return current_month_spent
 
-
-
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -278,11 +281,9 @@ def login():
 
     return render_template("login.html")
 
-
 @app.route("/")
 def index():
     return redirect(url_for('login'))
-
 
 @app.route("/home")
 def homepage():
@@ -291,11 +292,9 @@ def homepage():
     else:
         return redirect(url_for('expense_homepage')) 
 
-
 @app.route("/submit_form", methods=['POST'])
 def submit_form():
     return redirect(url_for('expense_homepage') + "?search=" + request.form.get("search"))
-
 
 @app.route("/expenses/month_form", methods=['POST'])
 def accept_month():
@@ -319,7 +318,6 @@ def accept_month():
     session['month_int'] = month
     session['month_earned'] = month_earned
     return redirect(url_for('expense_homepage')+'?month=' + month_str)
-
 
 @app.route("/expenses", methods=['GET'])
 def expense_homepage():
@@ -362,7 +360,6 @@ def expense_homepage():
     month = session.get('month_int', 0)
     value = budget-current_month_spent
     return render_template("expense.html", value=value, transactions=processed_data, month_spent=month_spent, spent=current_month_spent, balance=balance, joint=customer.joint, budget=budget, search=search, month=month, month_earned=month_earned)
-
 
 @app.route("/expenses", methods=['POST'])
 def expense_update():
@@ -445,7 +442,10 @@ def edit_transaction():
 
     if receipt_image:
         receipt_image_path = save_receipt_image(receipt_image)
-        transaction.receipt_image_path = receipt_image_path
+        if receipt_image_path:
+            transaction.receipt_image_path = receipt_image_path
+        else:
+            print("Error saving receipt image")
 
     try:
         db.session.commit()

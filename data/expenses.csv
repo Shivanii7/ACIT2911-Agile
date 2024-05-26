@@ -3,8 +3,8 @@ date,items,expense,transaction_category,cid,receipt_image_path
 2024-02-01,Internet,50,expense,1,
 2024-03-01,Grocery,250,expense,1,
 2024-01-01,Electricity,30,expense,2,
-2024-02-01,Water,20,expense,2,
+2024-02-01,Water,20,expense,2,"static/receipt_images/realistic-receipt-template_23-2147938550.jpg"
 2024-03-01,Food,100,expense,2,
 2024-01-01,Salary,1000,income,1,
 2024-02-01,Salary,1000,income,1,
-2024-03-05,Salary,1000,income,1,static/receipt_images\fa3dea647f1976df4c9c1fd62e6b92c9.jpg
+2024-03-05,Salary,1000,income,1,

@@ -3,9 +3,8 @@
 #     0, "C:/Users/sarah/OneDrive/miniTerm/ACIT2911/ACIT2911-Agile/production")
 from datetime import datetime
 import pytest
-import os
 from io import BytesIO
-from unittest.mock import mock_open, patch, MagicMock
+from unittest.mock import mock_open, patch
 from db import db
 from manage import populate_customers, populate_expenses, populate_shares
 from models import Customers, Expenses, Shares
@@ -541,9 +540,6 @@ def test_balance_update(app, setup_data):
         balance = balance_update(customer.balance, bal_data)
         print(balance)
         assert balance[0] == 2500
-
-
-
 
 '''test manage.py'''
 

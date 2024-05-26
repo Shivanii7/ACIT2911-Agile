@@ -4,13 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Expense</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename = '../static/create.css') }}">
-  <script src="../static/scripts.js" defer></script> 
-
+  <link rel="stylesheet" href="{{ url_for('static', filename='create.css') }}">
+  <script src="{{ url_for('static', filename='scripts.js') }}" defer></script>
 </head>
 <body>
 <h1>Add Transaction</h1>
-<form class="create-form" method="POST" action="{{ url_for('create') }}">
+<form class="create-form" method="POST" action="{{ url_for('create') }}" enctype="multipart/form-data">
   <div class="form-group">
     <label for="name">Name:</label>
     <input type="text" id="name" name="name" required />
@@ -29,6 +28,10 @@
       <option value="expense">Expense</option>
       <option value="income">Income</option>
     </select>
+  </div>
+  <div class="form-group">
+    <label for="receipt_image">Expense Receipt:</label>
+    <input type="file" id="receipt_image" name="receipt_image" accept="image/*" />
   </div>
   <input class="submit-button" type="submit" value="Submit" />
 </form>

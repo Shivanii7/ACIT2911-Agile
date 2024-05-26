@@ -198,8 +198,6 @@ def convert_month(month):
         month_str = str(month)
     return month_str
 
-# validation functions
-
 
 def validate_name(name):
     if not name or not isinstance(name, str):

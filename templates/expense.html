@@ -19,10 +19,10 @@
         <div class="basic_info">
           <h3>Current Balance: ${{ balance }}</h3>
           <h3>
-            This month Budget: <span style="color: green">${{ budget }}</span>
+            Current Month Budget: <span style="color: green">${{ budget }}</span>
           </h3>
           <h3>
-            This month Spent:<span style="color: rgb(213, 40, 9)"
+            Current Month Spent:<span style="color: rgb(213, 40, 9)"
               >${{ spent }}</span
             >
           </h3>
@@ -124,7 +124,7 @@
               {% if transaction['receipt_image_path'] %}
                   {% set receipt_image_filename = transaction['receipt_image_path'].replace('\\', '/').split('/')[-1] %}
                   <a href="{{ url_for('static', filename='receipt_images/' + receipt_image_filename) }}" target="_blank" class="btn btn-primary">View</a>
-                  <img src="{{ url_for('static', filename='receipt_images/' + receipt_image_filename) }}" alt="Receipt Image" width="20" height="20">
+                  <!-- <img src="{{ url_for('static', filename='receipt_images/' + receipt_image_filename) }}" alt="Receipt Image" width="20" height="20"> -->
               {% else %}
                   Image not uploaded
               {% endif %}

@@ -111,8 +111,6 @@ def create_share(customer, joint_customer):
 
 
 def get_transaction_by_id(transaction_id):
-    # transaction = db.session.execute(db.select(Expenses).where(
-    #     Expenses.eid == transaction_id)).scalar()
     transaction = db.session.query(Expenses).filter(Expenses.eid == transaction_id).first()
     return transaction
 

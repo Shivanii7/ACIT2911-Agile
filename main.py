@@ -201,7 +201,6 @@ def convert_month(month):
 
 def validate_name(name):
     if not name or not isinstance(name, str):
-        # flash("Invalid name.")
         return False
     return True
 

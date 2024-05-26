@@ -8,6 +8,7 @@ from pathlib import Path
 from db import db
 from models import Customers, Expenses, Shares
 from flask_bcrypt import Bcrypt
+from werkzeug.datastructures import FileStorage
 import os
 
 def create_app(testing=False):
@@ -82,9 +83,27 @@ def save_receipt_image(file):
             return None
     return None
 
-def create_expense(name, amount, date, transaction_category, cid, receipt_image_path=None):
-    receipt_image = request.files['receipt_image']
-    receipt_image_path = save_receipt_image(receipt_image)  
+# def create_expense(name, amount, date, transaction_category, cid, receipt_image_path):
+#     if 'receipt_image' in request.files:
+#         receipt_image = request.files['receipt_image']
+#         receipt_image_path = save_receipt_image(receipt_image)
+#     # receipt_image = request.files['receipt_image']
+#     # receipt_image_path = save_receipt_image(receipt_image)  
+#     else:
+#         receipt_image_path = None
+#     expense = Expenses(name=name, amount=amount, date=date, transaction_category=transaction_category, customer_id=cid, receipt_image_path=receipt_image_path)
+#     db.session.add(expense)
+#     db.session.commit()
+
+def create_expense(name, amount, date, transaction_category, cid, receipt_image_data=None):
+    if receipt_image_data:
+        if isinstance(receipt_image_data, FileStorage):
+            receipt_image_path = save_receipt_image(receipt_image_data)
+        else:
+            print(f"Error: receipt_image_data is not a FileStorage object")
+            return
+    else:
+        receipt_image_path = None    
     expense = Expenses(name=name, amount=amount, date=date, transaction_category=transaction_category, customer_id=cid, receipt_image_path=receipt_image_path)
     db.session.add(expense)
     db.session.commit()
@@ -319,7 +338,7 @@ def accept_month():
     session['month_earned'] = month_earned
     return redirect(url_for('expense_homepage')+'?month=' + month_str)
 
-@app.route("/expenses", methods=['GET'])
+@app.route("/expenses", methods=['GET', 'POST'])
 def expense_homepage():
     if 'cid' not in session:
         return redirect(url_for('login'))
@@ -399,6 +418,9 @@ def create():
     customer_id = session['cid'] if 'cid' in session else 1
     receipt_image = request.files.get("receipt_image")
     receipt_image_path = save_receipt_image(receipt_image)
+    if not receipt_image:
+        receipt_image_path = None
+    
 
     if not validate_name(name):
         flash("Invalid name.")

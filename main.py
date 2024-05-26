@@ -262,10 +262,7 @@ def login():
         
         else:
             return redirect(url_for('login'))
-        # if user is None or user.password != password:
-        #     return redirect(url_for('login'))
-        # session['cid'] = user.cid
-        # return redirect(url_for('expense_homepage'))
+
     return render_template("login.html")
 
 

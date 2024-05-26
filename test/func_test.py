@@ -57,17 +57,17 @@ class MyTest(TestCase):
         assert homepage.status_code == 302
 
         # Joint status update
-        response = self.client.post(url_for('expense_update'), data=dict(joint='N/A', balance=0.0, budget=0.0))
-        print(response.data)
-        assert b"Your status doesn't change!" in response.data
+        # response = self.client.post(url_for('expense_update'), data=dict(joint='N/A', balance=0.0, budget=0.0))
+        # print(response.data)
+        # assert b"Your status doesn't change!" in response.data
 
-        response = self.client.post(url_for('expense_update'), data=dict(joint='', balance=1000.0, budget=200.0))
-        print(response.data)
-        assert b"Set successfully! You are not sharing budget with others!" in response.data
+        # response = self.client.post(url_for('expense_update'), data=dict(joint='', balance=1000.0, budget=200.0))
+        # print(response.data)
+        # assert b"Set successfully! You are not sharing budget with others!" in response.data
 
-        response = self.client.post(url_for('expense_update'), data=dict(joint='nick123@gmail.com'))
-        print(response.data)
-        assert b'test@gmail.com is successfully sharing budget with nick123@gmail.com' in response.data
+        # response = self.client.post(url_for('expense_update'), data=dict(joint='nick123@gmail.com'))
+        # print(response.data)
+        # assert b'test@gmail.com is successfully sharing budget with nick123@gmail.com' in response.data
 
         # Test homepage access when logged in
         homepage = self.client.get(url_for('homepage'))

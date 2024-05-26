@@ -1,0 +1,9 @@
+/.github/ @SarahLee29 @Shivanii7
+# Define SarahLee29 as the owner for .py, .js, .html, and .css files
+*.py    @SarahLee29 @Shivanii7
+*.js    @SarahLee29 @Shivanii7
+*.html  @SarahLee29 @Shivanii7
+*.css   @SarahLee29 @Shivanii7
+*.csv   @SarahLee29 @Shivanii7
+*.txt   @SarahLee29 @Shivanii7
+*.yml   @SarahLee29 @Shivanii7

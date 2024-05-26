@@ -338,7 +338,7 @@ def accept_month():
     session['month_earned'] = month_earned
     return redirect(url_for('expense_homepage')+'?month=' + month_str)
 
-@app.route("/expenses", methods=['GET', 'POST'])
+@app.route("/expenses", methods=['GET'])
 def expense_homepage():
     if 'cid' not in session:
         return redirect(url_for('login'))

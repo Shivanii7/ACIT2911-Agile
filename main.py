@@ -209,7 +209,6 @@ def validate_amount(amount):
     try:
         return float(amount)
     except (ValueError, TypeError):
-        # flash("Invalid amount.")
         return None
     
 def update_current_month_spent(cid, current_month_str):

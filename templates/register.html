@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register</title>
-    <link rel="stylesheet" href="../static/register.css" />
-    <script src="../static/scripts.js" defer></script> 
-
-  </head>
-  <body>
-    <h1>Welcome To<br />Frugal Rock Financing</h1>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register</title>
+  <link rel="stylesheet" href="../static/login_register.css" /> 
+</head>
+<body>
+  <div class="img">
+    <img src="../static/login.png" alt="Frugal Rock Logo" />
+  </div>
+  <div class="content">
+    <h1>Welcome!</h1>
     <h2>Register</h2>
-    <p id="instructions">Please create your account</p>
     <p id="instructions">Please create your account</p>
     <form action="/register" method="POST">
       <input type="email" name="email" placeholder="Email" required />
@@ -21,7 +22,6 @@
       <button type="submit">Register</button>
     </form>
     <p>Already have an account? <a href="/login">Login</a></p>
-    <input type="checkbox" name="dmtoggle" id="dmtoggle">
-    <label for="dmtoggle"></label>
-  </body>
+  </div>
+</body>
 </html>

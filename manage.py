@@ -24,7 +24,7 @@ def populate_expenses():
             expenses = list(reader)
             for row in expenses:
                 date_str = row['date']
-                expense = Expenses(name=row['items'], amount=row['expense'], date=date_str, transaction_category=row['transaction_category'], customer_id=row['cid'])
+                expense = Expenses(name=row['items'], amount=row['expense'], date=date_str, transaction_category=row['transaction_category'], customer_id=row['cid'], receipt_image_path=row['receipt_image_path'])
                 db.session.add(expense)
             db.session.commit()
 
@@ -47,8 +47,7 @@ def populate_shares():
             reader = DictReader(file)
             shares = list(reader)
             for row in shares:
-                share = Shares(
-                    item=row['item'], joint_id_1=row['joint_id_1'], joint_id_2=row['joint_id_2'])
+                share = Shares(item=row['item'], joint_id_1=row['joint_id_1'], joint_id_2=row['joint_id_2'])
                 db.session.add(share)
             db.session.commit()
 

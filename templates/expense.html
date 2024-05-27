@@ -19,10 +19,10 @@
         <div class="basic_info">
           <h3>Current Balance: ${{ balance }}</h3>
           <h3>
-            This month Budget: <span style="color: green">${{ budget }}</span>
+            Current Month Budget: <span style="color: green">${{ budget }}</span>
           </h3>
           <h3>
-            This month Spent:<span style="color: rgb(213, 40, 9)"
+            Current Month Spent:<span style="color: rgb(213, 40, 9)"
               >${{ spent }}</span
             >
           </h3>
@@ -80,6 +80,7 @@
             <th>Balance</th>
             <th>Delete</th>
             <th>Edit</th>
+            <th>Transaction Proof</th>
           </tr>
         </thead>
         <tbody>
@@ -119,6 +120,15 @@
                 <button type="button" class="edit_button" onclick="openEditModal('{{ transaction['id'] }}')">Edit</button>
               </form>
             </td>
+            <td>
+              {% if transaction['receipt_image_path'] %}
+                  {% set receipt_image_filename = transaction['receipt_image_path'].replace('\\', '/').split('/')[-1] %}
+                  <a href="{{ url_for('static', filename='receipt_images/' + receipt_image_filename) }}" target="_blank" class="btn btn-primary">View</a>
+                  <!-- <img src="{{ url_for('static', filename='receipt_images/' + receipt_image_filename) }}" alt="Receipt Image" width="20" height="20"> -->
+              {% else %}
+                  Image not uploaded
+              {% endif %}
+            </td>     
           </tr>
           {% endfor %}
         </table>

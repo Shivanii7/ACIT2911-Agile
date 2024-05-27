@@ -11,6 +11,7 @@ class Expenses(db.Model):
     date = Column(String(255), nullable=False)
     transaction_category = Column(String(255), nullable=False, default='N/A')
     customer_id = Column(Integer, ForeignKey("customers.cid", ondelete="CASCADE"), nullable=False)
+    receipt_image_path = Column(String(255), nullable=True)
     customer = relationship("Customers", back_populates="expenses")
 
     def to_json(self):
@@ -20,7 +21,8 @@ class Expenses(db.Model):
             'amount': self.amount,
             'date': self.date,
             'customer_id': self.customer_id,
-            'transaction_category': self.transaction_category
+            'transaction_category': self.transaction_category,
+            'receipt_image_path': self.receipt_image_path
         }
 class Customers(db.Model):
     cid = Column(Integer, primary_key=True)

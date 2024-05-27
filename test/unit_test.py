@@ -3,18 +3,17 @@
 #     0, "C:/Users/sarah/OneDrive/miniTerm/ACIT2911/ACIT2911-Agile/production")
 from datetime import datetime
 import pytest
+from io import BytesIO
 from unittest.mock import mock_open, patch
 from db import db
 from manage import populate_customers, populate_expenses, populate_shares
 from models import Customers, Expenses, Shares
+from werkzeug.datastructures import FileStorage
 from main import convert_month, create_app, create_share, get_current_month_spent,  get_expense_data, get_expenses_by_cid_and_month, get_transaction_by_id, process_expense_data, update_balance, update_current_month_spent, update_spent, update_transaction, validate_amount, validate_name, get_customer_by_cid, get_expenses_by_cid, get_expenses_by_cid_and_search, get_customer_by_email, get_share_by_joint_id_1, get_expense_by_id, create_expense, create_customer, delete_expense, update_customer, update_customer_budget, balance_update, update_current_month_spent_expense
-
-
 
 '''
 Build up testing database
 '''
-
 
 @pytest.fixture
 def app():
@@ -44,10 +43,10 @@ def setup_data(app):
         db.session.commit()
 
         for i in range(5):
-            expense = Expenses(name=f"test{i}", amount=i*100, date="2022-01-01", customer_id=1, transaction_category="expense")
+            expense = Expenses(name=f"test{i}", amount=i*100, date="2022-01-01", customer_id=1, transaction_category="expense", receipt_image_path="test0.jpg")
             db.session.add(expense)
         for i in range(5,10,1):
-            expense = Expenses(name=f"test{i}", amount=i*100, date="2022-01-01", customer_id=1, transaction_category="income")
+            expense = Expenses(name=f"test{i}", amount=i*100, date="2022-01-01", customer_id=1, transaction_category="income", receipt_image_path="test1.jpg")
             db.session.add(expense)
         db.session.commit()
 
@@ -69,7 +68,7 @@ def print_database_state(app):
         expenses = db.session.query(Expenses).all()
         print("Expenses:")
         for expense in expenses:
-            print(f"ID: {expense.eid}, Name: {expense.name}, Amount: {expense.amount}, Date: {expense.date}, Customer ID: {expense.customer_id}, Transaction Category: {expense.transaction_category}")
+            print(f"ID: {expense.eid}, Name: {expense.name}, Amount: {expense.amount}, Date: {expense.date}, Customer ID: {expense.customer_id}, Transaction Category: {expense.transaction_category}, Receipt Image Path: {expense.receipt_image_path}")
 
         shares = db.session.query(Shares).all()
         print("Shares:")
@@ -161,7 +160,8 @@ def test_expenses_to_json(app, setup_data):
             'date': '2022-01-01',
             'transaction_category': 'expense',
             # 'description': 'test description0',
-            'customer_id': 1
+            'customer_id': 1,
+            'receipt_image_path': "test0.jpg"
         }
         assert expense_json == expected
 
@@ -266,7 +266,7 @@ Test create an expense with correct name, amount and description
 
 def test_process_expense_data_single(app, setup_data):
     with app.app_context():
-        data = {"eid": 6, "name": "test", "amount": 100, "date": "2022-01-01", "transaction_category": "expense"}
+        data = {"eid": 6, "name": "test", "amount": 100, "date": "2022-01-01", "transaction_category": "expense", "receipt_image_path": "test0.jpg"}
         balance = 100
 
         expense = process_expense_data(data, balance)[0]
@@ -275,10 +275,11 @@ def test_process_expense_data_single(app, setup_data):
         assert expense["amount"] == 100
         assert expense["date"] == "2022-01-01"
         assert expense["transaction_category"] == "expense"
+        assert expense["receipt_image_path"] == "test0.jpg"
         
 def test_process_expense_data_income_single(app, setup_data):
     with app.app_context():
-        data = {"eid": 6, "name": "test", "amount": 100, "date": "2022-01-01", "transaction_category": "income"}
+        data = {"eid": 6, "name": "test", "amount": 100, "date": "2022-01-01", "transaction_category": "income", "receipt_image_path": "test0.jpg"}
         balance = 100        
         expense = process_expense_data(data, balance)
         expense.reverse()
@@ -287,7 +288,9 @@ def test_process_expense_data_income_single(app, setup_data):
             print(i, e)
             assert e["name"] == "test"
             assert e["amount"] == i + 100
-            assert e["date"] == "2022-01-01"    
+            assert e["date"] == "2022-01-01" 
+            assert e["transaction_category"] == "income"
+            assert e["receipt_image_path"] == "test0.jpg" 
 
 
 def test_process_expense_data(app, setup_data):
@@ -302,6 +305,7 @@ def test_process_expense_data(app, setup_data):
             assert e["name"] == f"test{i}"
             assert e["amount"] == i * 100
             assert e["date"] == "2022-01-01"
+            assert e["transaction_category"] == "expense"
             
 
 def test_process_expense_data_income(app, setup_data):
@@ -317,21 +321,20 @@ def test_process_expense_data_income(app, setup_data):
             assert e["name"] == f"test{i+5}"
             assert e["amount"] == (i+5) * 100
             assert e["date"] == "2022-01-01"
-            
-
-
+            assert e["transaction_category"] == "income"
 
 def test_create_expense(app, setup_data):
     with app.app_context():
-        create_expense("test11", 100, "2022-01-01", "expense", 1)
+        receipt_image_data = (BytesIO(b"dummy image data"), 'test0.jpg')
+        receipt_image_file = FileStorage(receipt_image_data[0], filename=receipt_image_data[1])
+        create_expense("test11", 100, "2022-01-01", "expense", 1, receipt_image_file)
         expense = get_expense_by_id(11)
         assert expense.name == "test11"
         assert expense.amount == 100
         assert expense.date == "2022-01-01"
-        # assert expense.description == "test description5"
         assert expense.customer_id == 1
         assert expense.transaction_category == "expense"
-
+        assert "test0.jpg" in expense.receipt_image_path
 
 def test_create_customer(app, setup_data):
     with app.app_context():
@@ -538,13 +541,10 @@ def test_balance_update(app, setup_data):
         print(balance)
         assert balance[0] == 2500
 
-
-
-
 '''test manage.py'''
 
 
-@patch('manage.open', new_callable=mock_open, read_data='items,expense,date,cid,transaction_category\nitem1,100,2022-01-01,1,expense\nitem2,200,2022-01-02,2,expense')
+@patch('manage.open', new_callable=mock_open, read_data='items,expense,date,cid,transaction_category,receipt_image_path\nitem1,100,2022-01-01,1,expense\nitem2,200,2022-01-02,2,expense,path2')
 @patch('manage.db.session.commit')
 @patch('manage.db.session.add')
 def test_populate_expenses(mock_db_add, mock_db_commit, mock_file):

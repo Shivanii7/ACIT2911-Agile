@@ -56,7 +56,7 @@ class MyTest(TestCase):
         print(homepage.status_code)
         assert homepage.status_code == 302
 
-        # Joint status update
+        #Joint status update
         response = self.client.post(url_for('expense_update'), data=dict(joint='N/A', balance=0.0, budget=0.0))
         print(response.data)
         assert b"Your status doesn't change!" in response.data

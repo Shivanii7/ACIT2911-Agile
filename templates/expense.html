@@ -14,10 +14,10 @@
   <div class="content">
     <section class="overview-section">
       <h2>Account Overview</h2>
-      <div class="reminder_container" id="reminder">Alert! You have exceeded your budget</div>
+      <div class="reminder_container" id="reminder">⚠️ You have exceeded your budget</div>
       <div class="container">
         <div class="basic_info">
-          <h3>Current Balance: ${{ balance }}</h3>
+          <h3>Current Balance: ${{ '%.2f' % balance }}</h3>
           <h3>
             Current Month Budget: <span style="color: green">${{ budget }}</span>
           </h3>
@@ -66,7 +66,10 @@
       </div>
     </section>
     <section class="history-section">
-      <h2>Transactions</h2>
+      <div class="top">
+        <h2>Transaction History</h2>
+        <button class="add_button" title="Add Transaction" onclick="openModal()">+</button>
+      </div>
       {% if search %}
       <p>Search results for "{{ search }}"</p>
       {% endif %}
@@ -78,9 +81,9 @@
             <th>Type</th>
             <th>Amount</th>
             <th>Balance</th>
-            <th>Delete</th>
-            <th>Edit</th>
             <th>Transaction Proof</th>
+            <th>Edit</th>
+            <th>Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -94,9 +97,9 @@
             </td>
             <td>
               {% if transaction['transaction_category'] == 'income' %}
-                <span class="plus">+${{ transaction['amount'] }}</span>
+                <span class="plus">+${{ '%.2f' % transaction['amount'] }}</span>
               {% else %}
-                <span class="minus">-${{ transaction['amount'] }}</span>
+                <span class="minus">-${{ '%.2f' % transaction['amount'] }}</span>
               {% endif %}                  
             </td>
             <!-- <td class="balanceremaining">
@@ -105,20 +108,10 @@
             </td> -->
             <td>
               {% if transaction['balance'] > 0 %}
-              <span class="plus">${{ transaction['balance'] }}</span>
+                <span class="plus">${{ '%.2f' % transaction['balance'] }}</span>
               {% else %}
-                <span class="minus">${{ transaction['balance'] }}</span>
+                <span class="minus">${{ '%.2f' % transaction['balance'] }}</span>
               {% endif %}
-            </td>
-            <td>
-              <form method="POST" action="{{ url_for('expense_delete', id=transaction['id']) }}">
-                <button type="submit" class="delete_button">Delete</button>
-              </form>
-            </td>
-            <td>
-              <form>
-                <button type="button" class="edit_button" onclick="openEditModal('{{ transaction['id'] }}')">Edit</button>
-              </form>
             </td>
             <td>
               {% if transaction['receipt_image_path'] %}
@@ -128,12 +121,21 @@
               {% else %}
                   Image not uploaded
               {% endif %}
-            </td>     
+            </td> 
+            <td>
+              <form>
+                <button type="button" class="edit_button" onclick="openEditModal('{{ transaction['id'] }}')">Edit</button>
+              </form>
+            </td>
+            <td>
+              <form method="POST" action="{{ url_for('expense_delete', id=transaction['id']) }}">
+                <button type="submit" class="delete_button">Delete</button>
+              </form>
+            </td>    
           </tr>
           {% endfor %}
         </table>
       </div>
-      <button onclick="openModal()" class="add_button">Add</button>
     </section>
   </div>
 </div>

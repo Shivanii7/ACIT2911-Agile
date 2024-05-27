@@ -456,6 +456,13 @@ def edit_transaction():
     transaction_id = form_data.get('id')
     transaction = get_transaction_by_id(transaction_id)
 
+    amount = form_data.get('amount')
+    try:
+        amount = float(amount)
+    except ValueError:
+        flash("Invalid amount")
+        return redirect(url_for('expense_homepage'))
+
     transaction.name = form_data.get('name')
     transaction.date = form_data.get('date')
     transaction.amount = form_data.get('amount')

@@ -205,7 +205,7 @@ label, label:after {
 
 .scrollable-history {
   overflow-y: scroll;
-  height: 300px;
+  height: 400px;
   width: 100%;
 }
 
@@ -327,11 +327,9 @@ input[type="submit"]:hover {
 }
 
 .add_button {
-  font-size: 35px;
+  font-size: 40px;
   color: green;
-  padding: 10px 20px;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
   background-color: #f9fbfc;
 }

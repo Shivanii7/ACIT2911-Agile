@@ -17,7 +17,7 @@
       <div class="reminder_container" id="reminder">⚠️ You have exceeded your budget</div>
       <div class="container">
         <div class="basic_info">
-          <h3>Current Balance: ${{ balance }}</h3>
+          <h3>Current Balance: ${{ '%.2f' % balance }}</h3>
           <h3>
             Current Month Budget: <span style="color: green">${{ budget }}</span>
           </h3>
@@ -97,9 +97,9 @@
             </td>
             <td>
               {% if transaction['transaction_category'] == 'income' %}
-                <span class="plus">+${{ transaction['amount'] }}</span>
+                <span class="plus">+${{ '%.2f' % transaction['amount'] }}</span>
               {% else %}
-                <span class="minus">-${{ transaction['amount'] }}</span>
+                <span class="minus">-${{ '%.2f' % transaction['amount'] }}</span>
               {% endif %}                  
             </td>
             <!-- <td class="balanceremaining">
@@ -108,9 +108,9 @@
             </td> -->
             <td>
               {% if transaction['balance'] > 0 %}
-              <span class="plus">${{ transaction['balance'] }}</span>
+                <span class="plus">${{ '%.2f' % transaction['balance'] }}</span>
               {% else %}
-                <span class="minus">${{ transaction['balance'] }}</span>
+                <span class="minus">${{ '%.2f' % transaction['balance'] }}</span>
               {% endif %}
             </td>
             <td>

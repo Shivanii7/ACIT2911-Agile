@@ -10,7 +10,7 @@ body.darkmode {
   color: var(--dark-text-color);
 }
 
- body.darkmode {
+body.darkmode {
   :is(
       h1,
       h2,
@@ -222,10 +222,10 @@ p {
   padding: 8px 16px;
   border-radius: 5px;
   cursor: pointer;
-  background-color:rgb(213, 40, 9);
+  background-color:#d52809;
 }
 .edit_button {
-  background-color:rgb(233, 134, 20);
+  background-color:#e98614;
 }
 
 .delete_button:hover, .edit_button:hover {

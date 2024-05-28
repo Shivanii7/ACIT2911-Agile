@@ -3,7 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <title>Edit Transaction</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='edit.css') }}">
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    align-items: center;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.edit-form {
+    width: 80%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    height: auto;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.submit-button {
+    width: 100%;
+    background-color: #00bc77; 
+    border: none;
+    color: white;
+    padding: 10px 0;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.submit-button:hover {
+    background-color: #B4857E;
+}
+
+
+    </style>
 </head>
 <body>
     <h1>Edit Transaction</h1>

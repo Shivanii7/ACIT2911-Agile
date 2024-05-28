@@ -4,9 +4,9 @@
 <link rel="stylesheet" href="{{ url_for('static', filename = 'settings.css') }}"/>
 
 <div class="container">
-  <h1>Update Financial Details</h1>
+  <h1>Financial Info Settings</h1>
 
-  <form method="POST" action="{{ url_for('expense_update') }}">
+  <form method="POST" id="theForm" action="{{ url_for('expense_update') }}">
     <input type="checkbox" name="dmtoggle" id="dmtoggle" />
     <label for="dmtoggle"></label>
     <label for="balance">What is your original balance?</label>
@@ -31,20 +31,22 @@
       placeholder="{{ joint }}"
     /><br />
 
-    <input data-modal-target="#modal" type="submit" value="Submit" />
+    <input id="open_window_button" type="submit" value="Submit" data-modal-target="#modal"/>
     <div class="modal" id="modal">
       <div class="modal-header">
         <div class="confirmation">Confirmation</div>
       </div>
 
       <div class="modal-body"></div>
-      <a
-        href="{{ url_for('expense_homepage') }}"
+      <!-- <a href="{{ url_for('expense_homepage') }}"
         data-close-button
         class="close-button"
       >
         OK
-      </a>
+      </a> -->
+      
+      <input id="close_window_button" type="submit" value="OK"/>
+    
     </div>
   </form>
 </div>

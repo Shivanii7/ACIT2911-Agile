@@ -398,13 +398,13 @@ def expense_update():
         customer.joint = joint
         create_share(customer, joint_customer)
         jsonString = {"message": (
-            f"{customer.email} is successfully sharing budget with {joint}")}
+            f"{customer.email} is successfully sharing budget with {joint}"),"redirect_url": url_for('expense_homepage')}
     elif joint=='N/A' and not balance and not budget:
-        jsonString = {"message": "Your status doesn't change!"}
+        jsonString = {"message": "Your status doesn't change!","redirect_url": url_for('expense_homepage')}
     else:
         jsonString = {
-            "message": "Set successfully! You are not sharing budget with others!"}
-
+            "message": "Set successfully! You are not sharing budget with others!","redirect_url": url_for('expense_homepage')}
+    print(jsonString['redirect_url'])
     return jsonString
 
 @app.route("/expenses/create", methods=['POST'])

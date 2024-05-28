@@ -1,11 +1,15 @@
-const openModalButtons = document.querySelectorAll("[data-modal-target]");
-const closeModalButtons = document.querySelectorAll("[data-close-button]");
 const overlay = document.getElementById("overlay");
+const openModalButton =document.getElementById("open_window_button");
+const closeModalButton =document.getElementById("close_window_button");
+let redirectUrl
 
-openModalButtons.forEach((button) => {
-  button.addEventListener("click", (event) => {
+document.querySelector("form").addEventListener("submit", function(event){
+  event.preventDefault();
+});
+
+  openModalButton.addEventListener("click", (event) => {
     event.preventDefault();
-    const modal = document.querySelector(button.dataset.modalTarget);
+    const modal = document.querySelector(openModalButton.dataset.modalTarget);
     openModal(modal);
 
     const form = document.querySelector("form");
@@ -26,6 +30,7 @@ openModalButtons.forEach((button) => {
       .then((json) => {
         console.log(json);
         modalBody.textContent = json.message;
+        redirectUrl = json.redirect_url;
       })
       .catch((e) => {
         console.log(
@@ -33,7 +38,6 @@ openModalButtons.forEach((button) => {
         );
       });
   });
-});
 
 overlay.addEventListener("click", () => {
   const modals = document.querySelectorAll(".modal.active");
@@ -42,12 +46,12 @@ overlay.addEventListener("click", () => {
   });
 });
 
-closeModalButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const modal = button.closest(".modal");
-    closeModal(modal);
-  });
+closeModalButton.addEventListener("click", (event) => {
+  const modal = closeModalButton.closest(".modal");
+  closeModal(modal);    
+  window.location.href = redirectUrl;
 });
+
 
 function openModal(modal) {
   if (modal == null) return;

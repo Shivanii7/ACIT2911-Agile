@@ -189,14 +189,21 @@ input[name="dmtoggle"] {
 label, label:after {
   transition: 0s
 }
-
+header {
+  display: flex;
+  justify-content: flex-end;
+}
+p {
+  font-size:medium;
+}
 .search-bar{
-  width: 150%;
+  width: 80%;
   padding: 10px;
-  margin: 10px 0;
+  margin: 10px 10px 10px 10px;
   border-radius: 10px;
   border: 1px solid black;
   font-size: 16px;
+
 }
 
 .search-bar:hover {
@@ -215,11 +222,12 @@ label, label:after {
   padding: 8px 16px;
   border-radius: 5px;
   cursor: pointer;
-  background-color: #e53935;
+  background-color:#C5BDA0;
 }
 
 .delete_button:hover, .edit_button:hover {
-  background: linear-gradient(45deg, #e53935, #d32f2f);
+  /* background: linear-gradient(45deg, #e53935, #d32f2f); */
+  background-color:#B4857E;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
@@ -231,10 +239,6 @@ label, label:after {
 
 .basic_info {
   margin-top: 0%;
-}
-
-.edit_button{
-  background-color: rgb(233, 134, 20);
 }
 
 .specific_info {
@@ -266,7 +270,7 @@ input[type="submit"] {
   margin-top: 10px;
   padding: 10px 20px;
   font-size: 16px;
-  background-color: #4caf50;
+  background-color: #C5BDA0;
   color: white;
   border: none;
   border-radius: 4px;
@@ -274,7 +278,7 @@ input[type="submit"] {
 }
 
 input[type="submit"]:hover {
-  background-color: #45a049;
+  background-color: #B4857E;
 }
 
 .chart-section, .history-section {
@@ -297,9 +301,7 @@ input[type="submit"]:hover {
   border-bottom: 1px solid #ebf0f7;
 } 
 
-.balanceremaining{
-  color: #00bc77;
-} 
+
 
 .minus{
   color: #ff5e5e;
@@ -328,7 +330,7 @@ input[type="submit"]:hover {
 
 .add_button {
   font-size: 40px;
-  color: green;
+  color: #C5BDA0;
   border: none;
   cursor: pointer;
   background-color: #f9fbfc;
@@ -339,7 +341,7 @@ input[type="submit"]:hover {
 }  */
 
 .add-button {
-  background-color: #4CAF50;
+  background-color: #C5BDA0;
   border: none;
   color: white;
   padding: 15px 32px;
@@ -413,4 +415,5 @@ body.darkMode #toggle {
 .reminder_container.show {
   visibility: visible;
 }
+
 

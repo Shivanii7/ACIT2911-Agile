@@ -403,13 +403,8 @@ def expense_update():
     elif joint=='N/A' and not balance and not budget:
         jsonString = {"message": "Your status doesn't change!","redirect_url": url_for('expense_homepage')}
     else:
-        if joint is not None and customer.joint is None:
-            # customer.joint = joint
-            jsonString = {"message": "You are not sharing budget with others!","redirect_url": url_for('expense_homepage')}
-        elif joint is None and (balance is not None or budget is not None):
-            jsonString = {"message": "Set successfully! You are not sharing budget with others!","redirect_url": url_for('expense_homepage')}
-        else:
-            jsonString = {"message": "You are not sharing budget with others!","redirect_url": url_for('expense_homepage')}
+        jsonString = {
+            "message": "Set successfully! You are not sharing budget with others!","redirect_url": url_for('expense_homepage')}
     print(jsonString['redirect_url'])
     return jsonString
 

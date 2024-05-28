@@ -66,18 +66,23 @@ margin-bottom: 20px;
 }
 
 input[type="submit"] {
-background-color: #00bc77;
-border: none;
-color: white;
-padding: 15px 20px;
-border-radius: 5px;
-cursor: pointer;
-font-size: 16px;
-transition: background-color 0.3s;
+  width: 100%;
+  background-color: #00bc77; 
+  border: none;
+  color: white;
+  padding: 12px 0;
+  border-radius: 10px; 
+  cursor: pointer;
+  font-size: 16px;
 }
 
 input[type="submit"]:hover {
   background-color: #B4857E;
+}
+#close_window_button{
+  width: 10%;
+  padding: 5px 0;
+  border-radius: 5px; 
 }
 .expense-form {
   position: relative;

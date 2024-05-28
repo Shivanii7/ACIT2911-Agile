@@ -30,6 +30,7 @@ document.querySelector("form").addEventListener("submit", function(event){
       .then((json) => {
         console.log(json);
         modalBody.textContent = json.message;
+
         redirectUrl = json.redirect_url;
       })
       .catch((e) => {
@@ -47,6 +48,8 @@ overlay.addEventListener("click", () => {
 });
 
 closeModalButton.addEventListener("click", (event) => {
+  console.log(2)
+  console.log(redirectUrl)
   const modal = closeModalButton.closest(".modal");
   closeModal(modal);    
   window.location.href = redirectUrl;

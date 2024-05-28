@@ -419,8 +419,7 @@ def create():
     receipt_image = request.files.get("receipt_image")
     receipt_image_path = save_receipt_image(receipt_image)
     if not receipt_image:
-        receipt_image_path = None
-    
+        receipt_image_path = None    
 
     if not validate_name(name):
         flash("Invalid name.")

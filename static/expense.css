@@ -25,6 +25,14 @@ body.darkmode {
     color: var(--dark-text-color);
   }
 } 
+
+body.darkmode {
+  :is(
+      .add_button
+    ) {
+    background-color: var(--dark-bg-color);
+  }
+} 
 /* body.darkmode + .form-group {
   background-color: var(--dark-bg-color);
   color: var(--dark-text-color);

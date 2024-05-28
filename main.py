@@ -392,8 +392,8 @@ def expense_update():
     update_customer_budget(customer, budget, balance, joint)
     joint_customer = get_customer_by_email(joint)
 
-
 # when users input valid joint_customer, create a share record
+    name_list= db.session.execute(db.select(Customers.email)).scalars()
     if joint_customer:
         customer.joint = joint
         create_share(customer, joint_customer)
@@ -401,9 +401,13 @@ def expense_update():
             f"{customer.email} is successfully sharing budget with {joint}"),"redirect_url": url_for('expense_homepage')}
     elif joint=='N/A' and not balance and not budget:
         jsonString = {"message": "Your status doesn't change!","redirect_url": url_for('expense_homepage')}
+    elif joint=='N/A' and (balance or budget):
+        jsonString = {"message": "Set successfully! You are not sharing budget with others!","redirect_url": url_for('expense_homepage')}
+    elif joint is not None and (joint not in name_list):
+        jsonString = {"message": "You input non-existing cusotmer!","redirect_url": url_for('expense_homepage')}
     else:
         jsonString = {
-            "message": "Set successfully! You are not sharing budget with others!","redirect_url": url_for('expense_homepage')}
+            "message": "Set successfully!","redirect_url": url_for('expense_homepage')}
     print(jsonString['redirect_url'])
     return jsonString
 
@@ -504,7 +508,6 @@ def register():
         if db.session.query(Customers).filter_by(email=email).first():
             return redirect(url_for('register'))
         user = Customers(email=email, password=hashed_password, first_name=first_name, last_name=last_name)
-        session['cid']=user.cid
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('login'))

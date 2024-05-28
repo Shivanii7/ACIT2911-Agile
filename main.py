@@ -344,6 +344,7 @@ def expense_homepage():
         return redirect(url_for('login'))
     cid = session['cid']
     customer = get_customer_by_cid(cid)
+
     balance = customer.balance   
     budget = customer.budget
     
@@ -378,7 +379,7 @@ def expense_homepage():
     month_earned = session.get('month_earned', 0)
     month = session.get('month_int', 0)
     value = budget-current_month_spent
-    return render_template("expense.html", value=value, transactions=processed_data, month_spent=month_spent, spent=current_month_spent, balance=balance, joint=customer.joint, budget=budget, search=search, month=month, month_earned=month_earned)
+    return render_template("expense.html", value=value, transactions=processed_data, month_spent=month_spent, spent=current_month_spent, balance=balance, joint=customer.joint, budget=budget, search=search, month=month, month_earned=month_earned, customer=customer, current_month=current_month, current_month_str=current_month_str)
 
 @app.route("/expenses", methods=['POST'])
 def expense_update():
@@ -402,8 +403,17 @@ def expense_update():
     elif joint=='N/A' and not balance and not budget:
         jsonString = {"message": "Your status doesn't change!","redirect_url": url_for('expense_homepage')}
     else:
-        jsonString = {
-            "message": "Set successfully! You are not sharing budget with others!","redirect_url": url_for('expense_homepage')}
+        if joint is not None and customer.joint is None:
+            # customer.joint = joint
+            jsonString = {"message": "You are not sharing budget with others!","redirect_url": url_for('expense_homepage')}
+        elif joint is None and balance or budget:
+            jsonString = {"message": "Set successfully! You are not sharing budget with others!","redirect_url": url_for('expense_homepage')}
+        elif balance is not None or budget is not None:
+            jsonString = {"message": "Set successfully! You are not sharing budget with others!","redirect_url": url_for('expense_homepage')}
+        else:
+            jsonString = {"message": "You are not sharing budget with others!","redirect_url": url_for('expense_homepage')}
+        # jsonString = {
+        #     "message": "Set successfully! You are not sharing budget with others!","redirect_url": url_for('expense_homepage')}
     print(jsonString['redirect_url'])
     return jsonString
 

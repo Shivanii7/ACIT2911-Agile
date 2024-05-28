@@ -3,8 +3,8 @@
 <link rel="stylesheet" href="../static/expense.css" />
 <link rel="script" href="../static/expense.js" />
 <div class="main-content">
-  <header>
-    <!-- <h1>Your Account</h1> -->
+  <header class="top">
+    <h1>Hello, {{ customer.first_name }}!</h1>
     <form action="{{ url_for('submit_form') }}" method="post">
       <input class="search-bar" type="search" placeholder="Search" name="search" />
     </form>

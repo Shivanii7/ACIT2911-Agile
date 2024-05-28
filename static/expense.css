@@ -10,7 +10,7 @@ body.darkmode {
   color: var(--dark-text-color);
 }
 
- body.darkmode {
+body.darkmode {
   :is(
       h1,
       h2,
@@ -23,6 +23,14 @@ body.darkmode {
     ) {
     background-color: var(--dark-bg-color);
     color: var(--dark-text-color);
+  }
+} 
+
+body.darkmode {
+  :is(
+      .add_button
+    ) {
+    background-color: var(--dark-bg-color);
   }
 } 
 /* body.darkmode + .form-group {
@@ -47,12 +55,6 @@ header h1 {
   padding: 0;
 }
 
-header {
-  color: white;
-  padding: 5px;
-  text-align: center;
-}
-
 .main-content {
   align-items: center;
   justify-content: center;
@@ -66,9 +68,10 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
-  background-color: #f9fbfc;
-  border-radius: 10px;
+  /* padding: 10px; */
+  /* background-color: #f9fbfc; */
+  /* border-radius: 10px;
+} */
 }
 
 .container {
@@ -156,6 +159,8 @@ header {
     border-radius: 200px;
     box-shadow: inset 0px 5px 15px rgba(0,0,0,0.4), inset 0px -5px 15px rgba(5, 5, 5, 0.4);
     cursor: pointer;
+    margin-right: 20px;
+    
 }
 
 #dmtoggle + label:after {
@@ -163,6 +168,7 @@ header {
   width:15px;
   height: 30px;
   position: absolute;
+  margin-right: 40px;
   top: 15px;;
   right:10px;
   background: linear-gradient(180deg,#060703be,#0f0f0765);
@@ -197,7 +203,7 @@ p {
   font-size:medium;
 }
 .search-bar{
-  width: 80%;
+  width: 100%;
   padding: 10px;
   margin: 10px 10px 10px 10px;
   border-radius: 10px;
@@ -212,7 +218,7 @@ p {
 
 .scrollable-history {
   overflow-y: scroll;
-  height: 400px;
+  height: 350px;
   width: 100%;
 }
 
@@ -222,10 +228,10 @@ p {
   padding: 8px 16px;
   border-radius: 5px;
   cursor: pointer;
-  background-color:rgb(213, 40, 9);
+  background-color:#d52809;
 }
 .edit_button {
-  background-color:rgb(233, 134, 20);
+  background-color:#e98614;
 }
 
 .delete_button:hover, .edit_button:hover {

@@ -344,6 +344,7 @@ def expense_homepage():
         return redirect(url_for('login'))
     cid = session['cid']
     customer = get_customer_by_cid(cid)
+
     balance = customer.balance   
     budget = customer.budget
     
@@ -378,7 +379,7 @@ def expense_homepage():
     month_earned = session.get('month_earned', 0)
     month = session.get('month_int', 0)
     value = budget-current_month_spent
-    return render_template("expense.html", value=value, transactions=processed_data, month_spent=month_spent, spent=current_month_spent, balance=balance, joint=customer.joint, budget=budget, search=search, month=month, month_earned=month_earned)
+    return render_template("expense.html", value=value, transactions=processed_data, month_spent=month_spent, spent=current_month_spent, balance=balance, joint=customer.joint, budget=budget, search=search, month=month, month_earned=month_earned, customer=customer, current_month=current_month, current_month_str=current_month_str)
 
 @app.route("/expenses", methods=['POST'])
 def expense_update():

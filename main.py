@@ -504,6 +504,7 @@ def register():
         if db.session.query(Customers).filter_by(email=email).first():
             return redirect(url_for('register'))
         user = Customers(email=email, password=hashed_password, first_name=first_name, last_name=last_name)
+        session['cid']=user.cid
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('login'))

@@ -222,7 +222,10 @@ p {
   padding: 8px 16px;
   border-radius: 5px;
   cursor: pointer;
-  background-color:#C5BDA0;
+  background-color:rgb(213, 40, 9);
+}
+.edit_button {
+  background-color:rgb(233, 134, 20);
 }
 
 .delete_button:hover, .edit_button:hover {
@@ -270,7 +273,7 @@ input[type="submit"] {
   margin-top: 10px;
   padding: 10px 20px;
   font-size: 16px;
-  background-color: #C5BDA0;
+  background-color: #00bc77;
   color: white;
   border: none;
   border-radius: 4px;
